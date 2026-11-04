@@ -48,6 +48,7 @@ Versiones comprobadas en npm el 2026-11-04. Se instalan con versión exacta y se
 - Node 26.13 cumple los requisitos de Vite y Vitest. El proyecto declara `"engines": { "node": ">=26" }` y la imagen Docker usa `node:26-alpine`.
 - Bootstrap 5.3.8 compila con Sass 1.107.1, con 21 avisos de deprecación. Bajan a 0 con `quietDeps` y silenciando `import`. La importación parcial se comprueba en la Etapa 0.
 - `@types/bootstrap` describe Bootstrap 5.2. Solo se usan Modal, Dropdown, Offcanvas y Toast.
+- `npm audit --omit=dev` informa 0 vulnerabilidades. `npm audit` informa 9 moderadas con una sola causa, `minimatch` (GHSA-g3hv-75wg-m249), usada por ESLint y `typescript-eslint` solo durante el desarrollo. El riesgo se acepta, porque `npm audit fix --force` bajaría a versiones anteriores de esas herramientas. Se revisa de nuevo en la Etapa 8.
 
 **No hacen falta variables de entorno.** La app no tiene secretos, y todo lo que empieza con `VITE_` queda visible en el navegador.
 
@@ -99,10 +100,11 @@ Proyecto/
 ├── index.html
 ├── package.json · package-lock.json
 ├── tsconfig.json · vite.config.ts · eslint.config.js · .prettierrc
-├── Dockerfile · .dockerignore · .gitignore · README.md
+├── Dockerfile · .dockerignore · .gitignore · .gitattributes · README.md
 ├── deploy/nginx.conf
 ├── docs/
 │   ├── specs/                  # Documentos de diseño
+│   ├── plans/                  # Planes de cada etapa
 │   ├── screenshots/            # Capturas reales
 │   └── guia-entrevista.md
 ├── public/favicon.svg
