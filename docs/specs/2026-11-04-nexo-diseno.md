@@ -442,7 +442,7 @@ Los tests corren en el entorno Node de Vitest, sin navegador. El almacenamiento 
 
 **Cobertura exigida:** al menos 80 % de líneas en `domain`, `services` y `data`. Se controla con `npm run test:coverage` desde el cierre de la Etapa 7. Las vistas se verifican en el navegador.
 
-**Calidad de código:** TypeScript en modo `strict` y la regla `no-explicit-any` de ESLint como error, para evitar `any`.
+**Calidad de código:** TypeScript en modo `strict` y con `allowUnreachableCode: false`. En ESLint, la regla `no-explicit-any` como error para evitar `any`, y además `no-cond-assign`, `no-constant-condition`, `no-debugger` y `no-empty`.
 
 ## 12. Despliegue
 

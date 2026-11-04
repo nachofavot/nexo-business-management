@@ -10,6 +10,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "allowUnreachableCode": false,
     "noImplicitOverride": true,
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
