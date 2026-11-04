@@ -1,0 +1,39 @@
+{
+  "name": "nexo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@fontsource-variable/geist": "5.3.0",
+    "@popperjs/core": "2.11.8",
+    "bootstrap": "5.3.8",
+    "bootstrap-icons": "1.13.2",
+    "chart.js": "4.6.1"
+  },
+  "devDependencies": {
+    "@types/bootstrap": "5.2.11",
+    "@vitest/coverage-v8": "5.1.0",
+    "eslint": "10.14.0",
+    "prettier": "3.9.10",
+    "sass": "1.107.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vite": "8.3.5",
+    "vitest": "5.1.0"
+  }
+}
