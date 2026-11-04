@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEXO</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main class="container py-5">
+      <h1>NEXO</h1>
+      <p>Página temporal para comprobar las herramientas de la Etapa 0.</p>
+      <button id="open-check-modal" class="btn btn-primary" type="button">
+        <span id="check-icon" aria-hidden="true"></span>
+        Abrir modal
+      </button>
+      <div class="mt-4">
+        <canvas id="check-chart" role="img" aria-label="Gráfico de comprobación"></canvas>
+      </div>
+    </main>
+
+    <div
+      class="modal fade"
+      id="check-modal"
+      tabindex="-1"
+      aria-labelledby="check-modal-title"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title fs-5" id="check-modal-title">Modal funcionando</h2>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body">Bootstrap responde con la política de seguridad activa.</div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
