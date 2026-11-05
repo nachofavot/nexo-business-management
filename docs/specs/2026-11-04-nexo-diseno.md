@@ -28,7 +28,7 @@ Versiones comprobadas en npm el 2026-11-04. Se instalan con versión exacta y se
 | Paquete | Versión | Tipo | Uso |
 |---|---|---|---|
 | `bootstrap` | 5.3.8 | Producción | Grilla, modales, menús, offcanvas |
-| `@popperjs/core` | ^2.11.8 | Producción | Requerido por Bootstrap |
+| `@popperjs/core` | 2.11.8 | Producción | Requerido por Bootstrap |
 | `bootstrap-icons` | 1.13.2 | Producción | Iconos SVG individuales |
 | `chart.js` | 4.6.1 | Producción | Gráficos |
 | `@fontsource-variable/geist` | 5.3.0 | Producción | Tipografía servida desde la app |
@@ -118,9 +118,11 @@ Proyecto/
     │   ├── activity.ts
     │   └── validation/         # rules, customer, product, sale, settings
     ├── data/
+    │   ├── schema.ts           # Comprueba la estructura de los datos guardados
     │   ├── database.ts         # Lee, valida, guarda y maneja errores
     │   └── seed.ts             # Datos ficticios
     ├── services/               # customers, products, sales, settings
+    ├── testing/                # Utilidades que solo usan los tests
     ├── ui/
     │   ├── html.ts             # Plantillas con escape automático
     │   ├── icons.ts · format.ts
@@ -291,6 +293,7 @@ interface DatabaseStore {
   update(change: (current: Database) => Database): Result<Database, StorageFailure>;
   replace(next: Database): Result<Database, StorageFailure>;
   readonly mode: 'persistent' | 'memory';
+  readonly notice: 'recovered' | null;
 }
 ```
 
@@ -421,7 +424,7 @@ Para respetar esa política, las plantillas no usan atributos `style`. Los valor
 
 ## 11. Testing
 
-Los tests corren en el entorno Node de Vitest, sin navegador. El almacenamiento se reemplaza con una implementación en memoria.
+Los tests corren en el entorno Node de Vitest, sin navegador y con la zona horaria fija en `America/Argentina/Buenos_Aires`. El almacenamiento se reemplaza con una implementación en memoria.
 
 | Archivo | Qué comprueba |
 |---|---|
@@ -431,6 +434,7 @@ Los tests corren en el entorno Node de Vitest, sin navegador. El almacenamiento 
 | `domain/reports.test.ts` | Métricas, períodos, ventas anuladas excluidas, comparación mensual |
 | `domain/list.test.ts` | Búsqueda, orden y paginación |
 | `domain/validation/*.test.ts` | Reglas de cliente, producto, venta y configuración |
+| `data/schema.test.ts` | Estructura válida y datos dañados con JSON válido |
 | `data/database.test.ts` | Primer ingreso, datos corruptos, versión desconocida, almacenamiento lleno o bloqueado |
 | `data/seed.test.ts` | Reproducibilidad, referencias válidas, totales correctos, tamaño menor a 1.000.000 de caracteres |
 | `services/customers.test.ts` | Crear, editar, eliminar, buscar y email duplicado |
