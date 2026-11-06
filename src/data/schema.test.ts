@@ -95,6 +95,13 @@ describe('isDatabase', () => {
     ['nextSaleNumber en 0', { ...loaded, nextSaleNumber: 0 }],
     ['nextSaleNumber con decimales', { ...loaded, nextSaleNumber: 1.5 }],
     ['nextSaleNumber ya usado por una venta', { ...loaded, nextSaleNumber: 2 }],
+    ['nextSaleNumber en 0 sin ventas', makeDatabase({ nextSaleNumber: 0 })],
+    ['nextSaleNumber con decimales sin ventas', makeDatabase({ nextSaleNumber: 1.5 })],
+    ['un cliente nulo', { ...loaded, customers: [null] }],
+    ['un producto nulo', { ...loaded, products: [null] }],
+    ['una venta nula', { ...loaded, sales: [null] }],
+    ['una línea de venta nula', { ...loaded, sales: [{ ...makeSale(), items: [null] }] }],
+    ['una actividad nula', { ...loaded, activity: [null] }],
     ['una venta sin líneas', { ...loaded, sales: [makeSale({ items: [] })] }],
     [
       'una venta anulada sin fecha de anulación',
