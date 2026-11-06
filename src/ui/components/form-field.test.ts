@@ -45,6 +45,12 @@ describe('formField', () => {
     expect(markup).toContain('>Nombre<');
   });
 
+  it('no marca como obligatorios a los demás campos', () => {
+    expect(formField(nameField, { idPrefix: 'cliente', value: '' }).value).not.toContain(
+      'required',
+    );
+  });
+
   it('usa el tipo, el autocompletado y el teclado indicados', () => {
     const markup = formField(
       { name: 'email', label: 'Email', type: 'email', autocomplete: 'email', inputMode: 'text' },
