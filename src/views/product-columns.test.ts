@@ -123,6 +123,13 @@ describe('columnas', () => {
     expect(renderRow(makeProduct())).toMatch(/<td class="" data-label="Nombre"/);
   });
 
+  it('cada fila tiene sus botones de editar y eliminar', () => {
+    const markup = renderRow(makeProduct({ id: 'p9' }));
+
+    expect(markup).toContain('data-edit="p9"');
+    expect(markup).toContain('data-delete="p9"');
+  });
+
   it('escapa el nombre en la fila y en sus botones', () => {
     const markup = renderRow(makeProduct({ name: '"><img src=x>' }));
 
