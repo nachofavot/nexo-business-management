@@ -49,6 +49,25 @@ describe('dataTable', () => {
     expect(markup.match(/aria-sort=/g)).toHaveLength(1);
   });
 
+  it('las columnas ordenables indican que son encabezados y usan botones', () => {
+    const markup = render();
+
+    expect(markup).toMatch(
+      /<th[^>]*nx-table__sortable[^>]*scope="col"[^>]*>\s*<button[^>]*type="button"/,
+    );
+    expect(markup.match(/nx-table__sortable/g)).toHaveLength(2);
+  });
+
+  it('la flecha indica el sentido del orden, solo en la columna ordenada', () => {
+    const ascending = render();
+    const descending = render(onePage, { key: 'name', direction: 'desc' });
+
+    expect(ascending.match(/bi-arrow-up/g)).toHaveLength(1);
+    expect(ascending).not.toContain('bi-arrow-down');
+    expect(descending.match(/bi-arrow-down/g)).toHaveLength(1);
+    expect(descending).not.toContain('bi-arrow-up');
+  });
+
   it('las columnas no ordenables no tienen botón', () => {
     const markup = render();
 
@@ -111,6 +130,10 @@ describe('dataTable', () => {
       page,
       pageCount: 3,
       totalItems: 24,
+    });
+
+    it('tiene un nombre accesible', () => {
+      expect(render(pageNumber(2))).toContain('aria-label="Paginación"');
     });
 
     it('en una página intermedia permite ir a la anterior y a la siguiente', () => {

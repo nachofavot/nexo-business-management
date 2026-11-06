@@ -85,6 +85,52 @@ describe('formField', () => {
     expect(markup).toMatch(/<option value="b" selected\s*>\s*Segunda/);
   });
 
+  describe('en una lista', () => {
+    const categoryField: FieldDefinition<'category'> = {
+      name: 'category',
+      label: 'Categoría',
+      type: 'select',
+      options: [{ value: 'a', label: 'Primera' }],
+    };
+
+    it('con error la marca y asocia el mensaje', () => {
+      const markup = formField(categoryField, {
+        idPrefix: 'producto',
+        value: 'a',
+        error: 'Elegí una categoría.',
+      }).value;
+
+      expect(markup).toMatch(/<select[^>]*is-invalid/);
+      expect(markup).toMatch(/<select[^>]*aria-invalid="true"/);
+      expect(markup).toMatch(/<select[^>]*aria-describedby="producto-category-error"/);
+    });
+
+    it('sin error no la marca como inválida', () => {
+      const markup = formField(categoryField, { idPrefix: 'producto', value: 'a' }).value;
+
+      expect(markup).not.toContain('is-invalid');
+      expect(markup).not.toContain('aria-invalid');
+    });
+
+    it('puede ser obligatoria', () => {
+      const markup = formField(
+        { ...categoryField, required: true },
+        { idPrefix: 'producto', value: 'a' },
+      ).value;
+
+      expect(markup).toMatch(/<select[^>]*required/);
+    });
+
+    it('escapa los textos de las opciones', () => {
+      const markup = formField(
+        { ...categoryField, options: [{ value: '"><b>', label: '<i>' }] },
+        { idPrefix: 'producto', value: '' },
+      ).value;
+
+      expect(markup).not.toMatch(/<b>|<i>/);
+    });
+  });
+
   it('escapa el valor', () => {
     const markup = formField(nameField, {
       idPrefix: 'c',

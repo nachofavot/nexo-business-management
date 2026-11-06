@@ -74,6 +74,14 @@ describe('create', () => {
     expect(database.read().customers).toEqual([expected]);
   });
 
+  it('agrega el cliente al principio', () => {
+    const { service, database } = setup({ customers: [bruno] });
+
+    service.create(validInput);
+
+    expect(database.read().customers.map(({ id }) => id)).toEqual(['id-1', 'c2']);
+  });
+
   it('registra la actividad primero, con su propio identificador', () => {
     const { service, database } = setup();
     database.update((current) => ({
@@ -136,6 +144,17 @@ describe('update', () => {
     };
     expect(result).toEqual({ ok: true, value: expected });
     expect(database.read().customers).toEqual([expected, bruno]);
+  });
+
+  it('guarda los datos normalizados, como al crear', () => {
+    const { service, database } = setup({ customers: [ana] });
+
+    service.update('c1', { ...change, name: ' Ana Pérez ', email: 'ANA@example.com' });
+
+    expect(database.read().customers[0]).toMatchObject({
+      name: 'Ana Pérez',
+      email: 'ana@example.com',
+    });
   });
 
   it('registra la actividad con el nombre nuevo', () => {
@@ -283,6 +302,43 @@ describe('query', () => {
     const { service } = setup({ customers: twelve });
 
     expect(service.query({ ...baseQuery, page: 9 }).page).toBe(2);
+  });
+});
+
+describe('pageOf', () => {
+  const options = { search: '', sortKey: 'name', direction: 'asc', pageSize: 10 } as const;
+  const twelve = Array.from({ length: 12 }, (_, index) =>
+    makeCustomer({ id: `c${index}`, name: `Cliente ${String(index).padStart(2, '0')}` }),
+  );
+
+  it.each([
+    ['c0', 1],
+    ['c9', 1],
+    ['c10', 2],
+    ['c11', 2],
+  ])('ubica a %s en la página %i', (id, page) => {
+    const { service } = setup({ customers: twelve });
+
+    expect(service.pageOf(id, options)).toBe(page);
+  });
+
+  it('tiene en cuenta el orden', () => {
+    const { service } = setup({ customers: twelve });
+
+    expect(service.pageOf('c11', { ...options, direction: 'desc' })).toBe(1);
+    expect(service.pageOf('c0', { ...options, direction: 'desc' })).toBe(2);
+  });
+
+  it('da null si la búsqueda no incluye al cliente', () => {
+    const { service } = setup({ customers: [ana, bruno] });
+
+    expect(service.pageOf('c1', { ...options, search: 'bruno' })).toBeNull();
+  });
+
+  it('da null si el cliente no existe', () => {
+    const { service } = setup({ customers: [ana] });
+
+    expect(service.pageOf('nope', options)).toBeNull();
   });
 });
 
