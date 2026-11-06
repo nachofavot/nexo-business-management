@@ -367,7 +367,9 @@ Sin sesión, toda ruta redirige a `/login`. Con sesión, `/login` redirige a `/d
 
 **Formularios:** validan al enviar y revalidan al escribir después del primer intento. Los errores aparecen junto al campo y el foco va al primer campo inválido.
 
-**Tablas responsive:** por debajo de 768 px, cada fila se muestra como una tarjeta.
+**Tablas responsive:** por debajo de 768 px, cada fila se muestra como una tarjeta. Como los encabezados dejan de verse como columnas, las columnas ordenables se ofrecen como botones bajo "Ordenar por".
+
+**Modales:** un clic en el fondo no los cierra, para no perder lo escrito. Se cierran con sus botones o con Esc.
 
 ## 9. Sistema de diseño
 

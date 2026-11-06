@@ -112,6 +112,8 @@ interface CustomerQuery {
 
 interface CustomersService {
   query(options: CustomerQuery): Page<Customer>;
+  /** Permite llevar la tabla hasta el cliente recién guardado. */
+  pageOf(id: string, options: Omit<CustomerQuery, 'page'>): number | null;
   find(id: string): Customer | null;
   validate(input: CustomerInput, currentId?: string): FieldErrors<keyof CustomerInput>;
   create(input: CustomerInput): Result<Customer, CustomerFailure>;
@@ -412,11 +414,11 @@ Crear un cliente con el nombre `"><img src=x onerror=alert(1)>` (cumple la regla
 
 - [ ] **Paso 3: Probar el responsive**
 
-En 320, 375, 768, 991, 992, 1280 y 1920 px, con la tabla llena, con un nombre de 80 caracteres sin espacios y un email de 120 caracteres. Esperado: sin desborde según la medición de **Restricciones globales**. Por debajo de 768 px, cada fila es un bloque con sus etiquetas.
+En 320, 375, 768, 991, 992, 1280 y 1920 px, con la tabla llena, con un nombre de 80 caracteres sin espacios y un email de 120 caracteres. Esperado: sin desborde según la medición de **Restricciones globales**. Por debajo de 768 px, cada fila es un bloque con sus etiquetas y las columnas ordenables se ofrecen como botones de 44 px bajo "Ordenar por".
 
 - [ ] **Paso 4: Probar con teclado**
 
-Solo con el teclado: buscar, ordenar, paginar, crear, corregir un error, editar y eliminar. Esperado: foco visible, orden lógico y foco recuperado después de cada acción.
+Solo con el teclado, en 1280 y 375 px: buscar, ordenar, paginar, crear, corregir un error, editar y eliminar. Esperado: foco visible, orden lógico y foco recuperado después de cada acción.
 
 - [ ] **Paso 5: Sacar capturas**
 
