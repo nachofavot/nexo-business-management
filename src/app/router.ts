@@ -123,6 +123,8 @@ export function createRouter(options: {
 
     const link = event.target.closest('a[href]');
     if (!(link instanceof HTMLAnchorElement) || link.origin !== window.location.origin) return;
+    // Estos enlaces no cambian de pantalla: los resuelve el navegador.
+    if (link.target || link.hasAttribute('download') || link.hash) return;
 
     event.preventDefault();
     navigate(link.pathname);

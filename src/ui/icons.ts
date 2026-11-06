@@ -29,7 +29,10 @@ const ICONS = {
 
 export type IconName = keyof typeof ICONS;
 
-/** Se importan de a uno para que el build incluya solo los íconos que se usan. */
+/**
+ * Se importan de a uno para que el build incluya solo los íconos que se usan.
+ * Son decorativos: el botón o enlace que los contiene es quien tiene el nombre accesible.
+ */
 export function icon(name: IconName): SafeHtml {
-  return raw(ICONS[name]);
+  return raw(ICONS[name].replace('<svg', '<svg aria-hidden="true"'));
 }
