@@ -1,6 +1,7 @@
 import 'bootstrap/js/dist/dropdown';
 
 import type { View } from '../app/view';
+import { isOneOf } from '../domain/validation/rules';
 import { emptyState } from '../ui/components/empty-state';
 import { metric } from '../ui/components/metric';
 import { openModal } from '../ui/components/modal';
@@ -20,6 +21,13 @@ const COLORS = [
   ['Advertencia', 'warning'],
   ['Peligro', 'danger'],
 ] as const;
+
+const TOAST_KINDS = ['success', 'warning', 'error'] as const;
+const TOAST_MESSAGES: Readonly<Record<ToastKind, string>> = {
+  success: 'Cliente guardado.',
+  warning: 'Quedan 2 unidades de este producto.',
+  error: 'No se pudo guardar. El almacenamiento del navegador está lleno.',
+};
 
 /** Muestra juntos todos los componentes y estados. Solo existe en `npm run dev`. */
 export const styleGuideView: View = ({ root, signal }) => {
@@ -209,10 +217,8 @@ export const styleGuideView: View = ({ root, signal }) => {
         return;
       }
 
-      const toastKind = event.target.closest('[data-toast]')?.getAttribute('data-toast');
-      if (toastKind) {
-        showToast(`Este es un aviso de tipo ${toastKind}.`, toastKind as ToastKind);
-      }
+      const toastKind = event.target.closest('[data-toast]')?.getAttribute('data-toast') ?? '';
+      if (isOneOf(toastKind, TOAST_KINDS)) showToast(TOAST_MESSAGES[toastKind], toastKind);
     },
     { signal },
   );
