@@ -14,6 +14,12 @@ describe('createSession', () => {
     expect(createSession(() => storage).isActive()).toBe(false);
   });
 
+  it('no considera activa una sesión con otro valor guardado', () => {
+    const storage = createMemoryStorage({ 'nexo:session': 'otro' });
+
+    expect(createSession(() => storage).isActive()).toBe(false);
+  });
+
   it('queda activa después de iniciarla, también al recargar', () => {
     const storage = createMemoryStorage();
 

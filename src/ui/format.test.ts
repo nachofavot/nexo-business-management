@@ -30,8 +30,12 @@ describe('formatPercentChange', () => {
 });
 
 describe('formatDateTime', () => {
-  it('muestra la fecha y la hora locales', () => {
-    expect(withPlainSpaces(formatDateTime('2026-11-06T02:30:00.000Z'))).toBe('05/11/2026, 23:30');
+  it.each([
+    ['2026-11-06T02:30:00.000Z', '05/11/2026, 23:30'],
+    // Día, mes y hora de un dígito llevan cero, y la medianoche se muestra como 00.
+    ['2026-03-02T03:05:00.000Z', '02/03/2026, 00:05'],
+  ])('muestra %s en hora local como %s', (isoDate, expected) => {
+    expect(withPlainSpaces(formatDateTime(isoDate))).toBe(expected);
   });
 });
 

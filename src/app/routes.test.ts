@@ -36,8 +36,8 @@ describe('resolveRoute con sesión', () => {
     expect(renderedName(pathname)).toBe(name);
   });
 
-  it('ignora la barra final', () => {
-    expect(renderedName('/clientes/')).toBe('customers');
+  it.each(['/clientes/', '/clientes//'])('ignora las barras finales de %s', (pathname) => {
+    expect(renderedName(pathname)).toBe('customers');
   });
 
   it('muestra la página no encontrada para una ruta desconocida', () => {
