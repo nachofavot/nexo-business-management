@@ -1,4 +1,5 @@
 import type { DatabaseStore } from '../data/database';
+import type { Services } from '../services';
 import { html, setHtml } from '../ui/html';
 import { resolveRoute, type Route, type RouteName } from './routes';
 import type { Session } from './session';
@@ -14,10 +15,11 @@ export function createRouter(options: {
   root: HTMLElement;
   views: Readonly<Record<RouteName, View>>;
   database: DatabaseStore;
+  services: Services;
   session: Session;
   includeDevRoutes: boolean;
 }): Router {
-  const { root, views, database, session, includeDevRoutes } = options;
+  const { root, views, database, services, session, includeDevRoutes } = options;
 
   let shell: Shell | null = null;
   let viewController: AbortController | null = null;
@@ -86,6 +88,7 @@ export function createRouter(options: {
         root: outlet,
         signal: controller.signal,
         database,
+        services,
         session,
         navigate,
         now: () => new Date(),

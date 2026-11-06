@@ -1,0 +1,13 @@
+.nx-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.nx-toolbar__search {
+  flex: 1 1 16rem;
+  max-width: 26rem;
+}

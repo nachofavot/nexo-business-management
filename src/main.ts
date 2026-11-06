@@ -7,8 +7,10 @@ import { createSession } from './app/session';
 import type { View } from './app/view';
 import { createDatabaseStore } from './data/database';
 import { createSeedDatabase } from './data/seed';
+import { createServices } from './services';
 import { showToast } from './ui/components/toast';
 import { requireElement } from './ui/dom';
+import { customersView } from './views/customers';
 import { dashboardView } from './views/dashboard';
 import { loginView } from './views/login';
 import { notFoundView } from './views/not-found';
@@ -19,12 +21,17 @@ const database = createDatabaseStore({
   getStorage: () => window.localStorage,
   createSeed: () => createSeedDatabase(new Date()),
 });
+const services = createServices({
+  database,
+  generateId: () => crypto.randomUUID(),
+  now: () => new Date(),
+});
 const session = createSession(() => window.sessionStorage);
 
 const views: Readonly<Record<RouteName, View>> = {
   login: loginView,
   dashboard: dashboardView,
-  customers: createUpcomingView('Clientes', 3),
+  customers: customersView,
   products: createUpcomingView('Productos', 4),
   sales: createUpcomingView('Ventas', 5),
   'new-sale': createUpcomingView('Nueva venta', 5),
@@ -50,6 +57,7 @@ createRouter({
   root: requireElement('app', HTMLElement),
   views,
   database,
+  services,
   session,
   includeDevRoutes: import.meta.env.DEV,
 }).start();

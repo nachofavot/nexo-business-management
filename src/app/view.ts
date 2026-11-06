@@ -1,11 +1,14 @@
 import type { DatabaseStore } from '../data/database';
+import type { Services } from '../services';
 import type { Session } from './session';
 
 export interface ViewContext {
   root: HTMLElement;
   /** Se aborta al salir de la vista: los eventos registrados con ella se quitan solos. */
   signal: AbortSignal;
+  /** Solo para leer: las vistas modifican datos a través de `services`. */
   database: DatabaseStore;
+  services: Services;
   session: Session;
   navigate(path: string): void;
   now(): Date;
