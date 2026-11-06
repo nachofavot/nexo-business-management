@@ -12,7 +12,10 @@ function stockTag(product: Product, lowStockThreshold: number): SafeHtml | null 
   return null;
 }
 
-/** Solo el nombre puede partirse: si cediera otra columna, un nombre largo partiría sus datos. */
+/**
+ * Solo pueden partirse el nombre y el SKU, los únicos datos sin un largo acotado por la pantalla:
+ * si cediera otra columna, un nombre largo partiría sus datos.
+ */
 export function productColumns(options: {
   currency: Currency;
   lowStockThreshold: number;
@@ -25,7 +28,7 @@ export function productColumns(options: {
       key: 'sku',
       label: 'SKU',
       sortable: true,
-      className: 'nx-table__nowrap',
+      className: 'nx-table__code',
       cell: (product) => product.sku,
     },
     {

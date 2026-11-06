@@ -81,6 +81,11 @@ th[aria-sort] .nx-table__sort {
   white-space: nowrap;
 }
 
+// Un código largo se parte para que la tabla entre; con este ancho, los comunes no se parten.
+.nx-table__code {
+  min-width: 7rem;
+}
+
 // Una etiqueta al lado de un dato de la misma celda.
 .nx-table__tagged {
   display: inline-flex;

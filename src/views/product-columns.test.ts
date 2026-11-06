@@ -104,7 +104,13 @@ describe('columnas', () => {
     expect(markup).not.toMatch(/<td class="[^"]*nx-table__number[^"]*" data-label="SKU"/);
   });
 
-  it.each(['SKU', 'Categoría', 'Precio', 'Stock'])(
+  it('un SKU de 20 caracteres se puede partir, para que la tabla no desborde', () => {
+    const markup = renderRow(makeProduct());
+
+    expect(markup).toMatch(/<td class="nx-table__code" data-label="SKU"/);
+  });
+
+  it.each(['Categoría', 'Precio', 'Stock'])(
     'un nombre largo en otra fila no parte la columna %s',
     (label) => {
       expect(renderRow(makeProduct())).toMatch(
