@@ -81,6 +81,13 @@ th[aria-sort] .nx-table__sort {
   white-space: nowrap;
 }
 
+// Una etiqueta al lado de un dato de la misma celda.
+.nx-table__tagged {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .nx-table__row-actions {
   display: inline-flex;
   gap: 0.25rem;

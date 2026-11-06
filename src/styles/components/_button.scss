@@ -108,3 +108,13 @@
     width: 2.75rem;
   }
 }
+
+// Un botón que se activa muestra un ícono además del color: el estado no depende solo del color.
+.nx-btn[aria-pressed='false'] svg {
+  display: none;
+}
+
+.nx-btn[aria-pressed='true'] {
+  border-color: var(--nx-violet-300);
+  color: var(--nx-violet-300);
+}

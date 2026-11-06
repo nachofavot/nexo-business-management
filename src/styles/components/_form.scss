@@ -27,7 +27,6 @@
   &.is-invalid,
   &.is-invalid:focus {
     border-color: var(--nx-danger);
-    background-image: none;
   }
 
   &.is-invalid:focus {

@@ -11,3 +11,16 @@
   flex: 1 1 16rem;
   max-width: 26rem;
 }
+
+.nx-toolbar__select {
+  flex: 0 1 13rem;
+
+  @media (max-width: 767.98px) {
+    flex: 1 1 100%;
+  }
+}
+
+// Con filtros en la barra, la acción principal queda sola del otro lado.
+.nx-toolbar__action {
+  margin-left: auto;
+}
