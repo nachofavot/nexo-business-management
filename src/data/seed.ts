@@ -180,10 +180,11 @@ function createSaleTimes(now: Date, random: Random): readonly number[] {
   const recent = recentSaleTimes(now);
   const newestOlderSale = (recent[0] ?? now.getTime()) - MINUTE_MS;
 
-  // Elevar a 1.3 acerca los valores a 0: hay más ventas cerca de hoy que hace un año.
+  // Esta curva da algo más de ventas cerca de hoy, sin amontonarlas en los últimos días:
+  // así la comparación con el mes anterior del Dashboard resulta creíble.
   const older = Array.from(
     { length: SALE_COUNT - recent.length },
-    () => newestOlderSale - Math.pow(random(), 1.3) * YEAR_MS,
+    () => newestOlderSale - (1 - Math.pow(random(), 0.8)) * YEAR_MS,
   ).sort((a, b) => a - b);
 
   return [...older, ...recent];

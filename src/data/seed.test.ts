@@ -13,6 +13,11 @@ const now = new Date(2026, 10, 5, 12);
 const database = createSeedDatabase(now);
 const timeOf = (isoDate: string) => new Date(isoDate).getTime();
 
+function median(values: readonly number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.floor(sorted.length / 2)] ?? 0;
+}
+
 describe('createSeedDatabase', () => {
   it('da los mismos datos con la misma fecha', () => {
     expect(createSeedDatabase(now)).toEqual(database);
@@ -168,6 +173,23 @@ describe('createSeedDatabase', () => {
       createdAt: database.sales[0]?.createdAt,
     });
     expect(database.activity[7]?.message).toBe('Venta V-000343 registrada');
+  });
+
+  it('la comparación mensual es creíble en cualquier día del año', () => {
+    const changes = Array.from({ length: 365 }, (_, dayOfYear) => {
+      const date = new Date(2026, 0, 1 + dayOfYear, 12);
+      return compareWithPreviousMonth(createSeedDatabase(date).sales, date).revenueChange ?? 0;
+    });
+
+    expect(Math.abs(median(changes))).toBeLessThan(25);
+  });
+
+  it('tiene más ventas en los últimos 6 meses que en los 6 anteriores', () => {
+    const sixMonthsAgo = now.getTime() - 182.5 * DAY_MS;
+
+    const recent = database.sales.filter(({ createdAt }) => timeOf(createdAt) > sixMonthsAgo);
+
+    expect(recent.length).toBeGreaterThan(192);
   });
 
   it('ocupa menos de 1.000.000 de caracteres', () => {

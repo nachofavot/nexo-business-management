@@ -430,7 +430,7 @@ Ejecutar `npm test`. Esperado: todos aprobados. Mensaje: `feat: calcular métric
 const DATABASE_KEY = 'nexo:db';
 const BACKUP_KEY = 'nexo:db:backup';
 type KeyValueStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
-type StorageFailure = 'quota-exceeded' | 'write-failed';
+type StorageFailure = 'quota-exceeded' | 'write-failed' | 'invalid-data';
 
 interface DatabaseStore {
   read(): Database;
@@ -503,7 +503,7 @@ Mensaje: `feat: guardar y recuperar datos en LocalStorage`.
 - Identificadores determinísticos: `customer-001`, `product-001`, `sale-0001`, `activity-001`. El diseño pide `crypto.randomUUID()` para los datos que se crean al usar la app; estos deben ser reproducibles.
 - Cada venta tiene de 1 a 4 productos distintos, cantidades de 1 a 5, descuento elegido entre 0, 0, 0, 0, 5, 10 y 15, e IVA 21.
 - Se anula una de cada 33 ventas, salvo las 3 más recientes. `cancelledAt` es una hora después de `createdAt`, sin superar `now`.
-- Las 3 ventas más recientes son de 5, 10 y 15 minutos antes de `now`, sin caer antes del inicio del mes. El resto se reparte en los últimos 12 meses con `Math.pow(random(), 1.3)`, más densas cerca de hoy.
+- Las 3 ventas más recientes son de 5, 10 y 15 minutos antes de `now`, sin caer antes del inicio del mes. El resto se reparte en los últimos 12 meses con `1 - Math.pow(random(), 0.8)`, algo más densas cerca de hoy. La revisión independiente mostró que `Math.pow(random(), 1.3)` amontonaba ventas en los últimos días.
 - Productos con nombres genéricos, sin marcas, y precios entre $8.000 y $2.500.000.
 - Clientes con emails únicos en `example.com` y teléfonos `+54 11 5555-01NN`. Las empresas llevan la palabra "Demo", o quedan vacías.
 - Actividad: una entrada por cada una de las 8 ventas más recientes, con el texto `Venta V-000350 registrada`.
