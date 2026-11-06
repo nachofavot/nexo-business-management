@@ -6,7 +6,7 @@ const DATABASE_KEY = 'nexo:db';
 const BACKUP_KEY = 'nexo:db:backup';
 
 export type KeyValueStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
-export type StorageFailure = 'quota-exceeded' | 'write-failed';
+export type StorageFailure = 'quota-exceeded' | 'write-failed' | 'invalid-data';
 
 export interface DatabaseStore {
   read(): Database;
@@ -81,8 +81,11 @@ export function createDatabaseStore(options: {
     if (storage && writeDatabase(storage, current) !== null) storage = null;
   }
 
+  // Nunca se guarda lo que después no se podría leer: al recargar se perderían todos los datos.
   // El estado en memoria cambia solo después de guardar, para que nunca difiera de lo guardado.
   function commit(next: Database): Result<Database, StorageFailure> {
+    if (!isDatabase(next)) return err('invalid-data');
+
     const failure = storage ? writeDatabase(storage, next) : null;
     if (failure) return err(failure);
 

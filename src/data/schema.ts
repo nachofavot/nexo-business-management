@@ -16,7 +16,8 @@ import {
 } from '../domain/types';
 
 // LocalStorage es texto que cualquiera puede editar desde el navegador: TypeScript no puede
-// garantizar su forma. Estas guardas la comprueban al leer, para que el resto de la app confíe.
+// garantizar su forma. Estas guardas comprueban tipos y coherencia básica. No repiten las reglas
+// de los formularios ni comprueban que los importes de una venta coincidan con sus líneas.
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -26,15 +27,19 @@ function isString(value: unknown): value is string {
   return typeof value === 'string';
 }
 
+/** Exige el formato exacto de toISOString: los demás formatos varían según el navegador. */
 function isIsoDate(value: unknown): boolean {
-  return isString(value) && !Number.isNaN(Date.parse(value));
+  if (!isString(value)) return false;
+
+  const time = Date.parse(value);
+  return !Number.isNaN(time) && new Date(time).toISOString() === value;
 }
 
-function isNonNegativeInteger(value: unknown): boolean {
+function isNonNegativeInteger(value: unknown): value is number {
   return Number.isSafeInteger(value) && Number(value) >= 0;
 }
 
-function isPositiveInteger(value: unknown): boolean {
+function isPositiveInteger(value: unknown): value is number {
   return Number.isSafeInteger(value) && Number(value) > 0;
 }
 
@@ -48,6 +53,15 @@ function isMemberOf(value: unknown, options: readonly string[]): boolean {
 
 function isListOf<T>(value: unknown, isItem: (item: unknown) => item is T): value is readonly T[] {
   return Array.isArray(value) && value.every(isItem);
+}
+
+function hasUniqueValues<T>(items: readonly T[], getValue: (item: T) => unknown): boolean {
+  return new Set(items.map(getValue)).size === items.length;
+}
+
+/** No exige que la anulación sea posterior a la venta: el reloj del usuario puede cambiar. */
+function isCancellationConsistent(status: unknown, cancelledAt: unknown): boolean {
+  return status === 'cancelled' ? isIsoDate(cancelledAt) : cancelledAt === null;
 }
 
 function isCustomer(value: unknown): value is Customer {
@@ -97,6 +111,7 @@ function isSale(value: unknown): value is Sale {
     isString(value.customerId) &&
     isString(value.customerName) &&
     isListOf(value.items, isSaleItem) &&
+    value.items.length > 0 &&
     isMemberOf(value.paymentMethod, PAYMENT_METHODS) &&
     isPercent(value.discountPercent) &&
     isPercent(value.taxPercent) &&
@@ -106,7 +121,7 @@ function isSale(value: unknown): value is Sale {
     isNonNegativeInteger(value.totalCents) &&
     isMemberOf(value.status, SALE_STATUSES) &&
     isIsoDate(value.createdAt) &&
-    (value.cancelledAt === null || isIsoDate(value.cancelledAt))
+    isCancellationConsistent(value.status, value.cancelledAt)
   );
 }
 
@@ -137,14 +152,21 @@ function isSettings(value: unknown): value is Settings {
 }
 
 export function isDatabase(value: unknown): value is Database {
+  if (!isRecord(value)) return false;
+  const { customers, products, sales, activity, settings, nextSaleNumber } = value;
+
   return (
-    isRecord(value) &&
     value.version === 1 &&
-    isListOf(value.customers, isCustomer) &&
-    isListOf(value.products, isProduct) &&
-    isListOf(value.sales, isSale) &&
-    isListOf(value.activity, isActivityEntry) &&
-    isSettings(value.settings) &&
-    isPositiveInteger(value.nextSaleNumber)
+    isListOf(customers, isCustomer) &&
+    isListOf(products, isProduct) &&
+    isListOf(sales, isSale) &&
+    isListOf(activity, isActivityEntry) &&
+    isSettings(settings) &&
+    isPositiveInteger(nextSaleNumber) &&
+    hasUniqueValues(customers, ({ id }) => id) &&
+    hasUniqueValues(products, ({ id }) => id) &&
+    hasUniqueValues(sales, ({ id }) => id) &&
+    hasUniqueValues(sales, ({ number }) => number) &&
+    sales.every(({ number }) => number < nextSaleNumber)
   );
 }

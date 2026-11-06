@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { err } from '../domain/result';
-import { makeCustomer, makeDatabase } from '../testing/fixtures';
+import type { Database } from '../domain/types';
+import { makeCustomer, makeDatabase, makeProduct } from '../testing/fixtures';
 import { createMemoryStorage } from '../testing/memory-storage';
 import { createDatabaseStore, type KeyValueStorage } from './database';
 
@@ -160,6 +161,56 @@ describe('update', () => {
     expect(result).toEqual(err(failure));
     expect(store.read()).toEqual(seed);
     expect(savedDatabase(memory)).toEqual(seed);
+  });
+});
+
+describe('al guardar un estado que después no se podría leer', () => {
+  const makeInvalid = (current: Database): Database => ({
+    ...current,
+    nextSaleNumber: Number.NaN,
+  });
+
+  it('update lo rechaza sin cambiar nada', () => {
+    const storage = createMemoryStorage();
+    const store = storeOver(storage);
+
+    expect(store.update(makeInvalid)).toEqual(err('invalid-data'));
+    expect(store.read()).toEqual(seed);
+    expect(savedDatabase(storage)).toEqual(seed);
+  });
+
+  it('replace lo rechaza sin cambiar nada', () => {
+    const storage = createMemoryStorage();
+    const store = storeOver(storage);
+
+    expect(store.replace(makeInvalid(seed))).toEqual(err('invalid-data'));
+    expect(store.read()).toEqual(seed);
+    expect(savedDatabase(storage)).toEqual(seed);
+  });
+
+  it('también lo rechaza en modo memoria', () => {
+    const store = createDatabaseStore({
+      getStorage: () => {
+        throw new DOMException('bloqueado', 'SecurityError');
+      },
+      createSeed,
+    });
+
+    expect(store.update(makeInvalid)).toEqual(err('invalid-data'));
+    expect(store.read()).toEqual(seed);
+  });
+
+  it('rechaza un stock negativo, que al recargar borraría todos los datos', () => {
+    const storage = createMemoryStorage();
+    const store = storeOver(storage);
+
+    const result = store.update((current) => ({
+      ...current,
+      products: [makeProduct({ stock: -2 })],
+    }));
+
+    expect(result).toEqual(err('invalid-data'));
+    expect(storeOver(storage).notice).toBeNull();
   });
 });
 

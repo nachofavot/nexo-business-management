@@ -303,6 +303,7 @@ interface DatabaseStore {
 | JSON inválido o estructura incorrecta | Se intenta copiar el dato a `nexo:db:backup`, se cargan datos demo y se avisa |
 | `version` desconocida | Mismo tratamiento que un dato inválido |
 | Almacenamiento lleno al guardar | El estado en memoria no cambia y se muestra un error |
+| Estado que después no se podría leer | No se guarda, el estado en memoria no cambia y se muestra un error |
 | Almacenamiento del navegador bloqueado | Datos y sesión funcionan en memoria, con un aviso visible: los cambios se pierden al recargar |
 | Error inesperado | Se registra en consola y se muestra un mensaje genérico, sin detalles técnicos |
 | Error al montar una vista | Vista de error con un botón para recargar |
