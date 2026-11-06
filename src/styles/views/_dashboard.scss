@@ -35,8 +35,13 @@
 }
 
 .nx-dashboard__lists {
-  --bs-gutter-x: 3rem;
+  // El margen negativo de la fila no puede superar el relleno del contenido: 1 rem en el celular.
+  --bs-gutter-x: 2rem;
   --bs-gutter-y: 2rem;
+
+  @media (min-width: 992px) {
+    --bs-gutter-x: 3rem;
+  }
 
   margin-top: 0;
   padding-top: 0.5rem;

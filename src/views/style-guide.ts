@@ -213,7 +213,7 @@ export const styleGuideView: View = ({ root, signal }) => {
       if (!(event.target instanceof Element)) return;
 
       if (event.target.closest('[data-action="modal"]')) {
-        openModal(requireElement('guide-modal', HTMLElement));
+        openModal(requireElement('guide-modal', HTMLElement), signal);
         return;
       }
 

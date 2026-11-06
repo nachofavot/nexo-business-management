@@ -24,6 +24,7 @@ $warning: #e8a33d;
 $danger: #f0616d;
 $danger-fill: #c93a47;
 $danger-fill-hover: #b5303c;
+$danger-fill-active: #a12a35;
 
 $radius-panel: 14px;
 $radius-control: 8px;
@@ -52,6 +53,7 @@ $transition-slide: 180ms ease;
   --nx-danger: #{$danger};
   --nx-danger-fill: #{$danger-fill};
   --nx-danger-fill-hover: #{$danger-fill-hover};
+  --nx-danger-fill-active: #{$danger-fill-active};
   --nx-radius-panel: #{$radius-panel};
   --nx-radius-control: #{$radius-control};
   --nx-radius-tag: #{$radius-tag};

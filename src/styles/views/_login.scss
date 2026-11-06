@@ -63,6 +63,7 @@
 .nx-link__node {
   position: relative;
   padding: 0 0 2rem 1.75rem;
+  overflow-wrap: anywhere;
 
   &::before {
     position: absolute;

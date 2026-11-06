@@ -40,6 +40,11 @@ $corner: t.$radius-panel;
 
   padding: 1rem;
 
+  // En un celular horizontal, el menú no entra completo en la pantalla.
+  @media (max-width: 991.98px) {
+    overflow-y: auto;
+  }
+
   @media (min-width: 992px) {
     position: sticky;
     top: 0;
@@ -84,6 +89,11 @@ $corner: t.$radius-panel;
     background: var(--nx-hover-tint);
     color: var(--nx-text);
     text-decoration: none;
+  }
+
+  &:active {
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
   }
 
   &[aria-current='page'] {

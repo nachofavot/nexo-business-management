@@ -94,6 +94,10 @@
   &:hover:not(:disabled) {
     background: var(--nx-danger-fill-hover);
   }
+
+  &:active:not(:disabled) {
+    background: var(--nx-danger-fill-active);
+  }
 }
 
 .nx-btn--icon {

@@ -78,6 +78,7 @@ export function createShell(
             <button
               class="nx-btn nx-btn--ghost nx-topbar__user"
               id="nx-user-menu"
+              aria-label="Menú de ${displayName}"
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"

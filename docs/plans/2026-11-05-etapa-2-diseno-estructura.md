@@ -276,7 +276,7 @@ Mensaje: `feat: dar formato a dinero, fechas y porcentajes`.
 - Produce:
   - `icon(name: IconName): SafeHtml`, con los SVG importados de `bootstrap-icons/icons/*.svg?raw`
   - `requireElement<T extends HTMLElement>(id: string, type: new () => T): T`, que comprueba con `instanceof` y reemplaza al cast de la Etapa 0
-  - `openModal(element: HTMLElement): void`, que devuelve el foco a quien lo abrió al cerrarse
+  - `openModal(element: HTMLElement, signal: AbortSignal): void`, que se cierra al salir de la vista y devuelve el foco a quien lo abrió
   - `showToast(message: string, kind: 'success' | 'warning' | 'error'): void`, en una región con `aria-live`
   - `emptyState(title: string, description: string): SafeHtml`
   - `metric(options: { label: string; value: string; change?: number | null; helper?: string; lead?: boolean }): SafeHtml`, con el cambio en verde o peligro según el signo
@@ -428,7 +428,7 @@ Con `{no es json` en `nexo:db`, recargar. Esperado: aviso de advertencia, datos 
 
 - [ ] **Paso 5: Probar el responsive**
 
-En 375, 768, 1280 y 1920 px, en acceso, Dashboard y un módulo. Esperado: `scrollWidth <= innerWidth`, sin solapamientos. A 375 px, con un total de `$ 99.999.999,99` y un nombre de 80 caracteres, tampoco hay scroll horizontal.
+En 320, 375, 768, 991, 992, 1280 y 1920 px, en acceso, Dashboard y un módulo. Esperado: `document.documentElement.scrollWidth <= document.documentElement.clientWidth`, sin solapamientos. A 375 px, con un total de `$ 99.999.999,99` y un nombre de 80 caracteres sin espacios, tampoco hay scroll horizontal. No comparar con `innerWidth`: incluye la barra de desplazamiento y oculta desbordes de hasta 15 px.
 
 - [ ] **Paso 6: Probar con teclado**
 

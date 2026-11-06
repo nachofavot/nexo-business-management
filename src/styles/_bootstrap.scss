@@ -17,6 +17,9 @@ $body-secondary-color-dark: t.$text-muted;
 $border-color-translucent-dark: t.$border;
 $form-invalid-color-dark: t.$danger;
 $focus-ring-color: t.$violet-300;
+$enable-smooth-scroll: false;
+$offcanvas-transition-duration: 0.18s;
+$modal-transition: transform 0.18s ease-out;
 
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/variables-dark';
