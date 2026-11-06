@@ -1,0 +1,33 @@
+.dropdown-menu {
+  --bs-dropdown-bg: var(--nx-surface-2);
+  --bs-dropdown-color: var(--nx-text);
+  --bs-dropdown-border-color: var(--nx-border);
+  --bs-dropdown-border-radius: var(--nx-radius-control);
+  --bs-dropdown-font-size: 0.875rem;
+  --bs-dropdown-padding-x: 0.25rem;
+  --bs-dropdown-padding-y: 0.25rem;
+  --bs-dropdown-link-color: var(--nx-text);
+  --bs-dropdown-link-hover-color: var(--nx-text);
+  --bs-dropdown-link-hover-bg: var(--nx-hover-tint);
+  --bs-dropdown-link-active-color: var(--nx-text);
+  --bs-dropdown-link-active-bg: var(--nx-hover-tint);
+  --bs-dropdown-divider-bg: var(--nx-border);
+
+  box-shadow: var(--nx-shadow-float);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4375rem 0.625rem;
+  border-radius: var(--nx-radius-tag);
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  svg {
+    color: var(--nx-text-muted);
+  }
+}

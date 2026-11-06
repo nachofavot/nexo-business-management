@@ -1,0 +1,74 @@
+@use '../tokens' as t;
+
+.nx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th {
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--nx-border);
+    color: var(--nx-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--nx-border);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background-color t.$transition-fast;
+
+    &:hover {
+      background: var(--nx-hover-tint);
+    }
+  }
+}
+
+.nx-table__number {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+th.nx-table__number {
+  text-align: right;
+}
+
+// En el celular, cada fila se muestra como un bloque con el nombre de cada dato.
+@media (max-width: 767.98px) {
+  .nx-table {
+    thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    tr {
+      display: block;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--nx-border);
+    }
+
+    td {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.25rem 0;
+      border: 0;
+      text-align: right;
+
+      &::before {
+        content: attr(data-label);
+        color: var(--nx-text-muted);
+        text-align: left;
+      }
+    }
+  }
+}

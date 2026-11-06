@@ -1,0 +1,57 @@
+@use '../tokens' as t;
+
+.nx-guide__section {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--nx-border);
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  > h2 {
+    margin-bottom: 1rem;
+  }
+}
+
+.nx-guide__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.5rem 0.75rem;
+}
+
+.nx-guide__row > .nx-metric {
+  flex: 1 1 12rem;
+}
+
+.nx-guide__sample {
+  margin-top: 0.75rem;
+}
+
+.nx-guide__form {
+  max-width: 24rem;
+}
+
+.nx-guide__swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.nx-guide__chip {
+  height: 3rem;
+  margin-bottom: 0.375rem;
+  border: 1px solid var(--nx-border);
+  border-radius: var(--nx-radius-control);
+}
+
+@each $token in (bg, surface-1, surface-2, violet-500, violet-300, blue, success, warning, danger) {
+  .nx-guide__chip--#{$token} {
+    background: var(--nx-#{$token});
+  }
+}

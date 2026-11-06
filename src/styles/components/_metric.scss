@@ -1,0 +1,60 @@
+.nx-metric {
+  min-width: 0;
+}
+
+.nx-metric__label {
+  color: var(--nx-text-muted);
+  font-size: 0.8125rem;
+}
+
+.nx-metric__value {
+  margin-top: 0.25rem;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.nx-metric__detail {
+  margin-top: 0.25rem;
+  color: var(--nx-text-muted);
+  font-size: 0.8125rem;
+}
+
+.nx-metric__change {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.nx-metric__change--up {
+  color: var(--nx-success);
+}
+
+.nx-metric__change--down {
+  color: var(--nx-danger);
+}
+
+.nx-metric--lead {
+  .nx-metric__label {
+    color: var(--nx-text);
+    font-size: 0.875rem;
+  }
+
+  .nx-metric__value {
+    margin-top: 0.375rem;
+    color: var(--nx-blue);
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+
+    @media (min-width: 768px) {
+      font-size: 2.5rem;
+    }
+  }
+
+  .nx-metric__detail {
+    margin-top: 0.375rem;
+    font-size: 0.875rem;
+  }
+}

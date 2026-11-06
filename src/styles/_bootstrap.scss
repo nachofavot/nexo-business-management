@@ -1,28 +1,36 @@
+// Solo se importa lo que NEXO usa de Bootstrap: grilla, formularios y el comportamiento de
+// menús, modales, avisos y offcanvas. La identidad visual sale de los componentes nx-.
+@use 'tokens' as t;
+
 @import 'bootstrap/scss/functions';
 
-$primary: #7450ff;
-$body-bg-dark: #0a0d14;
+$primary: t.$violet-500;
+$danger: t.$danger-fill;
+$success: t.$success;
+$warning: t.$warning;
 $font-family-sans-serif: 'Geist Variable', system-ui, sans-serif;
+$font-size-base: 0.875rem;
+$border-radius: t.$radius-control;
+$body-bg-dark: t.$bg;
+$body-color-dark: t.$text;
+$body-secondary-color-dark: t.$text-muted;
+$border-color-translucent-dark: t.$border;
+$form-invalid-color-dark: t.$danger;
+$focus-ring-color: t.$violet-300;
 
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/variables-dark';
 @import 'bootstrap/scss/maps';
 @import 'bootstrap/scss/mixins';
-@import 'bootstrap/scss/utilities';
 @import 'bootstrap/scss/root';
 @import 'bootstrap/scss/reboot';
-@import 'bootstrap/scss/type';
 @import 'bootstrap/scss/containers';
 @import 'bootstrap/scss/grid';
-@import 'bootstrap/scss/tables';
 @import 'bootstrap/scss/forms';
-@import 'bootstrap/scss/buttons';
 @import 'bootstrap/scss/transitions';
 @import 'bootstrap/scss/dropdown';
-@import 'bootstrap/scss/badge';
 @import 'bootstrap/scss/close';
 @import 'bootstrap/scss/toasts';
 @import 'bootstrap/scss/modal';
 @import 'bootstrap/scss/offcanvas';
-@import 'bootstrap/scss/helpers';
-@import 'bootstrap/scss/utilities/api';
+@import 'bootstrap/scss/helpers/visually-hidden';

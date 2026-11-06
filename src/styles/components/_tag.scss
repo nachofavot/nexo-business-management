@@ -1,0 +1,27 @@
+.nx-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--nx-radius-tag);
+  background: var(--nx-hover-tint);
+  color: var(--nx-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.nx-tag--success {
+  background: rgba(47, 191, 143, 0.12);
+  color: var(--nx-success);
+}
+
+.nx-tag--warning {
+  background: rgba(232, 163, 61, 0.12);
+  color: var(--nx-warning);
+}
+
+.nx-tag--danger {
+  background: rgba(240, 97, 109, 0.12);
+  color: var(--nx-danger);
+}

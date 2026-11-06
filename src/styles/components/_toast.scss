@@ -1,0 +1,50 @@
+.nx-toast-region {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1090;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(22.5rem, calc(100vw - 2rem));
+}
+
+.nx-toast {
+  --bs-toast-bg: var(--nx-surface-2);
+  --bs-toast-border-color: var(--nx-border);
+  --bs-toast-border-radius: var(--nx-radius-control);
+  --bs-toast-box-shadow: var(--nx-shadow-float);
+  --bs-toast-max-width: 100%;
+  --bs-toast-color: var(--nx-text);
+
+  width: 100%;
+}
+
+.nx-toast__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem;
+
+  > span {
+    flex: 1;
+    min-width: 0;
+  }
+
+  > svg {
+    flex: none;
+    margin-top: 0.125rem;
+  }
+}
+
+.nx-toast--success > .nx-toast__body > svg {
+  color: var(--nx-success);
+}
+
+.nx-toast--warning > .nx-toast__body > svg {
+  color: var(--nx-warning);
+}
+
+.nx-toast--error > .nx-toast__body > svg {
+  color: var(--nx-danger);
+}

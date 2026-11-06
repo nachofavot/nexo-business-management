@@ -1,0 +1,20 @@
+.modal {
+  --bs-modal-bg: var(--nx-surface-1);
+  --bs-modal-color: var(--nx-text);
+  --bs-modal-border-color: var(--nx-border);
+  --bs-modal-border-radius: var(--nx-radius-panel);
+  --bs-modal-inner-border-radius: var(--nx-radius-panel);
+  --bs-modal-header-border-color: var(--nx-border);
+  --bs-modal-footer-border-color: var(--nx-border);
+  --bs-modal-header-padding: 1rem 1.25rem;
+  --bs-modal-padding: 1.25rem;
+  --bs-modal-footer-gap: 0.5rem;
+}
+
+.modal-content {
+  box-shadow: var(--nx-shadow-float);
+}
+
+.modal-title {
+  font-size: 1rem;
+}
