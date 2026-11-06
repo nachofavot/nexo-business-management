@@ -28,7 +28,12 @@ function countLabel(total: number): string {
 const COLUMNS: readonly Column<Customer>[] = [
   { key: 'name', label: 'Nombre', sortable: true, cell: (customer) => customer.name },
   { key: 'email', label: 'Email', sortable: true, cell: (customer) => customer.email },
-  { key: 'phone', label: 'Teléfono', cell: (customer) => orMissing(customer.phone) },
+  {
+    key: 'phone',
+    label: 'Teléfono',
+    className: 'nx-table__nowrap',
+    cell: (customer) => orMissing(customer.phone),
+  },
   {
     key: 'company',
     label: 'Empresa',

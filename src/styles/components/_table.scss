@@ -76,6 +76,11 @@ th[aria-sort] .nx-table__sort {
   white-space: nowrap;
 }
 
+// Un dato largo en otra fila no debe partir los teléfonos.
+.nx-table__nowrap {
+  white-space: nowrap;
+}
+
 .nx-table__row-actions {
   display: inline-flex;
   gap: 0.25rem;
