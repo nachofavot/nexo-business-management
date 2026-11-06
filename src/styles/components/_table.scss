@@ -18,6 +18,7 @@
   td {
     padding: 0.75rem;
     border-bottom: 1px solid var(--nx-border);
+    overflow-wrap: anywhere;
     vertical-align: middle;
   }
 
@@ -37,6 +38,58 @@
 
 th.nx-table__number {
   text-align: right;
+}
+
+.nx-table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--nx-radius-tag);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  transition: color t.$transition-fast;
+
+  svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    color: var(--nx-violet-300);
+  }
+
+  &:hover {
+    color: var(--nx-text);
+  }
+
+  &:active {
+    color: var(--nx-violet-300);
+  }
+}
+
+th[aria-sort] .nx-table__sort {
+  color: var(--nx-text);
+}
+
+.nx-table__actions {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.nx-table__row-actions {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.nx-table-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.875rem;
+  color: var(--nx-text-muted);
+  font-size: 0.8125rem;
 }
 
 // En el celular, cada fila se muestra como un bloque con el nombre de cada dato.
@@ -65,9 +118,20 @@ th.nx-table__number {
       text-align: right;
 
       &::before {
+        flex: none;
         content: attr(data-label);
         color: var(--nx-text-muted);
         text-align: left;
+      }
+    }
+
+    // Los botones de cada fila se explican solos: no necesitan el nombre de la columna.
+    td.nx-table__actions {
+      justify-content: flex-end;
+      width: auto;
+
+      &::before {
+        display: none;
       }
     }
   }
