@@ -22,6 +22,46 @@ export function nextSort(current: TableSort, key: string): TableSort {
   return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' };
 }
 
+/** Sirve para cualquier fila con id y nombre: Clientes y Productos. */
+export function actionsColumn<T extends { id: string; name: string }>(): Column<T> {
+  return {
+    key: 'actions',
+    label: 'Acciones',
+    className: 'nx-table__actions',
+    cell: (row) =>
+      html`<div class="nx-table__row-actions">
+        <button
+          class="nx-btn nx-btn--ghost nx-btn--icon"
+          type="button"
+          data-edit="${row.id}"
+          aria-label="Editar ${row.name}"
+        >
+          ${icon('edit')}
+        </button>
+        <button
+          class="nx-btn nx-btn--ghost nx-btn--icon"
+          type="button"
+          data-delete="${row.id}"
+          aria-label="Eliminar ${row.name}"
+        >
+          ${icon('delete')}
+        </button>
+      </div>`,
+  };
+}
+
+/** Después de redibujar la tabla, devuelve el foco al botón de esa columna. */
+export function focusSortButton(region: HTMLElement, key: string): void {
+  region.querySelector<HTMLElement>(`[data-sort="${CSS.escape(key)}"]`)?.focus();
+}
+
+/** Después de redibujar la tabla, vuelve al botón usado, o al otro si este quedó deshabilitado. */
+export function focusPageButton(region: HTMLElement, label: string): void {
+  const buttons = [...region.querySelectorAll<HTMLElement>('[data-page]:not(:disabled)')];
+  const used = buttons.find((button) => button.getAttribute('aria-label') === label);
+  (used ?? buttons[0])?.focus();
+}
+
 function columnClasses<T>(column: Column<T>): string {
   return [column.numeric ? 'nx-table__number' : '', column.className ?? '']
     .filter(Boolean)

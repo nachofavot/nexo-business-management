@@ -4,7 +4,15 @@ import type { Customer } from '../domain/types';
 import { isOneOf } from '../domain/validation/rules';
 import type { CustomerFailure, CustomerQuery } from '../services/customers';
 import { confirmDialog } from '../ui/components/confirm-dialog';
-import { dataTable, nextSort, type Column, type TableSort } from '../ui/components/data-table';
+import {
+  actionsColumn,
+  dataTable,
+  focusPageButton,
+  focusSortButton,
+  nextSort,
+  type Column,
+  type TableSort,
+} from '../ui/components/data-table';
 import { emptyState } from '../ui/components/empty-state';
 import { openFormModal } from '../ui/components/form-modal';
 import { showToast } from '../ui/components/toast';
@@ -40,30 +48,7 @@ const COLUMNS: readonly Column<Customer>[] = [
     sortable: true,
     cell: (customer) => orMissing(customer.company),
   },
-  {
-    key: 'actions',
-    label: 'Acciones',
-    className: 'nx-table__actions',
-    cell: (customer) =>
-      html`<div class="nx-table__row-actions">
-        <button
-          class="nx-btn nx-btn--ghost nx-btn--icon"
-          type="button"
-          data-edit="${customer.id}"
-          aria-label="Editar ${customer.name}"
-        >
-          ${icon('edit')}
-        </button>
-        <button
-          class="nx-btn nx-btn--ghost nx-btn--icon"
-          type="button"
-          data-delete="${customer.id}"
-          aria-label="Eliminar ${customer.name}"
-        >
-          ${icon('delete')}
-        </button>
-      </div>`,
-  },
+  actionsColumn<Customer>(),
 ];
 
 export const customersView: View = ({ root, signal, services }) => {
@@ -247,20 +232,14 @@ export const customersView: View = ({ root, signal, services }) => {
     sort = nextSort(sort, key);
     page = 1;
     renderTable();
-    tableRegion.querySelector<HTMLElement>(`[data-sort="${CSS.escape(key)}"]`)?.focus();
+    focusSortButton(tableRegion, key);
   }
 
-  /** Mantiene el foco en el botón usado, o en el otro si este quedó deshabilitado. */
   function changePage(button: Element): void {
     const label = button.getAttribute('aria-label') ?? '';
     page = Number(button.getAttribute('data-page'));
     renderTable();
-
-    const sameButton = tableRegion.querySelector<HTMLButtonElement>(
-      `[aria-label="${CSS.escape(label)}"]:not(:disabled)`,
-    );
-    const otherButton = tableRegion.querySelector<HTMLButtonElement>('[data-page]:not(:disabled)');
-    (sameButton ?? otherButton)?.focus();
+    focusPageButton(tableRegion, label);
   }
 
   root.addEventListener(

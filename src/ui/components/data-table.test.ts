@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Page } from '../../domain/list';
-import { dataTable, nextSort, type Column, type TableSort } from './data-table';
+import { actionsColumn, dataTable, nextSort, type Column, type TableSort } from './data-table';
 
 interface Row {
   name: string;
@@ -165,6 +165,43 @@ describe('dataTable', () => {
       expect(markup).not.toContain('data-page');
       expect(markup).toContain('1 clientes');
     });
+  });
+});
+
+describe('actionsColumn', () => {
+  interface Entity {
+    id: string;
+    name: string;
+  }
+
+  function renderActions(row: Entity): string {
+    return dataTable({
+      caption: 'Lista',
+      columns: [actionsColumn<Entity>()],
+      page: { items: [row], page: 1, pageCount: 1, totalItems: 1 },
+      sort: { key: 'name', direction: 'asc' },
+      countLabel: () => '',
+    }).value;
+  }
+
+  it('cada botón actúa sobre esa fila y dice sobre quién', () => {
+    const markup = renderActions({ id: 'a1', name: 'Ana' });
+
+    expect(markup).toContain('data-edit="a1"');
+    expect(markup).toContain('data-delete="a1"');
+    expect(markup).toContain('aria-label="Editar Ana"');
+    expect(markup).toContain('aria-label="Eliminar Ana"');
+  });
+
+  it('usa el ancho de la columna de acciones y no se puede ordenar', () => {
+    const markup = renderActions({ id: 'a1', name: 'Ana' });
+
+    expect(markup).toContain('class="nx-table__actions"');
+    expect(markup).not.toContain('data-sort="actions"');
+  });
+
+  it('escapa el nombre en los botones', () => {
+    expect(renderActions({ id: 'a1', name: '"><img src=x>' })).not.toContain('<img');
   });
 });
 
