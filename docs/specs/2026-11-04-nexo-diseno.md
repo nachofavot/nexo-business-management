@@ -91,7 +91,7 @@ type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
 
 **Ciclo de vida de las vistas:** cada vista recibe un `ViewContext` con su contenedor y una señal `AbortSignal`, y puede devolver una función de limpieza. Al navegar, el router aborta la señal (lo que quita los eventos registrados con ella), ejecuta la limpieza (que destruye los gráficos) y monta la vista siguiente.
 
-**Router:** usa la History API y rutas estáticas, sin parámetros ni query strings. La decisión se aísla en una función pura `resolveRoute(path, isAuthenticated)`. Al navegar actualiza `document.title`, sube al inicio de la página y mueve el foco al título.
+**Router:** usa la History API y rutas estáticas, sin parámetros ni query strings. La decisión se aísla en una función pura `resolveRoute(pathname, options)`. Al navegar actualiza `document.title`, sube al inicio de la página y mueve el foco al título.
 
 ### Estructura de carpetas
 
@@ -381,9 +381,9 @@ Sin sesión, toda ruta redirige a `/login`. Con sesión, `/login` redirige a `/d
 
 | Token | Valor | Uso |
 |---|---|---|
-| Fondo | `#0A0D14` | Página |
-| Superficie 1 | `#141823` | Tarjetas, tablas, menú lateral |
-| Superficie 2 | `#1B2130` | Elementos elevados y hover |
+| Fondo | `#0A0D14` | Página y menú lateral |
+| Superficie 1 | `#141823` | Panel principal e ítem activo del menú |
+| Superficie 2 | `#1B2130` | Elementos elevados |
 | Borde | `rgba(255, 255, 255, 0.08)` | Separadores |
 | Borde de campo | `#6B7386` | Campos de formulario |
 | Texto | `#E8EAF0` | Texto principal |
@@ -393,7 +393,8 @@ Sin sesión, toda ruta redirige a `/login`. Con sesión, `/login` redirige a `/d
 | Azul eléctrico | `#2E9BFF` | Datos, gráficos e información |
 | Éxito | `#2FBF8F` | Estado positivo |
 | Advertencia | `#E8A33D` | Stock bajo |
-| Peligro | `#F0616D` | Errores y acciones destructivas |
+| Peligro | `#F0616D` | Texto de error |
+| Peligro, relleno | `#C93A47` | Botón destructivo; hover `#B5303C`, active `#A12A35` |
 
 **Tipografía:** Geist, con números tabulares en tablas y métricas. Base de 14 px, escala de 12, 13, 14, 16, 20, 32 y 40 px y pesos 400, 500 y 600. Sin etiquetas en mayúsculas. En móvil, los campos usan 16 px para evitar el zoom automático de iOS.
 
