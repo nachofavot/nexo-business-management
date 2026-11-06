@@ -14,6 +14,13 @@ export function parseMoneyToCents(raw: string): number | null {
   return Number.isSafeInteger(cents) ? cents : null;
 }
 
+/** Escribe un importe como lo lee parseMoneyToCents: sin símbolo ni separador de miles. */
+export function formatCentsForInput(cents: number): string {
+  const whole = Math.floor(cents / 100);
+  const decimals = String(cents % 100).padStart(2, '0');
+  return `${whole},${decimals}`;
+}
+
 /**
  * Calcula un porcentaje de un importe y redondea las mitades hacia arriba.
  * Usa enteros porque 5000 * 1.13 da 5649.999999999999: el 1,13 % de 5000 es 56,5 y redondearía

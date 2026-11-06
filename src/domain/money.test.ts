@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { parseMoneyToCents, percentOfCents } from './money';
+import { formatCentsForInput, parseMoneyToCents, percentOfCents } from './money';
+
+describe('formatCentsForInput', () => {
+  it.each([
+    [123456, '1234,56'],
+    [100, '1,00'],
+    [5, '0,05'],
+    [1999, '19,99'],
+    [9_999_999_999, '99999999,99'],
+  ])('escribe %i centavos como %s, y se puede volver a leer', (cents, text) => {
+    expect(formatCentsForInput(cents)).toBe(text);
+    expect(parseMoneyToCents(text)).toBe(cents);
+  });
+});
 
 describe('parseMoneyToCents', () => {
   it.each([
