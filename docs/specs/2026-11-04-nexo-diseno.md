@@ -125,11 +125,12 @@ Proyecto/
     ├── testing/                # Utilidades que solo usan los tests
     ├── ui/
     │   ├── html.ts             # Plantillas con escape automático
-    │   ├── icons.ts · format.ts
+    │   ├── icons.ts · format.ts · dom.ts
     │   └── components/         # data-table, form-field, modal, confirm-dialog,
-    │                           # toast, stat-card, chart, empty-state
+    │                           # toast, metric, chart, empty-state
     ├── views/                  # login, dashboard, customers, products,
-    │                           # sales, reports, settings, not-found
+    │                           # sales, reports, settings, not-found,
+    │                           # upcoming (temporal), style-guide (solo desarrollo)
     └── styles/                 # main, _tokens, _bootstrap, layout/, components/, views/
 ```
 
@@ -332,16 +333,17 @@ interface DatabaseStore {
 | `/ventas/nueva` | Nueva venta | Con sesión |
 | `/reportes` | Reportes | Con sesión |
 | `/configuracion` | Configuración | Con sesión |
+| `/dev/componentes` | Guía de componentes | Con sesión, solo en `npm run dev` |
 | Cualquier otra | Página no encontrada | Con sesión |
 
 Sin sesión, toda ruta redirige a `/login`. Con sesión, `/login` redirige a `/dashboard`.
 
-**Acceso demo:** presenta la marca, explica que los datos son ficticios y solo se guardan en el navegador, y ofrece el botón "Entrar a la demo". No hay campos de usuario ni contraseña. La sesión se guarda en `sessionStorage`, y el menú de usuario permite cerrarla.
+**Acceso demo:** presenta la marca, explica que los datos son ficticios y solo se guardan en el navegador, y ofrece el botón "Entrar a la demo". Muestra la venta más reciente de la demo como tres nodos unidos por una línea: cliente, productos y total. No hay campos de usuario ni contraseña. La sesión se guarda en `sessionStorage`, y el menú de usuario permite cerrarla.
 
-**Estructura general:** menú lateral fijo desde 992 px y offcanvas por debajo. La barra superior muestra el título de la página y el menú de usuario (Configuración y Cerrar sesión).
+**Estructura general:** menú lateral fijo desde 992 px y offcanvas por debajo. El contenido es un panel sobre el fondo, y el ítem activo del menú se funde con él. La barra superior muestra el título de la página y el menú de usuario (Configuración y Cerrar sesión).
 
 **Dashboard:**
-- Tarjetas: ingresos, ventas y ticket promedio del mes con comparación, más productos con stock bajo.
+- Métricas: los ingresos del mes como cifra principal; ventas, ticket promedio y productos con stock bajo en una franja dividida. Ingresos, ventas y ticket promedio llevan comparación.
 - Gráficos: ingresos de los últimos 30 días y ventas brutas por categoría del mes.
 - Listas: las 8 actividades más recientes y hasta 5 productos con stock bajo.
 
@@ -371,7 +373,11 @@ Sin sesión, toda ruta redirige a `/login`. Con sesión, `/login` redirige a `/d
 
 **Principios:** Bootstrap aporta grilla, modales y comportamiento. La identidad sale de tokens propios (`--nx-*`) y componentes con prefijo `nx-`. Sin degradados decorativos ni efecto vidrio.
 
-**Valores iniciales.** El contraste se mide en la Etapa 2 y estos valores pueden ajustarse:
+**Idea central:** *nexo* significa vínculo. El ítem activo del menú se funde con el panel y se desliza al navegar, y la pantalla de acceso une cliente, productos y total con una línea. Lo demás queda sobrio.
+
+**Acentos:** violeta para lo que el usuario puede hacer, y azul para lo que pasó en el negocio. No se mezclan en un mismo elemento.
+
+**Valores.** Contraste medido el 2026-11-05 con la fórmula WCAG: los textos superan 4,5:1, y los bordes de campos y el foco superan 3:1. La Etapa 2 define también los tonos de hover y active.
 
 | Token | Valor | Uso |
 |---|---|---|
@@ -379,6 +385,7 @@ Sin sesión, toda ruta redirige a `/login`. Con sesión, `/login` redirige a `/d
 | Superficie 1 | `#141823` | Tarjetas, tablas, menú lateral |
 | Superficie 2 | `#1B2130` | Elementos elevados y hover |
 | Borde | `rgba(255, 255, 255, 0.08)` | Separadores |
+| Borde de campo | `#6B7386` | Campos de formulario |
 | Texto | `#E8EAF0` | Texto principal |
 | Texto secundario | `#9AA3B5` | Etiquetas y ayudas |
 | Violeta 500 | `#7450FF` | Acción principal con texto blanco |
@@ -388,9 +395,9 @@ Sin sesión, toda ruta redirige a `/login`. Con sesión, `/login` redirige a `/d
 | Advertencia | `#E8A33D` | Stock bajo |
 | Peligro | `#F0616D` | Errores y acciones destructivas |
 
-**Tipografía:** Geist, con números tabulares en tablas y métricas. Base de 14 px, escala de 12, 13, 14, 16, 20, 24 y 32 px y pesos 400, 500 y 600. En móvil, los campos usan 16 px para evitar el zoom automático de iOS.
+**Tipografía:** Geist, con números tabulares en tablas y métricas. Base de 14 px, escala de 12, 13, 14, 16, 20, 32 y 40 px y pesos 400, 500 y 600. Sin etiquetas en mayúsculas. En móvil, los campos usan 16 px para evitar el zoom automático de iOS.
 
-**Forma:** espaciado en múltiplos de 4 px, radio de 8 px, bordes de 1 px y sombras solo en elementos flotantes.
+**Forma:** espaciado en múltiplos de 4 px, radios de 14 px en panel y modal, 8 px en controles y 6 px en etiquetas, bordes de 1 px y sombras solo en elementos flotantes.
 
 **Iconos:** SVG individuales de `bootstrap-icons`, importados de uno en uno para incluir solo los usados.
 
