@@ -50,7 +50,9 @@ describe('validateProduct', () => {
   });
 
   it.each([
+    ['name', 'Al'],
     ['name', 'x'.repeat(80)],
+    ['sku', 'ABC'],
     ['sku', 'A'.repeat(20)],
     ['price', '99999999.99'],
     ['price', '0.01'],
@@ -58,6 +60,12 @@ describe('validateProduct', () => {
     ...PRODUCT_CATEGORIES.map((category) => ['category', category]),
   ])('acepta %s con "%s"', (field, value) => {
     expect(errorsFor({ [field as string]: value })).toEqual({});
+  });
+
+  it('reúne todos los errores', () => {
+    const errors = errorsFor({ name: '', sku: '', category: '', price: '', stock: '' });
+
+    expect(Object.keys(errors).sort()).toEqual(['category', 'name', 'price', 'sku', 'stock']);
   });
 
   it('rechaza un SKU ya usado sin distinguir mayúsculas', () => {

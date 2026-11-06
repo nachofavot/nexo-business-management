@@ -59,6 +59,7 @@ describe('validateCustomer', () => {
     ['name', 'x'.repeat(80)],
     ['email', `${'a'.repeat(108)}@example.com`],
     ['phone', ''],
+    ['phone', '123456'],
     ['phone', '1'.repeat(20)],
     ['company', ''],
     ['company', 'x'.repeat(80)],

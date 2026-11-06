@@ -65,6 +65,18 @@ describe('validateSale', () => {
     expect(errors).toHaveProperty(['lineErrors', 0]);
   });
 
+  it('limita la cantidad a 9.999 aunque haya más stock', () => {
+    const plenty = makeProduct({ id: 'p3', stock: 999_999 });
+    const withQuantity = (quantity: string): SaleInput => ({
+      ...validInput,
+      lines: [{ productId: 'p3', quantity }],
+    });
+    const plentyContext = { customers: [customer], products: [plenty] };
+
+    expect(validateSale(withQuantity('9999'), plentyContext).ok).toBe(true);
+    expect(validateSale(withQuantity('10000'), plentyContext).ok).toBe(false);
+  });
+
   it('acepta exactamente el stock disponible', () => {
     expect(errorsFor({ lines: [{ productId: 'p1', quantity: '5' }] })).toEqual({});
   });

@@ -44,9 +44,45 @@ describe('validateProfile', () => {
   it('acepta un rol vacío', () => {
     expect(validateProfile(validProfile).ok).toBe(true);
   });
+
+  it.each([
+    ['displayName', 'Al'],
+    ['displayName', 'x'.repeat(60)],
+    ['role', 'x'.repeat(60)],
+  ])('acepta %s con "%s"', (field, value) => {
+    expect(validateProfile({ ...validProfile, [field]: value }).ok).toBe(true);
+  });
+
+  it('reúne todos los errores', () => {
+    const result = validateProfile({ displayName: '', email: '', role: 'x'.repeat(61) });
+
+    expect(Object.keys(result.ok ? {} : result.error).sort()).toEqual([
+      'displayName',
+      'email',
+      'role',
+    ]);
+  });
 });
 
 describe('validatePreferences', () => {
+  it('reúne todos los errores', () => {
+    const result = validatePreferences({
+      currency: '',
+      taxPercent: '',
+      lowStockThreshold: '',
+      tableDensity: '',
+      accent: '',
+    });
+
+    expect(Object.keys(result.ok ? {} : result.error).sort()).toEqual([
+      'accent',
+      'currency',
+      'lowStockThreshold',
+      'tableDensity',
+      'taxPercent',
+    ]);
+  });
+
   it('convierte los números', () => {
     expect(validatePreferences(validPreferences)).toEqual({
       ok: true,

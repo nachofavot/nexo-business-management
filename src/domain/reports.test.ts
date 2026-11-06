@@ -322,6 +322,26 @@ describe('compareWithPreviousMonth', () => {
     });
   });
 
+  it('cada cambio porcentual usa su propia métrica', () => {
+    const saleWithUnits = (date: Date, totalCents: number, quantity: number) =>
+      saleAt(date, totalCents, { items: [makeSaleItem({ quantity })] });
+
+    const result = compareWithPreviousMonth(
+      [
+        saleWithUnits(new Date(2026, 10, 2), 1000, 3),
+        saleWithUnits(new Date(2026, 10, 3), 2000, 3),
+        saleWithUnits(new Date(2026, 9, 2), 1000, 1),
+      ],
+      now,
+    );
+
+    expect(result).toMatchObject({
+      revenueChange: 200,
+      salesCountChange: 100,
+      averageTicketChange: 50,
+    });
+  });
+
   it('no calcula cambios si el mes anterior no tiene ventas', () => {
     const result = compareWithPreviousMonth([saleAt(new Date(2026, 10, 2), 1500)], now);
 

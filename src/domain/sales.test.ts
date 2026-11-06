@@ -113,6 +113,22 @@ describe('buildSale', () => {
   });
 });
 
+describe('buildSale con otro IVA', () => {
+  it('guarda y aplica el IVA recibido', () => {
+    const sale = buildSale(
+      {
+        customer: makeCustomer(),
+        lines: [{ product: makeProduct({ priceCents: 1000 }), quantity: 2 }],
+        discountPercent: 0,
+        paymentMethod: 'cash',
+      },
+      { id: 's1', number: 1, taxPercent: 10.5, now: new Date('2026-11-05T12:00:00.000Z') },
+    );
+
+    expect(sale).toMatchObject({ taxPercent: 10.5, taxCents: 210, totalCents: 2210 });
+  });
+});
+
 describe('cancelSale', () => {
   const now = new Date('2026-11-05T15:00:00.000Z');
 
