@@ -10,4 +10,5 @@
 @use 'components/toast';
 @use 'components/empty-state';
 @use 'components/metric';
-@use 'views/style-guide';
+@use 'layout/shell';
+@use 'layout/nav';

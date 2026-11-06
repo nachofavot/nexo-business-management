@@ -1,27 +1,61 @@
-// Página temporal de la Etapa 0: comprueba las herramientas y se reemplaza en la Etapa 2.
 import '@fontsource-variable/geist';
 import './styles/main.scss';
 
-import checkIcon from 'bootstrap-icons/icons/check2-circle.svg?raw';
-import Modal from 'bootstrap/js/dist/modal';
-import { BarController, BarElement, CategoryScale, Chart, LinearScale } from 'chart.js';
+import { createRouter } from './app/router';
+import type { RouteName } from './app/routes';
+import { createSession } from './app/session';
+import type { View } from './app/view';
+import { createDatabaseStore } from './data/database';
+import { createSeedDatabase } from './data/seed';
+import { showToast } from './ui/components/toast';
+import { requireElement } from './ui/dom';
+import { loginView } from './views/login';
+import { notFoundView } from './views/not-found';
+import { styleGuideView } from './views/style-guide';
+import { createUpcomingView } from './views/upcoming';
 
-function requireElement<T extends HTMLElement>(id: string): T {
-  const element = document.getElementById(id);
-  if (!element) throw new Error(`Falta el elemento #${id}`);
-  return element as T;
+const database = createDatabaseStore({
+  getStorage: () => window.localStorage,
+  createSeed: () => createSeedDatabase(new Date()),
+});
+const session = createSession(() => window.sessionStorage);
+
+const views: Readonly<Record<RouteName, View>> = {
+  login: loginView,
+  dashboard: createUpcomingView('El Dashboard', 2),
+  customers: createUpcomingView('Clientes', 3),
+  products: createUpcomingView('Productos', 4),
+  sales: createUpcomingView('Ventas', 5),
+  'new-sale': createUpcomingView('Nueva venta', 5),
+  reports: createUpcomingView('Reportes', 6),
+  settings: createUpcomingView('Configuración', 7),
+  'not-found': notFoundView,
+  'style-guide': import.meta.env.DEV ? styleGuideView : notFoundView,
+};
+
+// Vite elimina este bloque del build: los estilos de la guía no llegan a producción.
+if (import.meta.env.DEV) {
+  void import('./styles/views/_style-guide.scss');
 }
 
-const modal = new Modal(requireElement('check-modal'));
+function showUnexpectedError(): void {
+  showToast('Ocurrió un error inesperado. Si algo deja de funcionar, recargá la página.', 'error');
+}
 
-requireElement('check-icon').innerHTML = checkIcon;
-requireElement('open-check-modal').addEventListener('click', () => modal.show());
+window.addEventListener('error', showUnexpectedError);
+window.addEventListener('unhandledrejection', showUnexpectedError);
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale);
-new Chart(requireElement<HTMLCanvasElement>('check-chart'), {
-  type: 'bar',
-  data: {
-    labels: ['Enero', 'Febrero', 'Marzo'],
-    datasets: [{ label: 'Comprobación', data: [3, 5, 2], backgroundColor: '#2e9bff' }],
-  },
-});
+createRouter({
+  root: requireElement('app', HTMLElement),
+  views,
+  database,
+  session,
+  includeDevRoutes: import.meta.env.DEV,
+}).start();
+
+if (database.notice === 'recovered') {
+  showToast(
+    'Los datos guardados estaban dañados. Cargamos los datos demo y guardamos una copia.',
+    'warning',
+  );
+}

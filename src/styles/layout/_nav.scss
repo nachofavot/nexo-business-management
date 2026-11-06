@@ -1,0 +1,155 @@
+@use '../tokens' as t;
+
+// Radio de las esquinas invertidas: el mismo que el del panel.
+$corner: t.$radius-panel;
+
+.nx-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--nx-text);
+}
+
+.nx-brand__mark {
+  width: 1.75rem;
+  height: 1.75rem;
+
+  rect {
+    fill: var(--nx-violet-500);
+  }
+
+  path {
+    fill: none;
+    stroke: #fff;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 3;
+  }
+}
+
+.nx-brand__name {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.nx-sidebar {
+  --bs-offcanvas-width: 17.5rem;
+  --bs-offcanvas-bg: var(--nx-surface-1);
+  --bs-offcanvas-border-color: var(--nx-border);
+
+  padding: 1rem;
+
+  @media (min-width: 992px) {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    height: 100vh;
+    padding: 1.25rem 0 1.25rem 0.75rem;
+  }
+}
+
+.nx-sidebar__brand {
+  display: inline-block;
+  margin: 0 0 1.5rem 0.625rem;
+  border-radius: var(--nx-radius-tag);
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.nx-nav {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.nx-nav__link {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--nx-radius-control);
+  color: var(--nx-text-muted);
+  transition:
+    background-color t.$transition-fast,
+    color t.$transition-fast;
+
+  &:hover {
+    background: var(--nx-hover-tint);
+    color: var(--nx-text);
+    text-decoration: none;
+  }
+
+  &[aria-current='page'] {
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+
+    svg {
+      color: var(--nx-violet-300);
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    min-height: 2.75rem;
+  }
+
+  @media (min-width: 992px) {
+    margin-right: 0.5rem;
+
+    &[aria-current='page'] {
+      background: transparent;
+    }
+  }
+}
+
+// El ítem activo tiene el color del panel y se une a él con esquinas invertidas: la navegación
+// queda conectada con lo que muestra. Es un solo elemento, que se desliza al navegar.
+.nx-nav__indicator {
+  display: none;
+
+  @media (min-width: 992px) {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: block;
+    border-radius: var(--nx-radius-control) 0 0 var(--nx-radius-control);
+    background: var(--nx-surface-1);
+    pointer-events: none;
+
+    &::before,
+    &::after {
+      position: absolute;
+      right: 0;
+      width: $corner;
+      height: $corner;
+      content: '';
+    }
+
+    &::before {
+      bottom: 100%;
+      border-bottom-right-radius: $corner;
+      box-shadow: ($corner * 0.5) ($corner * 0.5) 0 ($corner * 0.5) var(--nx-surface-1);
+    }
+
+    &::after {
+      top: 100%;
+      border-top-right-radius: $corner;
+      box-shadow: ($corner * 0.5) ($corner * -0.5) 0 ($corner * 0.5) var(--nx-surface-1);
+    }
+  }
+}
+
+.nx-nav__indicator--hidden {
+  display: none;
+}
+
+.nx-nav__indicator--animated {
+  transition: transform t.$transition-slide;
+}
