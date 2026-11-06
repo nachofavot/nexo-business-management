@@ -101,14 +101,14 @@ it.each([
 });
 
 it.each([
-  [100, 21, 21], [1000, 1.15, 12], [1005, 50, 503], [0, 21, 0],
+  [100, 21, 21], [1000, 1.15, 12], [5000, 1.13, 57], [1005, 50, 503], [0, 21, 0],
   [12345, 100, 12345], [12345, 0, 0], [1000, 10.5, 105],
 ])('percentOfCents(%i, %d) da %i', (cents, percent, expected) => {
   expect(percentOfCents(cents, percent)).toBe(expected);
 });
 ```
 
-`percentOfCents(1000, 1.15)` da 12 y no 11: es el caso que falla si se calcula con decimales.
+`percentOfCents(5000, 1.13)` da 57 y no 56: es el caso que falla si se calcula con decimales, porque `5000 * 1.13` da `5649.999999999999`.
 
 - [ ] **Paso 3: Comprobar que fallan**
 

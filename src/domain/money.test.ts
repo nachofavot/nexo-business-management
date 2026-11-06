@@ -41,7 +41,7 @@ describe('percentOfCents', () => {
     [12345, 100, 12345],
     [12345, 0, 0],
     [1000, 10.5, 105],
-  ])('%i centavos al %d %% dan %i', (cents, percent, expected) => {
+  ])('%i centavos al %d por ciento dan %i', (cents, percent, expected) => {
     expect(percentOfCents(cents, percent)).toBe(expected);
   });
 });
