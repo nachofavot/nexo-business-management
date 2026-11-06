@@ -7,7 +7,9 @@ export function confirmDialog(
   signal: AbortSignal,
 ): Promise<boolean> {
   return new Promise((resolve) => {
-    const titleId = `${createModalId()}-title`;
+    const id = createModalId();
+    const titleId = `${id}-title`;
+    const descriptionId = `${id}-description`;
     const element = mountModal(
       html`<div class="modal-dialog">
         <div class="modal-content">
@@ -20,7 +22,7 @@ export function confirmDialog(
               aria-label="Cerrar"
             ></button>
           </div>
-          <div class="modal-body">${options.message}</div>
+          <div class="modal-body" id="${descriptionId}">${options.message}</div>
           <div class="modal-footer">
             <button class="nx-btn nx-btn--ghost" type="button" data-bs-dismiss="modal">
               Cancelar
@@ -31,7 +33,7 @@ export function confirmDialog(
           </div>
         </div>
       </div>`,
-      titleId,
+      { titleId, descriptionId },
     );
     let confirmed = false;
 
@@ -42,14 +44,14 @@ export function confirmDialog(
       }
     });
 
+    openModal(element, signal);
+
     // El foco empieza en Cancelar: un Enter por accidente no debe borrar nada.
     element.addEventListener(
       'shown.bs.modal',
       () => element.querySelector<HTMLElement>('.modal-footer .nx-btn--ghost')?.focus(),
       { once: true },
     );
-
-    openModal(element, signal);
 
     element.addEventListener(
       'hidden.bs.modal',

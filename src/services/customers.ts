@@ -17,6 +17,8 @@ export interface CustomerQuery {
 
 export interface CustomersService {
   query(options: CustomerQuery): Page<Customer>;
+  /** Indica en qué página queda un cliente con esa búsqueda y ese orden, o null si no aparece. */
+  pageOf(id: string, options: Omit<CustomerQuery, 'page'>): number | null;
   find(id: string): Customer | null;
   /** No guarda nada: permite revalidar un formulario mientras el usuario escribe. */
   validate(input: CustomerInput, currentId?: string): FieldErrors<keyof CustomerInput>;
@@ -50,18 +52,24 @@ export function createCustomersService(dependencies: ServiceDependencies): Custo
     return result.ok ? ok(customer) : err({ kind: 'storage', failure: result.error });
   }
 
+  function listMatching(options: Omit<CustomerQuery, 'page' | 'pageSize'>): readonly Customer[] {
+    const { search, sortKey, direction } = options;
+    const found = searchItems(database.read().customers, search, (customer) => [
+      customer.name,
+      customer.email,
+      customer.company,
+    ]);
+    return sortItems(found, (customer) => customer[sortKey], direction);
+  }
+
   return {
-    query({ search, sortKey, direction, page, pageSize }) {
-      const found = searchItems(database.read().customers, search, (customer) => [
-        customer.name,
-        customer.email,
-        customer.company,
-      ]);
-      return paginate(
-        sortItems(found, (customer) => customer[sortKey], direction),
-        page,
-        pageSize,
-      );
+    query(options) {
+      return paginate(listMatching(options), options.page, options.pageSize);
+    },
+
+    pageOf(id, options) {
+      const index = listMatching(options).findIndex((customer) => customer.id === id);
+      return index === -1 ? null : Math.floor(index / options.pageSize) + 1;
     },
 
     find: findCustomer,

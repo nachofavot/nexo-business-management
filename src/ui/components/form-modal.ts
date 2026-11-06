@@ -54,7 +54,7 @@ export function openFormModal<K extends string>(
         </div>
       </form>
     </div>`,
-    titleId,
+    { titleId },
   );
 
   const form = findForm(element);
@@ -121,6 +121,8 @@ export function openFormModal<K extends string>(
     if (hasAttempted && !saved) showErrors(validate(readValues()));
   });
 
+  openModal(element, signal);
+
   element.addEventListener(
     'shown.bs.modal',
     () => {
@@ -129,8 +131,6 @@ export function openFormModal<K extends string>(
     },
     { once: true },
   );
-
-  openModal(element, signal);
 
   element.addEventListener(
     'hidden.bs.modal',

@@ -100,15 +100,48 @@ th[aria-sort] .nx-table__sort {
 // En el celular, cada fila se muestra como un bloque con el nombre de cada dato.
 @media (max-width: 767.98px) {
   .nx-table {
+    // Los encabezados ordenables pasan a ser botones: sin ellos no se podría ordenar en el celular.
     thead {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
+      display: block;
     }
 
-    tr {
+    thead tr {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0 0 0.75rem;
+
+      &::before {
+        width: 100%;
+        content: 'Ordenar por';
+        color: var(--nx-text-muted);
+        font-size: 0.8125rem;
+      }
+    }
+
+    th {
+      display: none;
+      padding: 0;
+      border: 0;
+    }
+
+    th.nx-table__sortable {
+      display: block;
+    }
+
+    .nx-table__sort {
+      min-height: 2.75rem;
+      padding: 0 0.875rem;
+      border: 1px solid var(--nx-border-control);
+      border-radius: var(--nx-radius-control);
+    }
+
+    tbody {
+      display: block;
+    }
+
+    tbody tr {
       display: block;
       padding: 0.5rem 0;
       border-bottom: 1px solid var(--nx-border);

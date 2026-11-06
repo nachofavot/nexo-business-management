@@ -26,7 +26,9 @@
 
 **Comprobación de cada tarea:** `npm run typecheck`, `npm run lint`, `npm run format:check` y `npm test` terminan con código 0. Si `format:check` falla, se ejecuta `npm run format`.
 
-**Medición de desborde:** siempre `document.documentElement.scrollWidth <= document.documentElement.clientWidth`, nunca con `innerWidth`, y con nombres largos sin espacios.
+**Medición de desborde:** siempre `document.documentElement.scrollWidth <= document.documentElement.clientWidth`, nunca con `innerWidth`, y con nombres largos sin espacios. Esta medición no ve lo que pasa dentro de un modal: ahí se compara el rectángulo del texto con el de `.modal-content`.
+
+**Entrada rápida:** lo que ocurre durante una animación se prueba con mouse y teclado reales y tiempos fijos. Un `.click()` por código o una espera hasta que el modal termine de abrirse ocultan estos errores. La revisión independiente encontró así que "Cancelar" podía borrar a un cliente.
 
 ## Foco de revisión
 
@@ -294,6 +296,7 @@ function confirmDialog(
 
 **Comportamiento:**
 - Ambos crean su modal al abrirse, lo agregan a `document.body` y lo eliminan al cerrarse, liberando la instancia de Bootstrap.
+- **Apertura:** el modal no acepta clics hasta terminar de abrirse (`inert`), el botón que lo abrió pierde el foco y un clic en el fondo no lo cierra (`backdrop: 'static'`).
 - **Formulario:** usa `novalidate`, porque la validación la hace `domain`. Al abrir, el foco va al primer campo. Al enviar con errores, se muestran junto a cada campo y el foco va al primero inválido, conservando lo escrito. Después del primer intento, cada cambio llama a `validate` y actualiza los mensajes y `aria-invalid` sin volver a dibujar los campos, para no perder el foco ni lo escrito.
 - **Doble envío:** mientras el modal se cierra después de guardar, los envíos se ignoran.
 - **Confirmación:** el foco inicial va a "Cancelar", para que un Enter no borre por accidente. Devuelve `true` solo con el botón de confirmar; Esc, cancelar, cerrar y navegar devuelven `false`.

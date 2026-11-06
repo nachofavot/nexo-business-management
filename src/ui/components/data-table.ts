@@ -38,7 +38,11 @@ function headerCell<T>(column: Column<T>, sort: TableSort): SafeHtml {
   const isSorted = sort.key === column.key;
   const ariaSort = sort.direction === 'asc' ? 'ascending' : 'descending';
 
-  return html`<th class="${classes}" scope="col" ${isSorted ? html`aria-sort="${ariaSort}"` : null}>
+  return html`<th
+    class="nx-table__sortable ${classes}"
+    scope="col"
+    ${isSorted ? html`aria-sort="${ariaSort}"` : null}
+  >
     <button class="nx-table__sort" type="button" data-sort="${column.key}">
       ${column.label} ${isSorted ? icon(sort.direction === 'asc' ? 'arrowUp' : 'arrowDown') : null}
     </button>

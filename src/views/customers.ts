@@ -2,7 +2,7 @@ import type { View } from '../app/view';
 import { err, ok } from '../domain/result';
 import type { Customer } from '../domain/types';
 import { isOneOf } from '../domain/validation/rules';
-import type { CustomerFailure } from '../services/customers';
+import type { CustomerFailure, CustomerQuery } from '../services/customers';
 import { confirmDialog } from '../ui/components/confirm-dialog';
 import { dataTable, nextSort, type Column, type TableSort } from '../ui/components/data-table';
 import { emptyState } from '../ui/components/empty-state';
@@ -103,14 +103,28 @@ export const customersView: View = ({ root, signal, services }) => {
   const status = requireElement('customers-status', HTMLElement);
   const tableRegion = requireElement('customers-table', HTMLElement);
 
-  function renderTable(): void {
-    const result = customers.query({
+  function listOptions(): Omit<CustomerQuery, 'page'> {
+    return {
       search,
       sortKey: isOneOf(sort.key, SORT_KEYS) ? sort.key : 'name',
       direction: sort.direction,
-      page,
       pageSize: PAGE_SIZE,
-    });
+    };
+  }
+
+  /** Lleva la tabla hasta el cliente guardado: si no, podría quedar en otra página sin verse. */
+  function revealCustomer(id: string): void {
+    let target = customers.pageOf(id, listOptions());
+    if (target === null) {
+      search = '';
+      searchInput.value = '';
+      target = customers.pageOf(id, listOptions());
+    }
+    page = target ?? page;
+  }
+
+  function renderTable(): void {
+    const result = customers.query({ ...listOptions(), page });
     // La página puede cambiar: si se borró la última fila de la última página, pasa a la anterior.
     page = result.page;
     status.textContent = countLabel(result.totalItems);
@@ -174,6 +188,7 @@ export const customersView: View = ({ root, signal, services }) => {
             : customers.create(values);
 
           if (result.ok) {
+            revealCustomer(result.value.id);
             renderTable();
             showToast(customer ? 'Cambios guardados.' : 'Cliente creado.', 'success');
             return ok(undefined);
