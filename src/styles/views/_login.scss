@@ -1,0 +1,138 @@
+.nx-login {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 100vh;
+
+  @media (min-width: 992px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.nx-login__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+
+  @media (min-width: 992px) {
+    padding: 3rem clamp(2rem, 7vw, 7rem);
+  }
+}
+
+.nx-login__title {
+  max-width: 14em;
+  margin: 2.5rem 0 1.5rem;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+
+  @media (min-width: 768px) {
+    font-size: 2.5rem;
+  }
+}
+
+.nx-login__note {
+  max-width: 24rem;
+  margin-top: 1rem;
+  color: var(--nx-text-muted);
+  font-size: 0.8125rem;
+}
+
+.nx-login__sale {
+  display: flex;
+  align-items: center;
+  padding: 2rem 1.25rem;
+  background: var(--nx-surface-1);
+
+  @media (min-width: 992px) {
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    padding: 3rem clamp(2rem, 6vw, 6rem);
+    border-radius: var(--nx-radius-panel);
+  }
+}
+
+// Tres nodos unidos por una línea: cliente, productos y venta.
+.nx-link {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nx-link__node {
+  position: relative;
+  padding: 0 0 2rem 1.75rem;
+
+  &::before {
+    position: absolute;
+    top: 0.3125rem;
+    left: 0;
+    width: 0.625rem;
+    height: 0.625rem;
+    border: 1px solid var(--nx-border-control);
+    border-radius: 50%;
+    background: var(--nx-surface-1);
+    content: '';
+  }
+
+  &::after {
+    position: absolute;
+    top: 1.0625rem;
+    bottom: -0.3125rem;
+    left: 0.28125rem;
+    width: 1px;
+    background: var(--nx-border-control);
+    content: '';
+  }
+}
+
+.nx-link__node--total {
+  padding-bottom: 0;
+
+  &::before {
+    border-color: var(--nx-blue);
+    background: var(--nx-blue);
+  }
+
+  &::after {
+    display: none;
+  }
+}
+
+.nx-link__label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--nx-text-muted);
+  font-size: 0.8125rem;
+}
+
+.nx-link__value {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.nx-link__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li + li {
+    margin-top: 0.125rem;
+  }
+}
+
+.nx-link__total {
+  display: block;
+  color: var(--nx-blue);
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+
+  @media (min-width: 768px) {
+    font-size: 2.5rem;
+  }
+}

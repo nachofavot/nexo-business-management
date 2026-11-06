@@ -9,6 +9,7 @@ import { createDatabaseStore } from './data/database';
 import { createSeedDatabase } from './data/seed';
 import { showToast } from './ui/components/toast';
 import { requireElement } from './ui/dom';
+import { dashboardView } from './views/dashboard';
 import { loginView } from './views/login';
 import { notFoundView } from './views/not-found';
 import { styleGuideView } from './views/style-guide';
@@ -22,7 +23,7 @@ const session = createSession(() => window.sessionStorage);
 
 const views: Readonly<Record<RouteName, View>> = {
   login: loginView,
-  dashboard: createUpcomingView('El Dashboard', 2),
+  dashboard: dashboardView,
   customers: createUpcomingView('Clientes', 3),
   products: createUpcomingView('Productos', 4),
   sales: createUpcomingView('Ventas', 5),

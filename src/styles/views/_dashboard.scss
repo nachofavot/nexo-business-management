@@ -1,0 +1,88 @@
+.nx-dashboard__lead {
+  padding-bottom: 1.5rem;
+}
+
+// Una sola franja dividida en lugar de una tarjeta por métrica.
+.nx-dashboard__strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-block: 1px solid var(--nx-border);
+
+  > .nx-metric {
+    padding: 1rem 0;
+
+    + .nx-metric {
+      border-top: 1px solid var(--nx-border);
+    }
+  }
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    > .nx-metric {
+      padding: 1rem 1.5rem;
+
+      &:first-child {
+        padding-left: 0;
+      }
+
+      + .nx-metric {
+        border-top: 0;
+        border-left: 1px solid var(--nx-border);
+      }
+    }
+  }
+}
+
+.nx-dashboard__lists {
+  --bs-gutter-x: 3rem;
+  --bs-gutter-y: 2rem;
+
+  margin-top: 0;
+  padding-top: 0.5rem;
+
+  h2 {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.nx-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.8125rem;
+}
+
+.nx-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nx-rows__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--nx-border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.nx-rows__main {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.nx-rows__side {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--nx-text-muted);
+  font-size: 0.8125rem;
+}
