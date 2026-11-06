@@ -1,4 +1,4 @@
-import type { Customer, Product, Sale, SaleItem } from '../domain/types';
+import type { Customer, Database, Product, Sale, SaleItem, Settings } from '../domain/types';
 
 const BASE_DATE = '2026-01-01T12:00:00.000Z';
 
@@ -37,6 +37,33 @@ export function makeSaleItem(overrides: Partial<SaleItem> = {}): SaleItem {
     category: 'Periféricos',
     unitPriceCents: 1000,
     quantity: 1,
+    ...overrides,
+  };
+}
+
+export function makeSettings(overrides: Partial<Settings> = {}): Settings {
+  return {
+    profile: { displayName: 'Usuario Demo', email: 'demo@example.com', role: 'Administrador' },
+    preferences: {
+      currency: 'ARS',
+      taxPercent: 21,
+      lowStockThreshold: 5,
+      tableDensity: 'comfortable',
+      accent: 'violet',
+    },
+    ...overrides,
+  };
+}
+
+export function makeDatabase(overrides: Partial<Database> = {}): Database {
+  return {
+    version: 1,
+    customers: [],
+    products: [],
+    sales: [],
+    activity: [],
+    settings: makeSettings(),
+    nextSaleNumber: 1,
     ...overrides,
   };
 }
