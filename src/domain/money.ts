@@ -16,7 +16,8 @@ export function parseMoneyToCents(raw: string): number | null {
 
 /**
  * Calcula un porcentaje de un importe y redondea las mitades hacia arriba.
- * Usa enteros porque 1000 * 1.15 da 1149.9999999999998, que redondearía a 11 en lugar de 12.
+ * Usa enteros porque 5000 * 1.13 da 5649.999999999999: el 1,13 % de 5000 es 56,5 y redondearía
+ * a 56 en lugar de 57.
  */
 export function percentOfCents(cents: number, percent: number): number {
   const hundredthsOfPercent = Math.round(percent * 100);
