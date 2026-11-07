@@ -136,8 +136,13 @@ export function dataTable<T>(options: {
   countLabel(total: number): string;
 }): SafeHtml {
   const { caption, columns, page, sort, countLabel } = options;
+  // En el celular, los encabezados ordenables pasan a ser botones bajo "Ordenar por". Sin ninguno,
+  // ese título quedaría solo.
+  const tableClass = columns.some((column) => column.sortable)
+    ? 'nx-table'
+    : 'nx-table nx-table--no-sort';
 
-  return html`<table class="nx-table">
+  return html`<table class="${tableClass}">
       <caption class="visually-hidden">
         ${caption}
       </caption>

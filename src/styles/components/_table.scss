@@ -104,6 +104,12 @@ th[aria-sort] .nx-table__sort {
   }
 }
 
+// El total de una venta anulada: sigue a la vista, pero no cuenta en las métricas.
+.nx-table__void {
+  color: var(--nx-text-muted);
+  text-decoration: line-through;
+}
+
 .nx-table__row-actions {
   display: inline-flex;
   gap: 0.25rem;
@@ -126,6 +132,11 @@ th[aria-sort] .nx-table__sort {
     // Los encabezados ordenables pasan a ser botones: sin ellos no se podría ordenar en el celular.
     thead {
       display: block;
+    }
+
+    // Sin columnas ordenables, "Ordenar por" quedaría solo, sin botones.
+    &.nx-table--no-sort thead {
+      display: none;
     }
 
     thead tr {

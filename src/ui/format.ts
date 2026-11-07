@@ -1,6 +1,22 @@
-import type { Currency } from '../domain/types';
+import type { Currency, PaymentMethod } from '../domain/types';
 
 const LOCALE = 'es-AR';
+
+const PAYMENT_METHOD_LABELS: Readonly<Record<PaymentMethod, string>> = {
+  cash: 'Efectivo',
+  card: 'Tarjeta',
+  transfer: 'Transferencia',
+};
+
+export function formatPaymentMethod(method: PaymentMethod): string {
+  return PAYMENT_METHOD_LABELS[method];
+}
+
+/** 21 → "21 %" y 10.5 → "10,5 %": el IVA admite hasta dos decimales. */
+export function formatPercent(value: number): string {
+  const number = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 2 }).format(value);
+  return `${number} %`;
+}
 
 export function formatMoney(cents: number, currency: Currency): string {
   return new Intl.NumberFormat(LOCALE, { style: 'currency', currency }).format(cents / 100);

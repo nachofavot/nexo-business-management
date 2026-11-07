@@ -112,6 +112,19 @@ describe('dataTable', () => {
     expect(markup).not.toContain('aria-live');
   });
 
+  it('marca la tabla sin columnas ordenables, para no mostrar "Ordenar por" vacío', () => {
+    const markup = dataTable({
+      caption: 'Historial',
+      columns: [{ key: 'name', label: 'Nombre', cell: (row: Row) => row.name }],
+      page: onePage,
+      sort: { key: 'name', direction: 'asc' },
+      countLabel: () => '',
+    }).value;
+
+    expect(markup).toContain('class="nx-table nx-table--no-sort"');
+    expect(render()).not.toContain('nx-table--no-sort');
+  });
+
   it('aplica la clase de la columna en encabezado y celda', () => {
     const markup = dataTable({
       caption: 'Lista',

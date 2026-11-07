@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { Currency } from '../domain/types';
-import { formatDateTime, formatMoney, formatMonth, formatPercentChange } from './format';
+import {
+  formatDateTime,
+  formatMoney,
+  formatMonth,
+  formatPaymentMethod,
+  formatPercent,
+  formatPercentChange,
+} from './format';
 
 // Intl separa símbolo y número con un espacio duro, que no se distingue a simple vista.
 const withPlainSpaces = (text: string) => text.replace(/\s/g, ' ');
@@ -43,5 +50,26 @@ describe('formatDateTime', () => {
 describe('formatMonth', () => {
   it('muestra el nombre del mes en español', () => {
     expect(formatMonth(new Date(2026, 10, 5))).toBe('noviembre');
+  });
+});
+
+describe('formatPaymentMethod', () => {
+  it.each([
+    ['cash', 'Efectivo'],
+    ['card', 'Tarjeta'],
+    ['transfer', 'Transferencia'],
+  ] as const)('muestra %s como %s', (method, expected) => {
+    expect(formatPaymentMethod(method)).toBe(expected);
+  });
+});
+
+describe('formatPercent', () => {
+  it.each([
+    [21, '21 %'],
+    [10.5, '10,5 %'],
+    [0, '0 %'],
+    [100, '100 %'],
+  ])('muestra %d como %s', (value, expected) => {
+    expect(withPlainSpaces(formatPercent(value))).toBe(expected);
   });
 });
