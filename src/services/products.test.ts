@@ -26,10 +26,12 @@ interface SetupOptions {
 function setup(options: SetupOptions = {}) {
   const memory = createMemoryStorage();
   let isFull = false;
+  let isBroken = false;
   const storage: KeyValueStorage = {
     ...memory,
     setItem(key, value) {
       if (isFull) throw new DOMException('lleno', 'QuotaExceededError');
+      if (isBroken) throw new Error('El navegador bloqueó el almacenamiento');
       memory.setItem(key, value);
     },
   };
@@ -62,6 +64,9 @@ function setup(options: SetupOptions = {}) {
     service,
     fillStorage() {
       isFull = true;
+    },
+    breakStorage() {
+      isBroken = true;
     },
   };
 }
@@ -200,10 +205,12 @@ describe('update', () => {
     expect(database.read().products).toEqual([monitor, teclado]);
   });
 
-  it('informa si el producto no existe', () => {
-    const { service } = setup();
+  it('informa si el producto no existe, sin tocar a los demás', () => {
+    const { service, database } = setup({ products: [monitor] });
+    const before = database.read();
 
     expect(service.update('nope', change)).toEqual(err({ kind: 'not-found' }));
+    expect(database.read()).toEqual(before);
   });
 });
 
@@ -228,10 +235,12 @@ describe('remove', () => {
     expect(database.read().sales).toEqual([sale]);
   });
 
-  it('informa si el producto no existe', () => {
-    const { service } = setup();
+  it('informa si el producto no existe, sin tocar a los demás', () => {
+    const { service, database } = setup({ products: [monitor] });
+    const before = database.read();
 
     expect(service.remove('nope')).toEqual(err({ kind: 'not-found' }));
+    expect(database.read()).toEqual(before);
   });
 });
 
@@ -427,6 +436,19 @@ describe('con el almacenamiento lleno', () => {
     fillStorage();
 
     expect(service.remove('p1')).toEqual(failure);
+    expect(database.read()).toEqual(before);
+  });
+});
+
+describe('con otra falla del almacenamiento', () => {
+  it('informa la falla que ocurrió y no cambia nada', () => {
+    const { service, database, breakStorage } = setup({ products: [monitor] });
+    const before = database.read();
+    breakStorage();
+
+    expect(service.update('p1', validInput)).toEqual(
+      err({ kind: 'storage', failure: 'write-failed' }),
+    );
     expect(database.read()).toEqual(before);
   });
 });
