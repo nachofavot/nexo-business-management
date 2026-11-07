@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { makeCustomer, makeProduct, makeSale } from '../testing/fixtures';
 import { err } from './result';
-import { buildSale, calculateTotals, cancelSale, formatSaleNumber } from './sales';
+import { buildSale, calculateTotals, cancelSale, formatSaleNumber, previewSale } from './sales';
+import type { SaleInput } from './types';
 
 const line = (unitPriceCents: number, quantity: number) => ({ unitPriceCents, quantity });
 
@@ -165,5 +166,106 @@ describe('formatSaleNumber', () => {
     [1234567, 'V-1234567'],
   ])('muestra %i como %s', (number, expected) => {
     expect(formatSaleNumber(number)).toBe(expected);
+  });
+});
+
+describe('previewSale', () => {
+  const products = [
+    makeProduct({ id: 'p1', priceCents: 1000, stock: 5 }),
+    makeProduct({ id: 'p2', priceCents: 2500, stock: 10 }),
+  ];
+  const zero = { subtotalCents: 0, discountCents: 0, taxCents: 0, totalCents: 0 };
+
+  function input(lines: SaleInput['lines'], discountPercent = '0'): SaleInput {
+    return { customerId: 'c1', lines, discountPercent, paymentMethod: 'card' };
+  }
+
+  it('da todo en 0 sin líneas', () => {
+    expect(previewSale(input([]), products, 21)).toEqual({ lines: [], totals: zero });
+  });
+
+  it('calcula una línea con IVA', () => {
+    expect(previewSale(input([{ productId: 'p1', quantity: '2' }]), products, 21)).toEqual({
+      lines: [{ availableStock: 5, subtotalCents: 2000 }],
+      totals: { subtotalCents: 2000, discountCents: 0, taxCents: 420, totalCents: 2420 },
+    });
+  });
+
+  it('aplica el descuento antes del IVA', () => {
+    const lines = [
+      { productId: 'p1', quantity: '2' },
+      { productId: 'p2', quantity: '1' },
+    ];
+
+    expect(previewSale(input(lines, '10'), products, 21)).toEqual({
+      lines: [
+        { availableStock: 5, subtotalCents: 2000 },
+        { availableStock: 10, subtotalCents: 2500 },
+      ],
+      totals: { subtotalCents: 4500, discountCents: 450, taxCents: 851, totalCents: 4901 },
+    });
+  });
+
+  it('no suma una línea sin producto', () => {
+    const lines = [
+      { productId: 'p1', quantity: '2' },
+      { productId: '', quantity: '3' },
+    ];
+    const preview = previewSale(input(lines), products, 21);
+
+    expect(preview.lines[1]).toEqual({ availableStock: null, subtotalCents: null });
+    expect(preview.totals.subtotalCents).toBe(2000);
+  });
+
+  it.each(['abc', '0', '10000'])('no suma la cantidad "%s"', (quantity) => {
+    const preview = previewSale(input([{ productId: 'p1', quantity }]), products, 21);
+
+    expect(preview).toEqual({ lines: [{ availableStock: 5, subtotalCents: null }], totals: zero });
+  });
+
+  it('suma una sola vez el producto repetido, igual que la validación', () => {
+    const lines = [
+      { productId: 'p1', quantity: '2' },
+      { productId: 'p1', quantity: '3' },
+    ];
+    const preview = previewSale(input(lines), products, 21);
+
+    expect(preview.lines).toEqual([
+      { availableStock: 5, subtotalCents: 2000 },
+      { availableStock: 5, subtotalCents: null },
+    ]);
+    expect(preview.totals.subtotalCents).toBe(2000);
+  });
+
+  it('suma aunque supere el stock, porque eso lo controla la validación', () => {
+    const preview = previewSale(input([{ productId: 'p1', quantity: '9' }]), products, 21);
+
+    expect(preview.lines).toEqual([{ availableStock: 5, subtotalCents: 9000 }]);
+  });
+
+  it.each(['abc', '150'])('cuenta el descuento "%s" como 0', (discountPercent) => {
+    const preview = previewSale(
+      input([{ productId: 'p1', quantity: '2' }], discountPercent),
+      products,
+      21,
+    );
+
+    expect(preview.totals).toEqual({
+      subtotalCents: 2000,
+      discountCents: 0,
+      taxCents: 420,
+      totalCents: 2420,
+    });
+  });
+
+  it('usa el IVA recibido', () => {
+    const preview = previewSale(input([{ productId: 'p1', quantity: '2' }]), products, 0);
+
+    expect(preview.totals).toEqual({
+      subtotalCents: 2000,
+      discountCents: 0,
+      taxCents: 0,
+      totalCents: 2000,
+    });
   });
 });

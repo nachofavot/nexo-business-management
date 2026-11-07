@@ -1,3 +1,4 @@
+import { endOfDay } from './dates';
 import type { ProductCategory, Sale } from './types';
 
 export type ReportPeriod = '7d' | '30d' | '90d' | '12m';
@@ -29,10 +30,6 @@ const MONTHS_IN_YEAR_PERIOD = 12;
 // de 23 o 25 horas del horario de verano y los meses de distinta duración, sin sumar milisegundos.
 function addDays(date: Date, days: number): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
-}
-
-function endOfDay(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
 }
 
 function mondayOfWeek(date: Date): Date {

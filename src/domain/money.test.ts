@@ -57,4 +57,10 @@ describe('percentOfCents', () => {
   ])('%i centavos al %d por ciento dan %i', (cents, percent, expected) => {
     expect(percentOfCents(cents, percent)).toBe(expected);
   });
+
+  it('es exacto aunque la multiplicación supere Number.MAX_SAFE_INTEGER', () => {
+    // El 21 % da exactamente 7.427.952.202.828,5. Con decimales, 35.371.200.965.850 × 2100
+    // pierde precisión y la mitad no se redondeaba hacia arriba: daba 7.427.952.202.828.
+    expect(percentOfCents(35_371_200_965_850, 21)).toBe(7_427_952_202_829);
+  });
 });

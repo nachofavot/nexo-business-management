@@ -24,9 +24,10 @@ export function formatCentsForInput(cents: number): string {
 /**
  * Calcula un porcentaje de un importe y redondea las mitades hacia arriba.
  * Usa enteros porque 5000 * 1.13 da 5649.999999999999: el 1,13 % de 5000 es 56,5 y redondearía
- * a 56 en lugar de 57.
+ * a 56 en lugar de 57. Multiplica con BigInt porque, con importes grandes, centavos × centésimos
+ * de porcentaje supera Number.MAX_SAFE_INTEGER y el producto deja de ser exacto.
  */
 export function percentOfCents(cents: number, percent: number): number {
-  const hundredthsOfPercent = Math.round(percent * 100);
-  return Math.floor((cents * hundredthsOfPercent + 5000) / 10000);
+  const hundredthsOfPercent = BigInt(Math.round(percent * 100));
+  return Number((BigInt(cents) * hundredthsOfPercent + 5000n) / 10000n);
 }

@@ -140,10 +140,16 @@ export interface ValidatedSale {
   paymentMethod: PaymentMethod;
 }
 
-export type SaleErrors = FieldErrors<
-  'customerId' | 'lines' | 'discountPercent' | 'paymentMethod'
-> & {
-  lineErrors?: Readonly<Record<number, string>>;
+export type SaleField = 'customerId' | 'lines' | 'discountPercent' | 'paymentMethod';
+
+/** Indica qué control de la línea marcar: el producto o la cantidad. */
+export interface LineError {
+  field: 'productId' | 'quantity';
+  message: string;
+}
+
+export type SaleErrors = FieldErrors<SaleField> & {
+  lineErrors?: Readonly<Record<number, LineError>>;
 };
 
 export interface PreferencesInput {
