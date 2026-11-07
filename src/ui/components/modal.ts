@@ -66,6 +66,9 @@ export function openModal(element: HTMLElement, signal: AbortSignal): void {
     'shown.bs.modal',
     () => {
       element.inert = false;
+      // Bootstrap intenta llevar el foco al diálogo antes de este evento, cuando todavía está
+      // inert, y falla: el foco quedaría en body y Escape no cerraría el modal.
+      if (!element.contains(document.activeElement)) element.focus();
       isOpen = true;
       // Si se navegó durante la apertura, el modal se cierra apenas termina de abrirse.
       if (signal.aborted) modal.hide();
