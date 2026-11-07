@@ -109,8 +109,15 @@
   }
 }
 
-// Un botón que se activa muestra un ícono además del color: el estado no depende solo del color.
-.nx-btn[aria-pressed='false'] svg {
+// Un botón que se activa cambia de ícono además de color: el estado no depende solo del color.
+// Los dos íconos miden lo mismo, así que al activarlo el botón no cambia de ancho.
+.nx-btn__on,
+.nx-btn__off {
+  display: inline-flex;
+}
+
+.nx-btn[aria-pressed='false'] .nx-btn__on,
+.nx-btn[aria-pressed='true'] .nx-btn__off {
   display: none;
 }
 

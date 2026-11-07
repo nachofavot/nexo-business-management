@@ -82,8 +82,11 @@ th[aria-sort] .nx-table__sort {
 }
 
 // Un código largo se parte para que la tabla entre; con este ancho, los comunes no se parten.
-.nx-table__code {
-  min-width: 7rem;
+// Solo en la tabla: en el celular el encabezado es un botón de "Ordenar por" y quedaría un hueco.
+@media (min-width: 768px) {
+  .nx-table__code {
+    min-width: 7rem;
+  }
 }
 
 // Una etiqueta al lado de un dato de la misma celda.
@@ -91,6 +94,14 @@ th[aria-sort] .nx-table__sort {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+
+  // Con el menú lateral, entre 768 y 1199 px la tabla tiene poco lugar: la etiqueta pasa debajo
+  // del número y le deja ese ancho al nombre.
+  @media (min-width: 768px) and (max-width: 1199.98px) {
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 0.25rem;
+  }
 }
 
 .nx-table__row-actions {

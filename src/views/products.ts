@@ -65,7 +65,9 @@ export const productsView: View = ({ root, signal, database, services }) => {
           type="button"
           aria-pressed="false"
         >
-          ${icon('success')} Solo stock bajo
+          <span class="nx-btn__off">${icon('unchecked')}</span>
+          <span class="nx-btn__on">${icon('success')}</span>
+          Solo stock bajo
         </button>
         <button
           class="nx-btn nx-btn--primary nx-toolbar__action"
