@@ -1,0 +1,135 @@
+// Nueva venta: el formulario y, desde 1200 px, el resumen fijo a la derecha.
+.nx-new-sale {
+  display: grid;
+  gap: 1.5rem;
+
+  @media (min-width: 1200px) {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    align-items: start;
+  }
+}
+
+.nx-new-sale__fields {
+  min-width: 0;
+}
+
+.nx-new-sale__section {
+  margin-bottom: 1.5rem;
+}
+
+.nx-new-sale__title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+// Descuento y medio de pago, lado a lado desde 576 px.
+.nx-new-sale__terms {
+  display: grid;
+  gap: 0 1rem;
+
+  @media (min-width: 576px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.nx-sale-lines {
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+// Producto, cantidad, subtotal y quitar en una fila; la ayuda y el error, debajo.
+.nx-sale-line {
+  display: grid;
+  grid-template-areas:
+    'product quantity subtotal remove'
+    'hint hint . .'
+    'error error error error';
+  grid-template-columns: minmax(0, 1fr) 6.5rem 9rem auto;
+  gap: 0.25rem 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--nx-border);
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  .form-label {
+    margin-bottom: 0.25rem;
+  }
+
+  @media (max-width: 575.98px) {
+    grid-template-areas:
+      'product product product'
+      'quantity subtotal remove'
+      'hint hint hint'
+      'error error error';
+    grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+  }
+}
+
+.nx-sale-line__product {
+  grid-area: product;
+  min-width: 0;
+}
+
+.nx-sale-line__quantity {
+  grid-area: quantity;
+}
+
+// Alineado con los campos, no con sus etiquetas.
+.nx-sale-line__subtotal {
+  display: flex;
+  grid-area: subtotal;
+  align-items: center;
+  align-self: end;
+  justify-content: flex-end;
+  min-height: 2.25rem;
+  margin: 0;
+  white-space: nowrap;
+
+  @media (max-width: 767.98px) {
+    min-height: 2.75rem;
+  }
+}
+
+.nx-sale-line__remove {
+  grid-area: remove;
+  align-self: end;
+}
+
+.nx-sale-line__hint {
+  grid-area: hint;
+  margin: 0;
+  color: var(--nx-text-muted);
+  font-size: 0.8125rem;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.nx-sale-line__error {
+  grid-area: error;
+}
+
+// Un elemento elevado sobre el panel, con los importes y la acción principal.
+.nx-sale-summary {
+  padding: 1.25rem;
+  border: 1px solid var(--nx-border);
+  border-radius: var(--nx-radius-control);
+  background: var(--nx-surface-2);
+
+  @media (min-width: 1200px) {
+    position: sticky;
+    top: 1.5rem;
+  }
+}
+
+.nx-sale-summary__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}

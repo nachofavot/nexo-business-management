@@ -1,6 +1,12 @@
 import { formatSaleNumber } from '../domain/sales';
 import type { Currency, Sale, SaleItem } from '../domain/types';
-import { formatDateTime, formatMoney, formatPaymentMethod, formatPercent } from '../ui/format';
+import {
+  formatDateTime,
+  formatDiscount,
+  formatMoney,
+  formatPaymentMethod,
+  formatPercent,
+} from '../ui/format';
 import { html, type SafeHtml } from '../ui/html';
 
 function itemRow(item: SaleItem, currency: Currency): SafeHtml {
@@ -21,13 +27,6 @@ function itemRow(item: SaleItem, currency: Currency): SafeHtml {
   </tr>`;
 }
 
-/** Con descuento 0 no se muestra "-$ 0,00": formatMoney(-0) conserva el signo. */
-function discountValue(sale: Sale, currency: Currency): string {
-  return sale.discountCents > 0
-    ? formatMoney(-sale.discountCents, currency)
-    : formatMoney(0, currency);
-}
-
 /** Lista de importes con el total al final. */
 function saleTotals(sale: Sale, currency: Currency): SafeHtml {
   return html`<dl class="nx-totals">
@@ -37,7 +36,7 @@ function saleTotals(sale: Sale, currency: Currency): SafeHtml {
     </div>
     <div class="nx-totals__row">
       <dt>Descuento (${formatPercent(sale.discountPercent)})</dt>
-      <dd>${discountValue(sale, currency)}</dd>
+      <dd>${formatDiscount(sale.discountCents, currency)}</dd>
     </div>
     <div class="nx-totals__row">
       <dt>IVA (${formatPercent(sale.taxPercent)})</dt>

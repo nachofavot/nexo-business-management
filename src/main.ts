@@ -14,6 +14,7 @@ import { customersView } from './views/customers';
 import { dashboardView } from './views/dashboard';
 import { loginView } from './views/login';
 import { notFoundView } from './views/not-found';
+import { newSaleView } from './views/new-sale';
 import { productsView } from './views/products';
 import { salesView } from './views/sales';
 import { styleGuideView } from './views/style-guide';
@@ -36,7 +37,7 @@ const views: Readonly<Record<RouteName, View>> = {
   customers: customersView,
   products: productsView,
   sales: salesView,
-  'new-sale': createUpcomingView('Nueva venta', 5),
+  'new-sale': newSaleView,
   reports: createUpcomingView('Reportes', 6),
   settings: createUpcomingView('Configuración', 7),
   'not-found': notFoundView,

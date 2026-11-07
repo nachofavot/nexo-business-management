@@ -181,12 +181,17 @@ describe('previewSale', () => {
   }
 
   it('da todo en 0 sin líneas', () => {
-    expect(previewSale(input([]), products, 21)).toEqual({ lines: [], totals: zero });
+    expect(previewSale(input([]), products, 21)).toEqual({
+      lines: [],
+      discountPercent: 0,
+      totals: zero,
+    });
   });
 
   it('calcula una línea con IVA', () => {
     expect(previewSale(input([{ productId: 'p1', quantity: '2' }]), products, 21)).toEqual({
       lines: [{ availableStock: 5, subtotalCents: 2000 }],
+      discountPercent: 0,
       totals: { subtotalCents: 2000, discountCents: 0, taxCents: 420, totalCents: 2420 },
     });
   });
@@ -202,6 +207,7 @@ describe('previewSale', () => {
         { availableStock: 5, subtotalCents: 2000 },
         { availableStock: 10, subtotalCents: 2500 },
       ],
+      discountPercent: 10,
       totals: { subtotalCents: 4500, discountCents: 450, taxCents: 851, totalCents: 4901 },
     });
   });
@@ -220,7 +226,11 @@ describe('previewSale', () => {
   it.each(['abc', '0', '10000'])('no suma la cantidad "%s"', (quantity) => {
     const preview = previewSale(input([{ productId: 'p1', quantity }]), products, 21);
 
-    expect(preview).toEqual({ lines: [{ availableStock: 5, subtotalCents: null }], totals: zero });
+    expect(preview).toEqual({
+      lines: [{ availableStock: 5, subtotalCents: null }],
+      discountPercent: 0,
+      totals: zero,
+    });
   });
 
   it('suma una sola vez el producto repetido, igual que la validación', () => {
@@ -250,6 +260,7 @@ describe('previewSale', () => {
       21,
     );
 
+    expect(preview.discountPercent).toBe(0);
     expect(preview.totals).toEqual({
       subtotalCents: 2000,
       discountCents: 0,

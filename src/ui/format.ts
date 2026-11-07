@@ -12,6 +12,11 @@ export function formatPaymentMethod(method: PaymentMethod): string {
   return PAYMENT_METHOD_LABELS[method];
 }
 
+/** El descuento se resta, pero 0 va sin signo: formatMoney(-0) mostraría "-$ 0,00". */
+export function formatDiscount(cents: number, currency: Currency): string {
+  return cents > 0 ? formatMoney(-cents, currency) : formatMoney(0, currency);
+}
+
 /** 21 → "21 %" y 10.5 → "10,5 %": el IVA admite hasta dos decimales. */
 export function formatPercent(value: number): string {
   const number = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 2 }).format(value);

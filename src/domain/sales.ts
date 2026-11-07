@@ -14,6 +14,8 @@ export interface SaleTotals {
 export interface SalePreview {
   /** Una por cada línea de la entrada, en el mismo orden. */
   lines: readonly { availableStock: number | null; subtotalCents: number | null }[];
+  /** El descuento que se aplicó: uno inválido cuenta como 0. */
+  discountPercent: number;
   totals: SaleTotals;
 }
 
@@ -60,7 +62,7 @@ export function previewSale(
   });
 
   const discountPercent = parseIntegerInRange(input.discountPercent, 0, 100) ?? 0;
-  return { lines, totals: calculateTotals(counted, discountPercent, taxPercent) };
+  return { lines, discountPercent, totals: calculateTotals(counted, discountPercent, taxPercent) };
 }
 
 /**

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Currency } from '../domain/types';
 import {
   formatDateTime,
+  formatDiscount,
   formatMoney,
   formatMonth,
   formatPaymentMethod,
@@ -60,6 +61,16 @@ describe('formatPaymentMethod', () => {
     ['transfer', 'Transferencia'],
   ] as const)('muestra %s como %s', (method, expected) => {
     expect(formatPaymentMethod(method)).toBe(expected);
+  });
+});
+
+describe('formatDiscount', () => {
+  it('muestra el descuento en negativo', () => {
+    expect(withPlainSpaces(formatDiscount(45000, 'ARS'))).toBe('-$ 450,00');
+  });
+
+  it('muestra un descuento de 0 sin signo menos', () => {
+    expect(withPlainSpaces(formatDiscount(0, 'ARS'))).toBe('$ 0,00');
   });
 });
 

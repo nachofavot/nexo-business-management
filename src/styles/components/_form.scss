@@ -49,3 +49,14 @@
 .nx-field {
   margin-bottom: 1rem;
 }
+
+// Un error que no está junto a su campo, como el de una línea de venta. Vacío no ocupa lugar.
+.nx-form-error {
+  margin: 0.375rem 0 0;
+  color: var(--nx-danger);
+  font-size: 0.8125rem;
+
+  &:empty {
+    display: none;
+  }
+}
