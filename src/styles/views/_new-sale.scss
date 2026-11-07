@@ -1,6 +1,8 @@
 // Nueva venta: el formulario y, desde 1200 px, el resumen fijo a la derecha.
+// La columna es minmax(0, 1fr): sin eso, el ancho mínimo del resumen la ensanchaba en 320 px.
 .nx-new-sale {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.5rem;
 
   @media (min-width: 1200px) {
@@ -120,6 +122,13 @@
   border: 1px solid var(--nx-border);
   border-radius: var(--nx-radius-control);
   background: var(--nx-surface-2);
+
+  // Debajo del formulario, a todo el ancho, los importes quedaban lejos de sus nombres.
+  @media (min-width: 576px) and (max-width: 1199.98px) {
+    justify-self: end;
+    width: 100%;
+    max-width: 26rem;
+  }
 
   @media (min-width: 1200px) {
     position: sticky;

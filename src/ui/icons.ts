@@ -9,6 +9,7 @@ import chevronLeft from 'bootstrap-icons/icons/chevron-left.svg?raw';
 import chevronRight from 'bootstrap-icons/icons/chevron-right.svg?raw';
 import circle from 'bootstrap-icons/icons/circle.svg?raw';
 import exclamationTriangle from 'bootstrap-icons/icons/exclamation-triangle.svg?raw';
+import eye from 'bootstrap-icons/icons/eye.svg?raw';
 import gear from 'bootstrap-icons/icons/gear.svg?raw';
 import grid1x2 from 'bootstrap-icons/icons/grid-1x2.svg?raw';
 import list from 'bootstrap-icons/icons/list.svg?raw';
@@ -37,6 +38,7 @@ const ICONS = {
   add: plusLg,
   edit: pencil,
   delete: trash,
+  view: eye,
   success: checkCircle,
   unchecked: circle,
   warning: exclamationTriangle,

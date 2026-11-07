@@ -3,6 +3,7 @@ import type { Currency, Sale } from '../domain/types';
 import type { Column } from '../ui/components/data-table';
 import { formatDateTime, formatMoney, formatPaymentMethod } from '../ui/format';
 import { html, type SafeHtml } from '../ui/html';
+import { icon } from '../ui/icons';
 
 /**
  * Una venta anulada lleva la etiqueta y el total tachado, porque no cuenta en las métricas.
@@ -56,16 +57,17 @@ export function saleColumns(options: { currency: Currency }): readonly Column<Sa
       key: 'actions',
       label: 'Acciones',
       className: 'nx-table__actions',
-      // El nombre accesible empieza con el texto visible, como pide WCAG 2.5.3.
+      // El nombre accesible empieza con el texto visible, como pide WCAG 2.5.3. Entre 768 y
+      // 1199 px solo se ve el ícono, para dejarle lugar al cliente.
       cell: (sale) =>
         html`<button
-          class="nx-btn nx-btn--ghost"
+          class="nx-btn nx-btn--ghost nx-table__detail"
           type="button"
           data-detail="${sale.id}"
           aria-haspopup="dialog"
           aria-label="Ver detalle de la venta ${formatSaleNumber(sale.number)}"
         >
-          Ver detalle
+          ${icon('view')}<span class="nx-table__detail-label">Ver detalle</span>
         </button>`,
     },
   ];
