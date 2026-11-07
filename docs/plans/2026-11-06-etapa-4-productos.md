@@ -262,8 +262,9 @@ Ejecutar `npm test`. Esperado: fallan porque esas funciones no existen.
 - [ ] **Paso 3: Implementar**
 
 - Columnas: Nombre, SKU, Categoría, Precio, Stock y Acciones. Precio y Stock son numéricas.
-- SKU, Categoría, Precio y Stock llevan `nx-table__nowrap`: si no, un nombre largo en otra fila los partiría, y es Nombre quien debe ceder lugar.
-- Stock muestra la etiqueta y después el número, dentro de `<span class="nx-table__tagged">`. Con el número a la derecha, las cifras quedan alineadas aunque solo algunas filas tengan etiqueta.
+- Categoría, Precio y Stock llevan `nx-table__nowrap`: si no, un nombre largo en otra fila los partiría, y es Nombre quien debe ceder lugar.
+- SKU lleva `nx-table__code`: desde 768 px tiene un ancho mínimo de 7rem, así los códigos comunes no se parten, pero uno de 20 caracteres sí puede partirse. Con todas las columnas sin partir, la tabla desbordaba en 768 y 992 px.
+- Stock muestra la etiqueta y después el número, dentro de `<span class="nx-table__tagged">`. Con el número a la derecha, las cifras quedan alineadas aunque solo algunas filas tengan etiqueta. Entre 768 y 1199 px, la etiqueta pasa debajo del número para dejarle ese ancho al nombre.
 - "Sin stock" tiene prioridad sobre "Stock bajo". Sin problemas de stock no hay etiqueta: "Disponible" en casi todas las filas sería ruido y el diseño no lo pide.
 - Los campos de texto llevan `autocomplete: 'off'`, como en Clientes.
 
@@ -287,13 +288,13 @@ Mensaje: `feat: agregar formulario y columnas de productos`.
 
 - **Barra:** buscador ("Buscar por nombre o SKU"), selector de categoría (etiqueta oculta "Filtrar por categoría", primera opción "Todas las categorías"), botón "Solo stock bajo" con `aria-pressed` y "Nuevo producto". Cambiar un filtro vuelve a la página 1 y no redibuja la barra, para no perder el foco.
 - **Tabla:** las columnas se crean una vez con la moneda y el umbral de `database.read().settings.preferences`. Orden inicial por nombre. Estado `role="status"` con "1 producto" o "N productos".
-- **Botón "Solo stock bajo":** lleva siempre `icon('success')`, y el SCSS lo oculta si `aria-pressed` es `false`. Activo, además, tiene texto y borde `--nx-violet-300`. Así el estado no depende solo del color.
+- **Botón "Solo stock bajo":** muestra `icon('unchecked')` (un círculo vacío) o `icon('success')` (un círculo con tilde) según `aria-pressed`. Activo, además, tiene texto y borde `--nx-violet-300`. Así el estado no depende solo del color, y como los dos íconos miden lo mismo, el botón no cambia de ancho ni mueve la tabla.
 - **Al guardar:** lleva la tabla hasta el producto con `pageOf`. Si los filtros o la búsqueda lo ocultan, los limpia, actualiza los controles y vuelve a calcular.
 - **Estados vacíos:** sin productos, "Todavía no hay productos" y "Agregá el primero con Nuevo producto." Con filtros y sin resultados, "Sin resultados", "Probá con otra búsqueda o quitá los filtros." y un botón "Limpiar filtros" (`data-action="clear-filters"`) que restablece los tres controles y lleva el foco al buscador.
 - **Textos:** "Nuevo producto" y "Crear producto"; "Editar producto" y "Guardar cambios". Avisos: "Producto creado.", "Cambios guardados.", "Producto eliminado." y "Este producto ya no existe." Confirmación: título y botón "Eliminar producto", mensaje `${nombre} se quita de la lista. Las ventas ya registradas lo conservan.`
 - **Estilos:**
-  - En `_form.scss`, `background-image: none` queda solo para `.form-control`. En `.form-select.is-invalid` se usa `--bs-form-select-bg-icon: none`: conserva la flecha y quita el ícono de error.
-  - En `_toolbar.scss`, se agregan `.nx-toolbar__filters` y `.nx-toolbar__select`.
+  - En `_bootstrap.scss`, `$enable-validation-icons: false` quita el ícono de error de todos los campos, y `_form.scss` deja de usar `background-image: none`. Así el selector inválido conserva su flecha. Anularlo solo en el selector no alcanzaba: la regla de Bootstrap tiene más especificidad.
+  - En `_toolbar.scss`, se agregan `.nx-toolbar__select` y `.nx-toolbar__action`. Los controles son hijos directos de la barra, sin contenedor, y "Nuevo producto" queda del otro lado con `margin-left: auto`: en 375 px son tres filas en lugar de cuatro.
   - En `_table.scss`, `.nx-table__tagged` es `inline-flex`, con `align-items: center` y `gap: 0.5rem`.
 
 - [ ] **Paso 1: Implementar la vista y sus estilos, y conectarla en `main.ts`**
@@ -354,7 +355,7 @@ Crear un producto con el nombre `"><img src=x onerror=alert(1)>`. Esperado: se v
 
 En 320, 375, 767, 768, 991, 992, 1280 y 1920 px, con los datos demo y con un producto de nombre de 80 caracteres sin espacios, SKU de 20, precio `99999999,99`, stock 999999 y otro con stock 3. Esperado: sin desborde, según la medición de **Restricciones globales**, y barra usable. En 320 px, los cinco botones de "Ordenar por" entran sin desbordar.
 
-Con los datos demo, medir el ancho de la columna Nombre en 768 y 992 px. Si queda por debajo de 120 px, poner la etiqueta debajo del número y volver a medir.
+Con los datos demo, medir el ancho de la columna Nombre en 768 y 992 px, en todas las páginas: cada página tiene otros datos. Si queda por debajo de 120 px, poner la etiqueta debajo del número y volver a medir. La revisión encontró 116 px en las páginas 2 y 3, porque esta medición se había hecho solo en la primera.
 
 - [ ] **Paso 4: Probar con teclado**
 
@@ -364,7 +365,7 @@ Solo con el teclado, en 1280 y 375 px: buscar, filtrar por categoría, activar "
 
 | Acción, con mouse y teclado reales | Esperado |
 |---|---|
-| Confirmar a los 160, 200, 260 y 320 ms y después cancelar | No se borra |
+| Confirmar a los 160, 200, 260 y 320 ms y después cancelar | Si el diálogo seguía abriéndose, el clic no cuenta y "Cancelar" no borra. Si ya estaba abierto, es una confirmación real |
 | Confirmar con el diálogo abierto | Se borra |
 | Doble Enter en "Nuevo producto" y en Eliminar | Un solo modal; con Esc el foco vuelve al botón |
 | Guardar a los 170 ms de abrir | Sin aviso prematuro; un clic real después guarda y cierra |
