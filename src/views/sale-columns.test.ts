@@ -16,8 +16,9 @@ function renderRow(sale: Sale, currency: Currency = 'ARS'): string {
 }
 
 describe('saleColumns', () => {
-  it('muestra el número con su formato', () => {
-    expect(renderRow(makeSale({ number: 123 }))).toContain('V-000123');
+  it('muestra el número con su formato en su celda', () => {
+    // La celda, no la fila: el botón también nombra la venta en su aria-label.
+    expect(renderRow(makeSale({ number: 123 }))).toMatch(/data-label="Número"\s*>\s*V-000123/);
   });
 
   it('muestra la fecha en hora local', () => {

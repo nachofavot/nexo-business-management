@@ -279,6 +279,18 @@ describe('cancel', () => {
     expect(activity[0]).toMatchObject({ type: 'sale', message: 'Venta V-000007 anulada' });
   });
 
+  it('anula solo la venta pedida', () => {
+    const saleEight = makeSale({ id: 's8', number: 8 });
+    const { service, database } = setup({ sales: [saleEight, saleSeven], nextSaleNumber: 9 });
+
+    service.cancel('s7');
+
+    expect(database.read().sales.map(({ id, status }) => ({ id, status }))).toEqual([
+      { id: 's8', status: 'completed' },
+      { id: 's7', status: 'cancelled' },
+    ]);
+  });
+
   it('devuelve el stock solo de los productos que todavía existen', () => {
     const sale = makeSale({
       id: 's7',
@@ -424,6 +436,15 @@ describe('query', () => {
     const items = serviceWithHistory().query({ ...defaults, ...options }).items;
 
     expect(items.map((sale) => sale.number)).toEqual(expected);
+  });
+
+  it('ordena por número aunque las fechas no sigan ese orden', () => {
+    // Por ejemplo, si el reloj de la computadora cambió entre dos ventas.
+    const later = makeSale({ id: 'a', number: 5, createdAt: '2026-11-06T10:00:00.000Z' });
+    const earlier = makeSale({ id: 'b', number: 6, createdAt: '2026-11-06T09:00:00.000Z' });
+    const { service } = setup({ sales: [later, earlier], nextSaleNumber: 7 });
+
+    expect(service.query(defaults).items.map((sale) => sale.number)).toEqual([6, 5]);
   });
 
   it('pagina el resultado', () => {
