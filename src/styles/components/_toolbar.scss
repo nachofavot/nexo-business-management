@@ -20,6 +20,33 @@
   }
 }
 
+// Dos fechas lado a lado, con la etiqueta visible: sin ella no se distinguiría cuál es cuál.
+.nx-toolbar__date {
+  display: flex;
+  flex: 0 1 12rem;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+
+  .form-label {
+    margin: 0;
+    color: var(--nx-text-muted);
+  }
+
+  .form-control {
+    min-width: 0;
+  }
+
+  // En el celular, Desde y Hasta comparten una fila, con la etiqueta arriba: al lado, el campo
+  // quedaba en 119 px y cortaba la fecha.
+  @media (max-width: 767.98px) {
+    flex: 1 1 calc(50% - 0.375rem);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+}
+
 // Con filtros en la barra, la acción principal queda sola del otro lado.
 .nx-toolbar__action {
   margin-left: auto;

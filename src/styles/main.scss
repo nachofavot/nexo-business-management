@@ -12,7 +12,9 @@
 @use 'components/toast';
 @use 'components/empty-state';
 @use 'components/metric';
+@use 'components/totals';
 @use 'layout/shell';
 @use 'layout/nav';
 @use 'views/login';
 @use 'views/dashboard';
+@use 'views/sales';
