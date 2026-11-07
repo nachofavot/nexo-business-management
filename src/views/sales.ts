@@ -7,7 +7,7 @@ import { confirmDialog } from '../ui/components/confirm-dialog';
 import { dataTable, focusPageButton } from '../ui/components/data-table';
 import { emptyState } from '../ui/components/empty-state';
 import { showToast } from '../ui/components/toast';
-import { requireElement } from '../ui/dom';
+import { requireElement, syncAttribute } from '../ui/dom';
 import { html, setHtml } from '../ui/html';
 import { icon } from '../ui/icons';
 import { storageFailureMessage } from '../ui/messages';
@@ -20,12 +20,6 @@ const FIXED_SORT = { key: 'number', direction: 'desc' } as const;
 
 function countLabel(total: number): string {
   return total === 1 ? '1 venta' : `${total} ventas`;
-}
-
-/** Un límite vacío se quita: min="" no limita, pero deja el atributo sin sentido. */
-function setDateLimit(input: HTMLInputElement, name: 'min' | 'max', value: string): void {
-  if (value === '') input.removeAttribute(name);
-  else input.setAttribute(name, value);
 }
 
 export const salesView: View = ({ root, signal, database, services }) => {
@@ -96,10 +90,13 @@ export const salesView: View = ({ root, signal, database, services }) => {
     return from !== '' && to !== '' && from > to;
   }
 
-  /** El calendario no ofrece un rango invertido. Escribiéndolo, igual se puede. */
+  /**
+   * El calendario no ofrece un rango invertido; escribiéndolo, igual se puede. Cada fecha limita
+   * solo a la otra: tocar los límites del campo que se está escribiendo borraría lo tecleado.
+   */
   function syncDateLimits(): void {
-    setDateLimit(toInput, 'min', from);
-    setDateLimit(fromInput, 'max', to);
+    syncAttribute(toInput, 'min', from);
+    syncAttribute(fromInput, 'max', to);
   }
 
   function clearFilters(): void {
@@ -278,19 +275,28 @@ export const salesView: View = ({ root, signal, database, services }) => {
     { signal },
   );
 
-  for (const input of [fromInput, toInput]) {
-    input.addEventListener(
-      'change',
-      () => {
-        from = fromInput.value;
-        to = toInput.value;
-        page = 1;
-        syncDateLimits();
-        renderTable();
-      },
-      { signal },
-    );
-  }
+  // Chrome avisa el cambio en cada parte completa de la fecha, mientras la persona escribe.
+  fromInput.addEventListener(
+    'change',
+    () => {
+      from = fromInput.value;
+      page = 1;
+      syncAttribute(toInput, 'min', from);
+      renderTable();
+    },
+    { signal },
+  );
+
+  toInput.addEventListener(
+    'change',
+    () => {
+      to = toInput.value;
+      page = 1;
+      syncAttribute(fromInput, 'max', to);
+      renderTable();
+    },
+    { signal },
+  );
 
   renderTable();
 };
