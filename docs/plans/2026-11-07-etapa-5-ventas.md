@@ -531,3 +531,36 @@ El informe incluye la salida real de cada comprobación, los errores que apareci
 Cierra con la respuesta a "¿cómo evitás que una venta deje el stock a medias?" para una entrevista.
 
 No se empieza la Etapa 6 sin la aprobación del autor.
+
+---
+
+## Decisiones tomadas al ejecutar el plan
+
+Registradas para que el plan describa lo que se construyó.
+
+**Dominio y servicio**
+
+- `SalePreview` también devuelve `discountPercent`, el descuento que se aplicó: uno inválido cuenta como 0. Así el resumen muestra "Descuento (N %)" sin repetir la regla del dominio.
+- Registrar y anular arman la base nueva con una sola lectura y la guardan con `database.replace(next)`. Con `update(change)`, la función habría ignorado su argumento. El efecto es el mismo que pide el diseño: una sola escritura, todo o nada.
+- Si `decreaseStock` fallara después de validar con la misma lectura, cosa que no puede pasar, el error va en `lines`: "El stock cambió. Revisá las cantidades."
+- En `parseDateInput`, comparar el día y comparar el mes son redundantes entre sí si también se compara el año. Las dos mutaciones son equivalentes y se dejan las tres comparaciones porque se leen mejor.
+
+**Vistas**
+
+- `openSaleDetail` va en `sale-detail-modal.ts`: Bootstrap no se puede importar en el entorno Node de Vitest, y `saleDetailContent` tiene que poder probarse.
+- `formatDiscount` va en `ui/format.ts` y lo usan el detalle y Nueva venta. `formatMoney(-0)` mostraría `-$ 0,00`.
+- Las fechas del historial se ven con coma ("05/11/2026, 14:30"), como ya las formatea `formatDateTime`.
+- Entre 768 y 1199 px, "Ver detalle" muestra solo un ícono de ojo, con su `aria-label` completo. Con texto, Cliente quedaba en 116 y 92 px con los datos demo. Partir la fecha ganaba poco y la partía también en 1280 px.
+- En el celular, Desde y Hasta llevan la etiqueta arriba: al lado, el campo medía 119 px y cortaba la fecha.
+- Cada fecha actualiza solo el límite de la otra, y `syncAttribute` (en `ui/dom.ts`) no vuelve a escribir un atributo que no cambió. Chromium rehace el editor de la fecha cuando le escriben `min` o `max`, y se perdía lo que se estaba tecleando. Lo encontró la revisión: mis pruebas habían asignado las fechas por código.
+- `openModal` lleva el foco al diálogo al terminar de abrirse. Bootstrap lo intentaba cuando el diálogo todavía estaba `inert`, y en el detalle el foco quedaba en `body` y Escape no cerraba.
+- Los estilos nuevos compartidos son `components/_totals.scss` y `.nx-form-error` en `components/_form.scss`.
+- La grilla de Nueva venta usa `minmax(0, 1fr)`, y entre 576 y 1199 px el resumen mide hasta 26rem y va a la derecha.
+
+**Detalles menores que quedan para más adelante**
+
+- Entre 768 y 1199 px, Desde y Hasta pueden quedar en filas distintas: conviene agruparlas.
+- Después del primer intento, una línea nueva aparece con el error "Elegí un producto." antes de tocarla.
+- Falta un test con una venta a las 00:00 del día siguiente a Hasta.
+- Las cantidades de stock van sin separador de miles ("Disponibles: 9999").
+- Los controles de cada línea comparten el nombre accesible ("Producto", "Cantidad") y no llevan `required`.
