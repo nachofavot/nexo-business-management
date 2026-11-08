@@ -11,6 +11,10 @@ export interface ViewContext {
   services: Services;
   session: Session;
   navigate(path: string): void;
+  /** Vuelve a montar la pantalla actual, por ejemplo después de restaurar los datos. */
+  refresh(): void;
+  /** Vuelve a leer el perfil guardado y actualiza el menú de usuario. */
+  refreshShell(): void;
   now(): Date;
 }
 

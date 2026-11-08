@@ -19,8 +19,8 @@ import { newSaleView } from './views/new-sale';
 import { productsView } from './views/products';
 import { reportsView } from './views/reports';
 import { salesView } from './views/sales';
+import { settingsView } from './views/settings';
 import { styleGuideView } from './views/style-guide';
-import { createUpcomingView } from './views/upcoming';
 
 const database = createDatabaseStore({
   getStorage: () => window.localStorage,
@@ -41,7 +41,7 @@ const views: Readonly<Record<RouteName, View>> = {
   sales: salesView,
   'new-sale': newSaleView,
   reports: reportsView,
-  settings: createUpcomingView('Configuración', 7),
+  settings: settingsView,
   'not-found': notFoundView,
   'style-guide': import.meta.env.DEV ? styleGuideView : notFoundView,
 };

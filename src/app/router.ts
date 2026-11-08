@@ -96,11 +96,25 @@ export function createRouter(options: {
         services,
         session,
         navigate,
+        refresh,
+        refreshShell: () => shell?.refreshProfile(),
         now: () => new Date(),
       });
     } catch (error) {
       console.error(`No se pudo montar la vista ${route.name}`, error);
       showViewError(outlet, controller.signal);
+    }
+  }
+
+  let currentRoute: Route | null = null;
+
+  /** Sin tocar el historial. Si el elemento con foco desapareció, el foco va al título. */
+  function refresh(): void {
+    if (!currentRoute) return;
+    unmountCurrentView();
+    mountView(currentRoute);
+    if (document.activeElement === document.body || !document.activeElement?.isConnected) {
+      root.querySelector<HTMLElement>('h1')?.focus();
     }
   }
 
@@ -117,6 +131,7 @@ export function createRouter(options: {
     }
 
     unmountCurrentView();
+    currentRoute = resolution.route;
     mountView(resolution.route);
 
     document.title = `${resolution.route.title} | NEXO`;

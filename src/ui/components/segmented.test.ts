@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { segmented } from './segmented';
 
-const markup = segmented({
+const options = {
   name: 'period',
   legend: 'Período',
   idPrefix: 'report-period',
@@ -10,12 +10,21 @@ const markup = segmented({
     { value: '30d', label: '<b>30</b> días' },
   ],
   value: '30d',
-}).value;
+} as const;
+
+const markup = segmented(options).value;
 
 describe('segmented', () => {
   it('agrupa las opciones con una leyenda oculta', () => {
-    expect(markup).toMatch(/^<fieldset class="nx-segmented">/);
+    expect(markup).toMatch(/^<fieldset class="nx-segmented-group">/);
     expect(markup).toMatch(/<legend class="visually-hidden">\s*Período\s*<\/legend>/);
+    expect(markup).toContain('<div class="nx-segmented">');
+  });
+
+  it('puede mostrar la leyenda como la etiqueta de un campo', () => {
+    expect(segmented({ ...options, visibleLegend: true }).value).toMatch(
+      /<legend class="form-label">\s*Período\s*<\/legend>/,
+    );
   });
 
   it('dibuja un radio nativo por opción, asociado a su etiqueta', () => {

@@ -1,0 +1,31 @@
+// Una columna: perfil, preferencias y datos demo, separados como las secciones del Dashboard.
+.nx-settings {
+  max-width: 40rem;
+}
+
+.nx-settings__section {
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--nx-border);
+
+  & + & {
+    padding-top: 2rem;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  h2 {
+    margin-bottom: 1rem;
+  }
+}
+
+.nx-settings__description {
+  margin-bottom: 1rem;
+  color: var(--nx-text-muted);
+}
+
+.nx-settings__form > .nx-btn {
+  margin-top: 0.5rem;
+}

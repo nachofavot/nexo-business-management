@@ -3,6 +3,7 @@ import type { Currency } from '../domain/types';
 import {
   formatDateTime,
   formatDiscount,
+  formatInitials,
   formatMoney,
   formatMoneyShort,
   formatMonth,
@@ -193,5 +194,20 @@ describe('formatSeriesLabel con períodos parciales', () => {
       short: 'nov',
       long: 'noviembre de 2026 (hasta el 4)',
     });
+  });
+});
+
+describe('formatInitials', () => {
+  it.each([
+    ['Usuario Demo', 'UD'],
+    ['ana', 'A'],
+    ['  ana   gómez  ', 'AG'],
+    ['😀 Ana', '😀A'],
+    ['ñandú élite', 'ÑÉ'],
+    ['👩‍💻 Programadora', '👩‍💻P'],
+    ['Ana María Gómez', 'AM'],
+    ['', ''],
+  ])('"%s" da "%s"', (name, expected) => {
+    expect(formatInitials(name)).toBe(expected);
   });
 });

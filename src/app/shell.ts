@@ -3,6 +3,7 @@ import Offcanvas from 'bootstrap/js/dist/offcanvas';
 
 import type { DatabaseStore } from '../data/database';
 import { brand } from '../ui/components/brand';
+import { formatInitials } from '../ui/format';
 import { requireElement } from '../ui/dom';
 import { html, setHtml } from '../ui/html';
 import { icon, type IconName } from '../ui/icons';
@@ -20,15 +21,9 @@ const NAV_ICONS: Partial<Readonly<Record<RouteName, IconName>>> = {
 export interface Shell {
   outlet: HTMLElement;
   setRoute(route: Route): void;
+  /** Vuelve a leer el perfil guardado, por ejemplo después de editarlo en Configuración. */
+  refreshProfile(): void;
   destroy(): void;
-}
-
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word.charAt(0).toUpperCase())
-    .join('');
 }
 
 export function createShell(
@@ -83,8 +78,10 @@ export function createShell(
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <span class="nx-avatar" aria-hidden="true">${initials(displayName)}</span>
-              <span class="nx-topbar__user-name">${displayName}</span>
+              <span class="nx-avatar" id="nx-user-initials" aria-hidden="true"
+                >${formatInitials(displayName)}</span
+              >
+              <span class="nx-topbar__user-name" id="nx-user-name">${displayName}</span>
               ${icon('chevronDown')}
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -119,6 +116,8 @@ export function createShell(
   const nav = requireElement('nx-nav', HTMLElement);
   const indicator = requireElement('nx-nav-indicator', HTMLElement);
   const userMenuButton = requireElement('nx-user-menu', HTMLElement);
+  const userInitials = requireElement('nx-user-initials', HTMLElement);
+  const userName = requireElement('nx-user-name', HTMLElement);
 
   function moveIndicator(): void {
     const active = nav.querySelector<HTMLElement>('[aria-current="page"]');
@@ -171,6 +170,12 @@ export function createShell(
         isFirstRoute = false;
         requestAnimationFrame(() => indicator.classList.add('nx-nav__indicator--animated'));
       }
+    },
+    refreshProfile() {
+      const { displayName: name } = database.read().settings.profile;
+      userMenuButton.setAttribute('aria-label', `Menú de ${name}`);
+      userInitials.textContent = formatInitials(name);
+      userName.textContent = name;
     },
     destroy() {
       controller.abort();

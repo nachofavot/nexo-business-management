@@ -50,11 +50,25 @@
   white-space: nowrap;
 }
 
+// Sin el nombre, el botón no necesita relleno ancho: con 320 px, "Configuración" no entraba.
+.nx-topbar__user {
+  flex: none;
+
+  @media (max-width: 575.98px) {
+    padding-inline: 0.5rem;
+  }
+}
+
+// Un nombre largo termina en "…" y le deja lugar al título de la pantalla.
 .nx-topbar__user-name {
   display: none;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   @media (min-width: 576px) {
-    display: inline;
+    display: inline-block;
   }
 }
 

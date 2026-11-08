@@ -152,3 +152,24 @@ export function formatSeriesLabel(
 export function truncateLabel(text: string, maxLength: number): string {
   return text.length <= maxLength ? text : `${text.slice(0, maxLength - 1)}…`;
 }
+
+const graphemes = new Intl.Segmenter('es', { granularity: 'grapheme' });
+
+function firstGrapheme(word: string): string {
+  for (const { segment } of graphemes.segment(word)) return segment;
+  return '';
+}
+
+/**
+ * Iniciales de las dos primeras palabras, para el avatar. Toma grafemas y no caracteres sueltos:
+ * así un emoji o una letra con tilde compuesta no quedan partidos en símbolos rotos.
+ */
+export function formatInitials(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word !== '')
+    .slice(0, 2)
+    .map((word) => firstGrapheme(word).toLocaleUpperCase('es'))
+    .join('');
+}
