@@ -14,9 +14,11 @@ import { mountChartById, prefersReducedMotion, readChartTheme } from '../ui/char
 import { emptyState } from '../ui/components/empty-state';
 import { metric } from '../ui/components/metric';
 import { segmented } from '../ui/components/segmented';
+import { announce } from '../ui/announce';
 import { requireElement } from '../ui/dom';
 import { formatMoney, formatMoneyShort, formatNumber } from '../ui/format';
 import { html, setHtml, type SafeHtml } from '../ui/html';
+import { periodAnnouncement } from '../ui/messages';
 import {
   categoryPoints,
   leaderSummary,
@@ -210,6 +212,7 @@ export const reportsView: View = ({ root, signal, database, now }) => {
       if (!isOneOf(value, PERIOD_VALUES)) return;
       period = value;
       render();
+      announce(periodAnnouncement(period));
     },
     { signal },
   );

@@ -17,7 +17,8 @@ import { showToast } from '../ui/components/toast';
 import { requireElement } from '../ui/dom';
 import { html, setHtml } from '../ui/html';
 import { icon } from '../ui/icons';
-import { storageFailureMessage } from '../ui/messages';
+import { announce } from '../ui/announce';
+import { pageAnnouncement, storageFailureMessage } from '../ui/messages';
 import { productColumns } from './product-columns';
 import { PRODUCT_FIELDS, toProductInput } from './product-form';
 
@@ -38,6 +39,7 @@ export const productsView: View = ({ root, signal, database, services }) => {
   let lowStockOnly = false;
   let sort: TableSort = { key: 'name', direction: 'asc' };
   let page = 1;
+  let pageCount = 1;
 
   setHtml(
     root,
@@ -123,6 +125,7 @@ export const productsView: View = ({ root, signal, database, services }) => {
     const result = products.query({ ...listOptions(), page });
     // La página puede cambiar: si se borró la última fila de la última página, pasa a la anterior.
     page = result.page;
+    pageCount = result.pageCount;
     status.textContent = countLabel(result.totalItems);
 
     if (result.totalItems > 0) {
@@ -252,6 +255,8 @@ export const productsView: View = ({ root, signal, database, services }) => {
     page = Number(button.getAttribute('data-page'));
     renderTable();
     focusPageButton(tableRegion, label);
+    // El foco sigue en el botón y la tabla cambió: sin el aviso, un lector de pantalla no se entera.
+    announce(pageAnnouncement(page, pageCount));
   }
 
   root.addEventListener(

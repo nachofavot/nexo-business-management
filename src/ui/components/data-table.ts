@@ -34,6 +34,7 @@ export function actionsColumn<T extends { id: string; name: string }>(): Column<
           class="nx-btn nx-btn--ghost nx-btn--icon"
           type="button"
           data-edit="${row.id}"
+          aria-haspopup="dialog"
           aria-label="Editar ${row.name}"
         >
           ${icon('edit')}
@@ -42,6 +43,7 @@ export function actionsColumn<T extends { id: string; name: string }>(): Column<
           class="nx-btn nx-btn--ghost nx-btn--icon"
           type="button"
           data-delete="${row.id}"
+          aria-haspopup="dialog"
           aria-label="Eliminar ${row.name}"
         >
           ${icon('delete')}

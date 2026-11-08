@@ -117,7 +117,12 @@ export function saleDetailContent(
         ${
           isCancelled
             ? null
-            : html`<button class="nx-btn nx-btn--danger" type="button" data-action="cancel-sale">
+            : html`<button
+                class="nx-btn nx-btn--danger"
+                type="button"
+                data-action="cancel-sale"
+                aria-haspopup="dialog"
+              >
                 Anular venta
               </button>`
         }

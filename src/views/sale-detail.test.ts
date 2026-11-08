@@ -78,6 +78,8 @@ describe('saleDetailContent', () => {
     const markup = render(makeSale());
 
     expect(markup).toContain('data-action="cancel-sale"');
+    // "Anular venta" abre la confirmación.
+    expect(markup).toMatch(/data-action="cancel-sale"[^>]*aria-haspopup="dialog"/);
     expect(markup).not.toContain('Anulada el');
   });
 

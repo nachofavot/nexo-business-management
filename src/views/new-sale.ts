@@ -16,7 +16,7 @@ import { requireElement } from '../ui/dom';
 import { formatDiscount, formatMoney, formatPaymentMethod, formatPercent } from '../ui/format';
 import { html, setHtml, type SafeHtml } from '../ui/html';
 import { icon } from '../ui/icons';
-import { storageFailureMessage } from '../ui/messages';
+import { lineControlNames, storageFailureMessage } from '../ui/messages';
 
 const ID_PREFIX = 'new-sale';
 
@@ -76,17 +76,22 @@ function lineRow(key: number, options: SafeHtml): SafeHtml {
 
   return html`<li class="nx-sale-line" data-line="${key}">
     <div class="nx-sale-line__product">
-      <label class="form-label" for="${id}-product">Producto</label>
-      <select class="form-select" id="${id}-product" data-role="product">
+      <label class="form-label" for="${id}-product"
+        >Producto<span class="visually-hidden" data-role="line-suffix"></span
+      ></label>
+      <select class="form-select" id="${id}-product" data-role="product" required>
         ${options}
       </select>
     </div>
     <div class="nx-sale-line__quantity">
-      <label class="form-label" for="${id}-quantity">Cantidad</label>
+      <label class="form-label" for="${id}-quantity"
+        >Cantidad<span class="visually-hidden" data-role="line-suffix"></span
+      ></label>
       <input
         class="form-control"
         id="${id}-quantity"
         data-role="quantity"
+        required
         value="1"
         inputmode="numeric"
         autocomplete="off"
@@ -98,7 +103,6 @@ function lineRow(key: number, options: SafeHtml): SafeHtml {
       class="nx-btn nx-btn--ghost nx-btn--icon nx-sale-line__remove"
       type="button"
       data-role="remove"
-      aria-label="Quitar línea sin producto"
     >
       ${icon('delete')}
     </button>
@@ -142,7 +146,6 @@ export const newSaleView: View = ({ root, signal, database, services, navigate }
     return;
   }
 
-  const productsById = new Map(products.map((product) => [product.id, product]));
   const productChoices = productOptions(sortItems(products, (product) => product.name, 'asc'));
 
   setHtml(
@@ -208,6 +211,9 @@ export const newSaleView: View = ({ root, signal, database, services, navigate }
 
   let hasAttempted = false;
   let nextLineKey = 0;
+  // Las líneas agregadas después de un intento fallido no muestran errores hasta el envío
+  // siguiente: aparecían vacías y ya marcadas en rojo.
+  const linesAddedAfterAttempt = new Set<HTMLElement>();
 
   function lineRows(): HTMLElement[] {
     return [...linesList.querySelectorAll<HTMLElement>('[data-line]')];
@@ -242,7 +248,6 @@ export const newSaleView: View = ({ root, signal, database, services, navigate }
 
     lineRows().forEach((row, index) => {
       const line = preview.lines[index];
-      const product = productsById.get(input.lines[index]?.productId ?? '');
       const available = line?.availableStock ?? null;
       const subtotal = line?.subtotalCents ?? null;
 
@@ -250,10 +255,6 @@ export const newSaleView: View = ({ root, signal, database, services, navigate }
         available === null ? '' : `Disponibles: ${available}`;
       linePart(row, 'subtotal', HTMLElement).textContent =
         subtotal === null ? '—' : formatMoney(subtotal, currency);
-      linePart(row, 'remove', HTMLButtonElement).setAttribute(
-        'aria-label',
-        product ? `Quitar ${product.name}` : 'Quitar línea sin producto',
-      );
     });
 
     const { totals } = preview;
@@ -290,7 +291,7 @@ export const newSaleView: View = ({ root, signal, database, services, navigate }
     else addButton.setAttribute('aria-describedby', linesError.id);
 
     lineRows().forEach((row, index) => {
-      const lineError = errors.lineErrors?.[index];
+      const lineError = linesAddedAfterAttempt.has(row) ? undefined : errors.lineErrors?.[index];
       const productSelect = linePart(row, 'product', HTMLSelectElement);
       const errorElement = linePart(row, 'error', HTMLElement);
       const isProductError = lineError?.field === 'productId';
@@ -329,14 +330,27 @@ export const newSaleView: View = ({ root, signal, database, services, navigate }
     if (hasAttempted) showErrors(sales.validate(input));
   }
 
+  /** Con varias líneas, cada control lleva el número de la suya: si no, todos se llamaban igual. */
+  function numberLines(): void {
+    lineRows().forEach((row, index) => {
+      const names = lineControlNames(index + 1);
+      for (const suffix of row.querySelectorAll('[data-role="line-suffix"]')) {
+        suffix.textContent = names.lineSuffix;
+      }
+      linePart(row, 'remove', HTMLButtonElement).setAttribute('aria-label', names.remove);
+    });
+  }
+
   function addLine(options: { focus: boolean }): void {
     nextLineKey += 1;
     const holder = document.createElement('ol');
     setHtml(holder, lineRow(nextLineKey, productChoices));
     const row = holder.firstElementChild;
-    if (!row) return;
+    if (!(row instanceof HTMLElement)) return;
 
     linesList.append(row);
+    if (hasAttempted) linesAddedAfterAttempt.add(row);
+    numberLines();
     if (options.focus) linePart(row, 'product', HTMLSelectElement).focus();
     refresh();
   }
@@ -344,6 +358,8 @@ export const newSaleView: View = ({ root, signal, database, services, navigate }
   function removeLine(row: HTMLElement): void {
     const index = lineRows().indexOf(row);
     row.remove();
+    linesAddedAfterAttempt.delete(row);
+    numberLines();
 
     const remaining = lineRows();
     const next = remaining[index] ?? remaining[index - 1];
@@ -376,6 +392,7 @@ export const newSaleView: View = ({ root, signal, database, services, navigate }
     (event) => {
       event.preventDefault();
       hasAttempted = true;
+      linesAddedAfterAttempt.clear();
 
       const result = sales.register(readInput());
       if (result.ok) {

@@ -206,6 +206,12 @@ describe('actionsColumn', () => {
     expect(markup).toContain('aria-label="Eliminar Ana"');
   });
 
+  it('los dos botones anuncian que abren un diálogo', () => {
+    const markup = renderActions({ id: 'a1', name: 'Ana' });
+
+    expect(markup.match(/aria-haspopup="dialog"/g)).toHaveLength(2);
+  });
+
   it('usa el ancho de la columna de acciones y no se puede ordenar', () => {
     const markup = renderActions({ id: 'a1', name: 'Ana' });
 
