@@ -384,3 +384,35 @@ El informe incluye la salida real de cada comprobación, los errores que apareci
 Muestra las capturas para la **aprobación visual del autor**, con la variación mensual de los ingresos demo. Cierra con la respuesta a "¿cómo hacés accesible un gráfico?" para una entrevista.
 
 No se empieza la Etapa 7 sin la aprobación del autor.
+
+---
+
+## Decisiones tomadas al ejecutar el plan
+
+Registradas para que el plan describa lo que se construyó.
+
+**Componente de gráficos**
+
+- `chartFigure` acepta un estado vacío: sin datos, muestra el mensaje en lugar del gráfico.
+- Los datos de cada gráfico no van en una tabla oculta, sino en un desplegable "Ver los datos" con una `nx-table`. Lo pidió la revisión: el diseño exige uso completo con teclado, y antes el valor de cada punto solo aparecía con el mouse. Además, una tabla oculta con `visually-hidden` estiraba la página, porque una tabla no respeta `height` ni `overflow`.
+- Los nombres del eje de barras se recortan midiendo el texto con la fuente real (`fitLabel`, contra el 40 % del ancho). Un recorte fijo de 24 caracteres dejaba nombres cortados por la izquierda en 320 px y en 992 px.
+- La última marca del eje de valores de las barras se alinea hacia adentro (`ticks.align: 'inner'`): centrada, quedaba cortada contra el borde.
+- Si la fuente Geist todavía no cargó, el gráfico se vuelve a montar cuando termina (`remountWhenReady`). Con la fuente de respaldo, Chart.js medía mal y dibujaba textos cortados al recargar la página.
+- El tooltip parte el título en líneas de hasta 32 caracteres y aparece en cualquier parte de la fila de una barra. El encabezado del gráfico parte las palabras largas.
+- El eje de unidades no marca fracciones (`integerTicks`).
+- `.nx-chart__canvas` lleva `overflow: hidden`: al achicar la ventana, el lienzo se recorta en lugar de ensanchar la página hasta que Chart.js se acomoda.
+- La limpieza segura de las vistas es `runViewCleanup`, en `app/view.ts`, y tiene tests.
+
+**Datos**
+
+- `revenueSeries` devuelve los días que cubre cada punto, recortados al período. La primera semana de "90 días" se llama "Del 11 al 16 de agosto", y el mes en curso de "12 meses", "noviembre de 2026 (hasta el 8)". Así una caída por un período incompleto no parece real.
+- Chart.js se importa por partes y no se carga de forma diferida: el Dashboard es la primera pantalla después de entrar. El JS pasó de 43 a 105 kB comprimidos.
+
+**Detalles menores que quedan para más adelante**
+
+- En 320 px, las fechas del eje de 30 días se tocan; el eje no marca el final, y en 12 meses falta el año en el cambio de año.
+- Con 305 px útiles, "12 meses" pasa 4 px el borde del selector; con colores forzados no se distingue el período elegido, y falta el estado `:active`.
+- El cambio de período no se anuncia a lectores de pantalla.
+- El Dashboard y Reportes deciden el estado vacío con criterios distintos.
+- La limpieza no anota un gráfico si otro falla al montarse, y un id de canvas mal escrito pasa en silencio.
+- `PERIOD_VALUES` no está atado a `ReportPeriod`, y `truncateLabel` puede partir un emoji.
