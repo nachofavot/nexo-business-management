@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { barChartConfig, lineChartConfig, type ChartOptions, type ChartPoint } from './config';
+import {
+  barChartConfig,
+  lineChartConfig,
+  wrapTooltipTitle,
+  type ChartOptions,
+  type ChartPoint,
+} from './config';
 
 const theme = {
   series: '#2e9bff',
@@ -53,7 +59,9 @@ describe('lineChartConfig', () => {
 
   it('el tooltip muestra el título largo y el valor formateado', () => {
     const callbacks = config.options?.plugins?.tooltip?.callbacks;
-    expect(callbacks?.title?.call(undefined as never, [{ dataIndex: 1 } as never])).toBe('b larga');
+    expect(callbacks?.title?.call(undefined as never, [{ dataIndex: 1 } as never])).toEqual([
+      'b larga',
+    ]);
     expect(callbacks?.label?.call(undefined as never, { parsed: { x: 1, y: 2500 } } as never)).toBe(
       'valor 2500',
     );
@@ -84,7 +92,9 @@ describe('barChartConfig', () => {
 
   it('el tooltip muestra el nombre completo y el valor del eje horizontal', () => {
     const callbacks = config.options?.plugins?.tooltip?.callbacks;
-    expect(callbacks?.title?.call(undefined as never, [{ dataIndex: 0 } as never])).toBe('a larga');
+    expect(callbacks?.title?.call(undefined as never, [{ dataIndex: 0 } as never])).toEqual([
+      'a larga',
+    ]);
     expect(callbacks?.label?.call(undefined as never, { parsed: { x: 100, y: 0 } } as never)).toBe(
       'valor 100',
     );
@@ -126,5 +136,49 @@ describe('marcas enteras', () => {
     expect(barChartConfig(points, options).options?.scales?.x?.ticks).not.toHaveProperty(
       'precision',
     );
+  });
+});
+
+// El tooltip de Chart.js no parte el texto: un nombre largo quedaba cortado contra el borde.
+describe('wrapTooltipTitle', () => {
+  it('deja en una línea un título corto', () => {
+    expect(wrapTooltipTitle('Monitor', 32)).toEqual(['Monitor']);
+  });
+
+  it('parte entre palabras', () => {
+    expect(wrapTooltipTitle('Cámara web 1080p con micrófono incorporado y tapa', 32)).toEqual([
+      'Cámara web 1080p con micrófono',
+      'incorporado y tapa',
+    ]);
+  });
+
+  it('parte una palabra más larga que la línea', () => {
+    expect(wrapTooltipTitle('X'.repeat(80), 32)).toEqual([
+      'X'.repeat(32),
+      'X'.repeat(32),
+      'X'.repeat(16),
+    ]);
+  });
+
+  it('el tooltip de los gráficos usa las líneas', () => {
+    const long = { label: 'corto', title: 'Y'.repeat(40), value: 1 };
+    const callbacks = barChartConfig([long], options).options?.plugins?.tooltip?.callbacks;
+
+    expect(callbacks?.title?.call(undefined as never, [{ dataIndex: 0 } as never])).toEqual([
+      'Y'.repeat(32),
+      'Y'.repeat(8),
+    ]);
+  });
+});
+
+describe('interacción de las barras', () => {
+  // Una barra corta es difícil de alcanzar: el tooltip aparece con el mouse en cualquier parte de
+  // la fila.
+  it('muestra el tooltip con el mouse en cualquier parte de la fila', () => {
+    expect(barChartConfig(points, options).options?.interaction).toMatchObject({
+      mode: 'index',
+      axis: 'y',
+      intersect: false,
+    });
   });
 });

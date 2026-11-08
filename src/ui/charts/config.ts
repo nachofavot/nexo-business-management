@@ -35,6 +35,35 @@ interface ParsedPoint {
   y: number | null;
 }
 
+/** Caracteres por línea del título del tooltip: entra en el gráfico más angosto, de 300 px. */
+const TOOLTIP_LINE_LENGTH = 32;
+
+/**
+ * Parte el título del tooltip en líneas, porque Chart.js no lo hace solo: un nombre largo quedaba
+ * cortado contra el borde. Corta entre palabras, y una palabra más larga que la línea se parte.
+ */
+export function wrapTooltipTitle(text: string, maxLength: number): string[] {
+  const lines: string[] = [];
+  let current = '';
+
+  for (const word of text.split(' ')) {
+    const pieces =
+      word.length > maxLength
+        ? (word.match(new RegExp(`.{1,${maxLength}}`, 'gu')) ?? [word])
+        : [word];
+    for (const piece of pieces) {
+      if (current === '') current = piece;
+      else if (current.length + 1 + piece.length <= maxLength) current += ` ${piece}`;
+      else {
+        lines.push(current);
+        current = piece;
+      }
+    }
+  }
+  if (current !== '') lines.push(current);
+  return lines;
+}
+
 function integerTicks(options: ChartOptions) {
   return options.integerTicks ? { precision: 0 } : {};
 }
@@ -69,7 +98,7 @@ function commonOptions(
         displayColors: false,
         callbacks: {
           title: (items: readonly { dataIndex: number }[]) =>
-            points[items[0]?.dataIndex ?? -1]?.title ?? '',
+            wrapTooltipTitle(points[items[0]?.dataIndex ?? -1]?.title ?? '', TOOLTIP_LINE_LENGTH),
           label: (item: { parsed: ParsedPoint }) => formatValue(valueOf(item.parsed) ?? 0),
         },
       },
@@ -152,6 +181,8 @@ export function barChartConfig(
     options: {
       ...commonOptions(points, options, (parsed) => parsed.x),
       indexAxis: 'y',
+      // Una barra corta es difícil de alcanzar: el tooltip aparece en cualquier parte de la fila.
+      interaction: { mode: 'index', axis: 'y', intersect: false },
       scales: {
         x: {
           beginAtZero: true,

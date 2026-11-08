@@ -3,8 +3,10 @@
   margin: 0;
 }
 
+// Un nombre largo sin espacios en el resumen no debe ensanchar la página.
 .nx-chart__header {
   margin-bottom: 0.75rem;
+  overflow-wrap: anywhere;
 }
 
 .nx-chart__summary {
