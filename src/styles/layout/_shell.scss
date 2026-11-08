@@ -1,7 +1,8 @@
 .nx-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  // 100dvh descuenta la barra del navegador del celular; 100vh queda para los que no lo conocen.
+  // 100dvh descuenta la barra del navegador del celular. 100vh es el respaldo para navegadores que
+  // no lo conocen; el build lo quita porque todos los navegadores para los que compila lo entienden.
   min-height: 100vh;
   min-height: 100dvh;
 

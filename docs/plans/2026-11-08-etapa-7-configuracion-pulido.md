@@ -695,3 +695,19 @@ Registradas para que el plan describa lo que se construyó.
 - Cobertura de líneas: 100 % en `domain` y `data`, 99,24 % en `services`. Con un umbral de 100 en `services`, `npm run test:coverage` falla.
 - Mutaciones: 26 condiciones rotas a mano. Dos sobreviven y son equivalentes: con tantos puntos como marcas, las dos ramas de `tickIndices` dan el mismo resultado, y el umbral nunca es negativo. La ronda encontró un caso sin test (un gráfico de menos de 128 px se quedaba sin fechas) y un filtro que no hacía nada en `formatInitials`.
 - Contraste de los colores nuevos: el aviso de datos viejos da 12,97:1, el avatar azul 6,91:1 y el violeta 5,57:1, y el segmentado elegido en azul 7,73:1.
+
+**Revisión independiente**
+
+- No encontró problemas críticos ni importantes, y verificó por su cuenta los cinco puntos del foco de revisión en el build, con la CSP activa.
+- Tres comentarios afirmaban algo falso y se corrigieron. El de `applyAppearance` decía que la CSP no permite escribir estilos desde JavaScript, pero `style-src 'self'` bloquea solo el atributo `style` del HTML, no `element.style`. Otro todavía llamaba "violeta" al color de "Ver los datos". El último decía que el respaldo `100vh` queda en el build.
+- El ícono de la pestaña (`favicon.svg`) sigue violeta con cualquier acento: es la marca, un archivo fijo fuera de la página.
+
+**Detalles menores que quedan para más adelante**
+
+- Los errores del umbral y del stock dicen "1000" y "999999", sin separador de miles.
+- El perfil acepta un nombre hecho solo de caracteres invisibles (como U+200B), y un carácter de control al principio pasa a ser la primera inicial.
+- Si alguien confirma "Restaurar" y vuelve atrás durante el cierre del diálogo, los datos se restauran pero la pantalla anterior no se vuelve a dibujar.
+- Clientes y Productos, al guardar sin cambios, siguen diciendo "Cambios guardados.", aunque ya no escriben nada.
+- "Quitar la línea N" no dice qué producto quita; podría ser "Quitar la línea 2 (Switch de 8)".
+- `lineControlNames` devuelve `product` y `quantity`, que la vista no usa, y su test no cubre el nombre que se arma de verdad.
+- Un test de `settings-form` usa `%d` en el nombre y muestra 10.5 como "10".
