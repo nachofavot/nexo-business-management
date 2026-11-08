@@ -57,7 +57,10 @@ export function openModal(element: HTMLElement, signal: AbortSignal): void {
   element.addEventListener(
     'hidden.bs.modal',
     () => {
-      if (opener instanceof HTMLElement) opener.focus();
+      // Si quien abrió el modal ya no está (se navegó o se volvió a dibujar la lista), el foco va
+      // al título de la pantalla y no queda perdido en body.
+      if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
+      else document.getElementById('nx-page-title')?.focus();
     },
     { once: true },
   );

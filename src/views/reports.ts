@@ -1,5 +1,11 @@
 import type { View } from '../app/view';
-import { buildReport, type Report, type ReportPeriod } from '../domain/reports';
+import {
+  buildReport,
+  hasCompletedSales,
+  periodRange,
+  type Report,
+  type ReportPeriod,
+} from '../domain/reports';
 import { isOneOf } from '../domain/validation/rules';
 import { barChartConfig, lineChartConfig, type ChartOptions } from '../ui/charts/config';
 import { chartFigure } from '../ui/charts/figure';
@@ -111,15 +117,18 @@ export const reportsView: View = ({ root, signal, database, now }) => {
   function render(): void {
     destroyCharts();
 
-    const report = buildReport(database.read().sales, period, now());
+    const { sales } = database.read();
+    const today = now();
+    const report = buildReport(sales, period, today);
+    // El mismo criterio que el Dashboard: una venta de $ 0 también es una venta.
+    const hasSales = hasCompletedSales(sales, periodRange(period, today));
     const { summary } = report;
     const revenue = revenuePoints(report.revenue, period);
     const categories = categoryPoints(report.categories);
     const products = productPoints(report.topProducts);
-    const empty =
-      summary.salesCount > 0
-        ? undefined
-        : { title: 'Sin ventas en este período', description: 'Probá con un período más largo.' };
+    const empty = hasSales
+      ? undefined
+      : { title: 'Sin ventas en este período', description: 'Probá con un período más largo.' };
 
     setHtml(
       content,
@@ -170,7 +179,7 @@ export const reportsView: View = ({ root, signal, database, now }) => {
         <section class="nx-reports__customers" aria-labelledby="report-customers-title">
           <h2 id="report-customers-title">Mejores clientes</h2>
           ${
-            summary.salesCount > 0
+            hasSales
               ? customersTable(report.topCustomers, money)
               : emptyState('Sin ventas en este período', 'Probá con un período más largo.')
           }

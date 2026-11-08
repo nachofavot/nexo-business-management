@@ -4,6 +4,9 @@ import {
   compareWithPreviousMonth,
   currentMonthRange,
   grossByCategory,
+  hasCompletedSales,
+  isDemoOutdated,
+  periodRange,
   revenueSeries,
   salesInRange,
 } from '../domain/reports';
@@ -23,6 +26,7 @@ import {
   revenuePoints,
   revenueSummary,
 } from './chart-summaries';
+import { confirmRestoreDemo } from './restore-demo';
 
 const VISIBLE_ACTIVITY = 8;
 const VISIBLE_LOW_STOCK = 5;
@@ -72,7 +76,7 @@ function lowStockList(products: readonly Product[], threshold: number): SafeHtml
   </ul>`;
 }
 
-export const dashboardView: View = ({ root, database, now }) => {
+export const dashboardView: View = ({ root, signal, database, services, now, refresh }) => {
   const { sales, products, activity, settings } = database.read();
   const { currency, lowStockThreshold } = settings.preferences;
 
@@ -89,11 +93,32 @@ export const dashboardView: View = ({ root, database, now }) => {
   const money = (cents: number) => formatMoney(cents, currency);
   const revenue = revenuePoints(revenueSeries(sales, '30d', today), '30d');
   const categories = categoryPoints(grossByCategory(salesInRange(sales, currentMonthRange(today))));
-  const hasRevenue = revenue.some((point) => point.value > 0);
+  // El mismo criterio que Reportes: una venta de $ 0 también es una venta.
+  const hasRecentSales = hasCompletedSales(sales, periodRange('30d', today));
+  const hasMonthSales = hasCompletedSales(sales, currentMonthRange(today));
+  const outdated = isDemoOutdated(sales, today);
 
   setHtml(
     root,
     html`<div class="nx-dashboard">
+      ${
+        outdated
+          ? html`<div class="nx-dashboard__outdated">
+              <p>
+                No hay ventas en los últimos 30 días. Restaurá los datos demo para verlos con fechas
+                de hoy.
+              </p>
+              <button
+                class="nx-btn nx-btn--secondary"
+                type="button"
+                data-action="restore-demo"
+                aria-haspopup="dialog"
+              >
+                Restaurar datos demo
+              </button>
+            </div>`
+          : null
+      }
       <section class="nx-dashboard__lead" aria-label="Ingresos del mes">
         ${metric({
           label: `Ingresos de ${formatMonth(today)}`,
@@ -129,7 +154,7 @@ export const dashboardView: View = ({ root, database, now }) => {
             title: 'Ingresos de los últimos 30 días',
             summary: revenueSummary(revenue, currency),
             table: { headers: ['Día', 'Ingresos'], rows: pointRows(revenue, money) },
-            empty: hasRevenue
+            empty: hasRecentSales
               ? undefined
               : {
                   title: 'Sin ventas en los últimos 30 días',
@@ -143,13 +168,12 @@ export const dashboardView: View = ({ root, database, now }) => {
             title: `Ventas brutas por categoría en ${formatMonth(today)}`,
             summary: leaderSummary(categories, money),
             table: { headers: ['Categoría', 'Ventas brutas'], rows: pointRows(categories, money) },
-            empty:
-              categories.length > 0
-                ? undefined
-                : {
-                    title: 'Sin ventas este mes',
-                    description: 'Las ventas del mes aparecen en este gráfico.',
-                  },
+            empty: hasMonthSales
+              ? undefined
+              : {
+                  title: 'Sin ventas este mes',
+                  description: 'Las ventas del mes aparecen en este gráfico.',
+                },
           })}
         </div>
       </div>
@@ -180,6 +204,18 @@ export const dashboardView: View = ({ root, database, now }) => {
     mountChartById('dashboard-revenue-canvas', lineChartConfig(revenue, chartOptions)),
     mountChartById('dashboard-categories-canvas', barChartConfig(categories, chartOptions)),
   ];
+
+  root.addEventListener(
+    'click',
+    (event) => {
+      if (event.target instanceof Element && event.target.closest('[data-action="restore-demo"]')) {
+        void confirmRestoreDemo(services, signal).then((restored) => {
+          if (restored && !signal.aborted) refresh();
+        });
+      }
+    },
+    { signal },
+  );
 
   // Al salir de la pantalla, los gráficos se destruyen: si no, seguirían escuchando el tamaño
   // de la ventana.

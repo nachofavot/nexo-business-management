@@ -47,7 +47,13 @@ export const loginView: View = ({ root, signal, database, session, navigate }) =
         <button class="nx-btn nx-btn--primary" type="button" data-action="enter">
           Entrar a la demo
         </button>
-        <p class="nx-login__note">Los datos son ficticios y solo se guardan en este navegador.</p>
+        <p class="nx-login__note">
+          ${
+            database.mode === 'memory'
+              ? 'Los datos son ficticios. Tu navegador no permite guardarlos: los cambios se pierden al recargar.'
+              : 'Los datos son ficticios y solo se guardan en este navegador.'
+          }
+        </p>
       </div>
       ${sale ? latestSale(sale, settings.preferences.currency) : null}
     </main>`,

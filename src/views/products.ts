@@ -165,8 +165,9 @@ export const productsView: View = ({ root, signal, database, services }) => {
     );
   }
 
-  function focusEditButton(id: string): void {
-    const button = tableRegion.querySelector<HTMLElement>(`[data-edit="${CSS.escape(id)}"]`);
+  /** El botón de la fila, o la búsqueda si la fila ya no está en la página. */
+  function focusRowButton(action: 'edit' | 'delete', id: string): void {
+    const button = tableRegion.querySelector<HTMLElement>(`[data-${action}="${CSS.escape(id)}"]`);
     (button ?? searchInput).focus();
   }
 
@@ -198,7 +199,7 @@ export const productsView: View = ({ root, signal, database, services }) => {
         },
         // Al crear, el foco vuelve solo al botón; al editar, la fila se volvió a dibujar.
         onClosed(saved) {
-          if (saved && product) focusEditButton(product.id);
+          if (saved && product) focusRowButton('edit', product.id);
         },
       },
       signal,
@@ -220,6 +221,8 @@ export const productsView: View = ({ root, signal, database, services }) => {
     if (!result.ok) {
       if (result.error.kind !== 'validation') showFailure(result.error);
       renderTable();
+      // La lista se volvió a dibujar: sin esto, el foco quedaría en body.
+      focusRowButton('delete', product.id);
       return;
     }
 

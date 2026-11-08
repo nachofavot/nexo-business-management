@@ -84,6 +84,16 @@ export function salesInRange(sales: readonly Sale[], range: DateRange): readonly
   });
 }
 
+/** Criterio único de "sin ventas" para el Dashboard y Reportes: una venta de $ 0 también cuenta. */
+export function hasCompletedSales(sales: readonly Sale[], range: DateRange): boolean {
+  return completedSales(salesInRange(sales, range)).length > 0;
+}
+
+/** Hay ventas, pero ninguna completada en los últimos 30 días: los datos demo quedaron viejos. */
+export function isDemoOutdated(sales: readonly Sale[], now: Date): boolean {
+  return sales.length > 0 && !hasCompletedSales(sales, periodRange('30d', now));
+}
+
 export function summarizeSales(sales: readonly Sale[]): SalesSummary {
   const completed = completedSales(sales);
   const revenueCents = completed.reduce((sum, sale) => sum + sale.totalCents, 0);

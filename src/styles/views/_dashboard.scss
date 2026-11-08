@@ -104,3 +104,22 @@
   color: var(--nx-text-muted);
   font-size: 0.8125rem;
 }
+
+// Datos demo viejos: el Dashboard quedaría en cero. Arriba de todo, con la acción que lo resuelve.
+.nx-dashboard__outdated {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(232, 163, 61, 0.35);
+  border-radius: var(--nx-radius-control);
+  background: rgba(232, 163, 61, 0.08);
+
+  p {
+    flex: 1 1 18rem;
+    max-width: 40rem;
+  }
+}

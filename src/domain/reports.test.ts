@@ -5,6 +5,8 @@ import {
   compareWithPreviousMonth,
   currentMonthRange,
   grossByCategory,
+  hasCompletedSales,
+  isDemoOutdated,
   percentChange,
   periodRange,
   revenueSeries,
@@ -574,5 +576,54 @@ describe('revenueSeries: días que cubre cada punto', () => {
 
     expect(series[0]).toMatchObject({ key: '2025-12', from: '2025-12-01', to: '2025-12-31' });
     expect(series.at(-1)).toMatchObject({ key: '2026-11', from: '2026-11-01', to: '2026-11-04' });
+  });
+});
+
+// Si alguien vuelve meses después, el Dashboard queda en cero: hay que ofrecer datos nuevos.
+describe('isDemoOutdated', () => {
+  // Domingo 8 de noviembre de 2026, al mediodía.
+  const today = new Date(2026, 10, 8, 12);
+
+  it('es false con una venta completada hoy', () => {
+    expect(isDemoOutdated([saleAt(new Date(2026, 10, 8, 9))], today)).toBe(false);
+  });
+
+  it('es false con la última venta al comienzo de los últimos 30 días', () => {
+    expect(isDemoOutdated([saleAt(new Date(2026, 9, 10, 0, 0))], today)).toBe(false);
+  });
+
+  it('es true con la última venta un minuto antes de los últimos 30 días', () => {
+    expect(isDemoOutdated([saleAt(new Date(2026, 9, 9, 23, 59))], today)).toBe(true);
+  });
+
+  it('es true si en los últimos 30 días solo hay ventas anuladas', () => {
+    const sales = [
+      saleAt(new Date(2026, 10, 7), 1000, { status: 'cancelled' }),
+      saleAt(new Date(2026, 6, 1)),
+    ];
+
+    expect(isDemoOutdated(sales, today)).toBe(true);
+  });
+
+  it('es false sin ventas: no hay datos que restaurar, solo un negocio nuevo', () => {
+    expect(isDemoOutdated([], today)).toBe(false);
+  });
+});
+
+describe('hasCompletedSales', () => {
+  const range = { start: new Date(2026, 10, 1), end: new Date(2026, 10, 8, 23, 59, 59, 999) };
+
+  it('cuenta una venta de $ 0, con 100 % de descuento', () => {
+    expect(hasCompletedSales([saleAt(new Date(2026, 10, 2), 0)], range)).toBe(true);
+  });
+
+  it('no cuenta las ventas anuladas', () => {
+    expect(
+      hasCompletedSales([saleAt(new Date(2026, 10, 2), 1000, { status: 'cancelled' })], range),
+    ).toBe(false);
+  });
+
+  it('no cuenta las ventas fuera del rango', () => {
+    expect(hasCompletedSales([saleAt(new Date(2026, 9, 31, 23, 59))], range)).toBe(false);
   });
 });
