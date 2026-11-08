@@ -23,6 +23,10 @@
   padding: 0.4375rem 0.625rem;
   border-radius: var(--nx-radius-tag);
 
+  @media (pointer: coarse) {
+    min-height: 2.75rem;
+  }
+
   &:hover {
     text-decoration: none;
   }

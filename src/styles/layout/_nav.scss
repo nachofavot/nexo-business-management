@@ -50,6 +50,7 @@ $corner: t.$radius-panel;
     top: 0;
     z-index: 1;
     height: 100vh;
+    height: 100dvh;
     padding: 1.25rem 0 1.25rem 0.75rem;
   }
 }
@@ -61,6 +62,13 @@ $corner: t.$radius-panel;
 
   &:hover {
     text-decoration: none;
+  }
+
+  @media (pointer: coarse) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    margin-bottom: 1rem;
   }
 }
 
@@ -105,7 +113,7 @@ $corner: t.$radius-panel;
     }
   }
 
-  @media (max-width: 991.98px) {
+  @media (max-width: 991.98px), (pointer: coarse) {
     min-height: 2.75rem;
   }
 

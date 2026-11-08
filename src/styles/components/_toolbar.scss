@@ -10,6 +10,11 @@
 .nx-toolbar__search {
   flex: 1 1 16rem;
   max-width: 26rem;
+
+  // Entre 480 y 767 px la búsqueda quedaba en 26rem y la categoría ocupaba toda la fila.
+  @media (max-width: 767.98px) {
+    max-width: none;
+  }
 }
 
 .nx-toolbar__select {

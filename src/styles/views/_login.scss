@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   min-height: 100vh;
+  min-height: 100dvh;
 
   @media (min-width: 992px) {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

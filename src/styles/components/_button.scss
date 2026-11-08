@@ -35,7 +35,8 @@
     opacity: 0.5;
   }
 
-  @media (max-width: 767.98px) {
+  // En el celular y en cualquier pantalla táctil, los controles miden al menos 44 px.
+  @media (max-width: 767.98px), (pointer: coarse) {
     min-height: 2.75rem;
   }
 }
@@ -104,7 +105,7 @@
   width: 2.25rem;
   padding: 0;
 
-  @media (max-width: 767.98px) {
+  @media (max-width: 767.98px), (pointer: coarse) {
     width: 2.75rem;
   }
 }
@@ -129,4 +130,12 @@
 // Bootstrap compila la sombra del foco con el violeta: así sigue al acento elegido.
 .btn-close {
   --bs-btn-close-focus-shadow: 0 0 0 0.25rem var(--nx-accent-300);
+}
+
+// Con el dedo, la X de cerrar mide 44 px: el ícono sigue igual y crece el área que se puede tocar.
+@media (pointer: coarse) {
+  .btn-close,
+  .modal-header .btn-close {
+    padding: calc((2.75rem - 1em) / 2);
+  }
 }

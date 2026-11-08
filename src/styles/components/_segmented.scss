@@ -50,7 +50,7 @@
     background: rgba(255, 255, 255, 0.1);
   }
 
-  @media (max-width: 767.98px) {
+  @media (max-width: 767.98px), (pointer: coarse) {
     min-height: 2.75rem;
     padding-inline: 0.5rem;
   }

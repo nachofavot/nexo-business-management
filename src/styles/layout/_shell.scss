@@ -1,7 +1,9 @@
 .nx-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  // 100dvh descuenta la barra del navegador del celular; 100vh queda para los que no lo conocen.
   min-height: 100vh;
+  min-height: 100dvh;
 
   @media (min-width: 992px) {
     grid-template-columns: 14rem minmax(0, 1fr);
@@ -13,10 +15,12 @@
   flex-direction: column;
   min-width: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--nx-surface-1);
 
   @media (min-width: 992px) {
     min-height: calc(100vh - 1rem);
+    min-height: calc(100dvh - 1rem);
     margin: 0.5rem 0.5rem 0.5rem 0;
     border-radius: var(--nx-radius-panel);
   }

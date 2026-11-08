@@ -83,6 +83,13 @@ th.nx-table__number {
   }
 }
 
+@media (pointer: coarse) {
+  .nx-table__sort {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+}
+
 th[aria-sort] .nx-table__sort {
   color: var(--nx-text);
 }
@@ -137,6 +144,10 @@ th[aria-sort] .nx-table__sort {
   .nx-table__detail {
     width: 2.25rem;
     padding: 0;
+
+    @media (pointer: coarse) {
+      width: 2.75rem;
+    }
   }
 
   .nx-table__detail-label {

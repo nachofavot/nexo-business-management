@@ -36,6 +36,12 @@
 
   > summary {
     width: fit-content;
+
+    @media (pointer: coarse) {
+      min-height: 2.75rem;
+      padding-block: 0.75rem;
+    }
+
     border-radius: var(--nx-radius-tag);
     color: var(--nx-accent-300);
     font-size: 0.8125rem;
