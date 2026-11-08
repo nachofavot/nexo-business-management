@@ -23,6 +23,8 @@ export interface ChartOptions {
   reducedMotion: boolean;
   formatValue(value: number): string;
   formatTick(value: number): string;
+  /** Para cantidades: el eje no marca fracciones como 0,5 unidades. */
+  integerTicks?: boolean;
 }
 
 const TICK_FONT_SIZE = 12;
@@ -31,6 +33,10 @@ const TICK_FONT_SIZE = 12;
 interface ParsedPoint {
   x: number | null;
   y: number | null;
+}
+
+function integerTicks(options: ChartOptions) {
+  return options.integerTicks ? { precision: 0 } : {};
 }
 
 function tickStyle(theme: ChartTheme) {
@@ -111,6 +117,7 @@ export function lineChartConfig(
           ticks: {
             ...tickStyle(theme),
             maxTicksLimit: 5,
+            ...integerTicks(options),
             callback: (value) => formatTick(Number(value)),
           },
         },
@@ -153,6 +160,7 @@ export function barChartConfig(
           ticks: {
             ...tickStyle(theme),
             maxTicksLimit: 5,
+            ...integerTicks(options),
             callback: (value) => formatTick(Number(value)),
           },
         },

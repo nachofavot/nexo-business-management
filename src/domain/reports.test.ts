@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { makeSale, makeSaleItem } from '../testing/fixtures';
 import {
+  buildReport,
   compareWithPreviousMonth,
   currentMonthRange,
   grossByCategory,
@@ -456,5 +457,93 @@ describe('topCustomers', () => {
     );
 
     expect(result).toEqual([{ customerId: 'c2', customerName: 'Bruno', revenueCents: 3000 }]);
+  });
+});
+
+describe('buildReport', () => {
+  // Sábado 7 de noviembre de 2026, mediodía.
+  const reportNow = new Date(2026, 10, 7, 12);
+
+  function saleOf(id: string, date: Date, overrides: Partial<Sale> = {}): Sale {
+    return makeSale({
+      id,
+      customerId: `c-${id}`,
+      customerName: `Cliente ${id}`,
+      items: [makeSaleItem({ productId: `p-${id}`, productName: `Producto ${id}` })],
+      createdAt: date.toISOString(),
+      totalCents: 1000,
+      ...overrides,
+    });
+  }
+
+  const today = saleOf('hoy', new Date(2026, 10, 7, 23, 59), {
+    items: [makeSaleItem({ productId: 'p-hoy', productName: 'Producto hoy', category: 'Redes' })],
+  });
+  const firstDay = saleOf('primero', new Date(2026, 10, 1, 0, 0));
+  const dayBefore = saleOf('antes', new Date(2026, 9, 31, 23, 59), {
+    items: [
+      makeSaleItem({
+        productId: 'p-antes',
+        productName: 'Producto antes',
+        category: 'Almacenamiento',
+      }),
+    ],
+  });
+  const cancelled = saleOf('anulada', new Date(2026, 10, 6, 12), {
+    status: 'cancelled',
+    cancelledAt: new Date(2026, 10, 6, 13).toISOString(),
+    items: [
+      makeSaleItem({
+        productId: 'p-anulada',
+        productName: 'Producto anulado',
+        category: 'Accesorios',
+      }),
+    ],
+  });
+  const report = buildReport([today, firstDay, dayBefore, cancelled], '7d', reportNow);
+
+  it('cuenta solo las ventas completadas de los 7 días, hoy incluido', () => {
+    expect(report.summary).toMatchObject({ salesCount: 2, revenueCents: 2000 });
+    expect(totalRevenue(report.revenue)).toBe(2000);
+  });
+
+  it('las categorías no mezclan ventas de otras fechas ni anuladas', () => {
+    expect(report.categories.map(({ category }) => category).sort()).toEqual([
+      'Periféricos',
+      'Redes',
+    ]);
+  });
+
+  it('los rankings usan solo las ventas del período', () => {
+    expect(report.topProducts.map(({ productId }) => productId).sort()).toEqual([
+      'p-hoy',
+      'p-primero',
+    ]);
+    expect(report.topCustomers.map(({ customerId }) => customerId).sort()).toEqual([
+      'c-hoy',
+      'c-primero',
+    ]);
+  });
+
+  it('los rankings usan los nombres guardados en la venta, aunque ya no existan', () => {
+    expect(report.topCustomers.map(({ customerName }) => customerName)).toContain('Cliente hoy');
+    expect(report.topProducts.map(({ productName }) => productName)).toContain('Producto hoy');
+  });
+
+  it('los rankings muestran hasta 5', () => {
+    const many = Array.from({ length: 7 }, (_, index) =>
+      saleOf(`v${index}`, new Date(2026, 10, 6, 10 + index)),
+    );
+    const manyReport = buildReport(many, '7d', reportNow);
+
+    expect(manyReport.topProducts).toHaveLength(5);
+    expect(manyReport.topCustomers).toHaveLength(5);
+  });
+
+  it('12 meses incluye el mes actual y los 11 anteriores', () => {
+    const december = saleOf('diciembre', new Date(2025, 11, 1, 0, 0));
+    const november = saleOf('noviembre', new Date(2025, 10, 30, 23, 59));
+
+    expect(buildReport([december, november], '12m', reportNow).summary.salesCount).toBe(1);
   });
 });

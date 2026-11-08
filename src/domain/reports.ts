@@ -242,3 +242,27 @@ export function topCustomers(
     revenueCents: value,
   }));
 }
+
+/** El diseño pide los 5 productos con más unidades y los 5 clientes con más ingresos. */
+const REPORT_TOP = 5;
+
+export interface Report {
+  summary: SalesSummary;
+  revenue: readonly { key: string; revenueCents: number }[];
+  categories: readonly { category: ProductCategory; grossCents: number }[];
+  topProducts: readonly { productId: string; productName: string; units: number }[];
+  topCustomers: readonly { customerId: string; customerName: string; revenueCents: number }[];
+}
+
+/** Todo con las ventas del período: los rankings no mezclan ventas de otras fechas. */
+export function buildReport(sales: readonly Sale[], period: ReportPeriod, now: Date): Report {
+  const inPeriod = salesInRange(sales, periodRange(period, now));
+
+  return {
+    summary: summarizeSales(inPeriod),
+    revenue: revenueSeries(sales, period, now),
+    categories: grossByCategory(inPeriod),
+    topProducts: topProducts(inPeriod, REPORT_TOP),
+    topCustomers: topCustomers(inPeriod, REPORT_TOP),
+  };
+}

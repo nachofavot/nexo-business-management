@@ -16,6 +16,7 @@ import { loginView } from './views/login';
 import { notFoundView } from './views/not-found';
 import { newSaleView } from './views/new-sale';
 import { productsView } from './views/products';
+import { reportsView } from './views/reports';
 import { salesView } from './views/sales';
 import { styleGuideView } from './views/style-guide';
 import { createUpcomingView } from './views/upcoming';
@@ -38,7 +39,7 @@ const views: Readonly<Record<RouteName, View>> = {
   products: productsView,
   sales: salesView,
   'new-sale': newSaleView,
-  reports: createUpcomingView('Reportes', 6),
+  reports: reportsView,
   settings: createUpcomingView('Configuración', 7),
   'not-found': notFoundView,
   'style-guide': import.meta.env.DEV ? styleGuideView : notFoundView,

@@ -1,7 +1,7 @@
 import type { ReportPeriod } from '../domain/reports';
 import type { Currency, ProductCategory } from '../domain/types';
 import type { ChartPoint } from '../ui/charts/config';
-import { formatMoney, formatSeriesLabel } from '../ui/format';
+import { formatMoney, formatSeriesLabel, truncateLabel } from '../ui/format';
 
 /**
  * "Total: $ X. Mayor ingreso: 5 de noviembre, con $ Y." Con un empate gana el más reciente,
@@ -55,4 +55,17 @@ export function pointRows(
   formatValue: (value: number) => string,
 ): [string, string][] {
   return points.map((point) => [point.title, formatValue(point.value)]);
+}
+
+/** Largo máximo de un nombre en el eje de un gráfico de barras. */
+const AXIS_LABEL_LENGTH = 24;
+
+export function productPoints(
+  products: readonly { productId: string; productName: string; units: number }[],
+): ChartPoint[] {
+  return products.map(({ productName, units }) => ({
+    label: truncateLabel(productName, AXIS_LABEL_LENGTH),
+    title: productName,
+    value: units,
+  }));
 }

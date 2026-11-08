@@ -114,3 +114,17 @@ describe('opciones comunes', () => {
     expect(build(points, { ...options, reducedMotion: true }).options?.animation).toBe(false);
   });
 });
+
+describe('marcas enteras', () => {
+  it('con integerTicks el eje de valores no marca fracciones', () => {
+    const config = barChartConfig(points, { ...options, integerTicks: true });
+
+    expect(config.options?.scales?.x?.ticks).toMatchObject({ precision: 0 });
+  });
+
+  it('sin integerTicks no fija la precisión', () => {
+    expect(barChartConfig(points, options).options?.scales?.x?.ticks).not.toHaveProperty(
+      'precision',
+    );
+  });
+});

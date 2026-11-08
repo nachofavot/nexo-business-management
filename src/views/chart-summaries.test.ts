@@ -5,6 +5,7 @@ import {
   categoryPoints,
   leaderSummary,
   pointRows,
+  productPoints,
   revenuePoints,
   revenueSummary,
 } from './chart-summaries';
@@ -87,5 +88,15 @@ describe('pointRows', () => {
     expect(
       pointRows([{ label: 'corto', title: 'completo', value: 7 }], (value) => `v${value}`),
     ).toEqual([['completo', 'v7']]);
+  });
+});
+
+describe('productPoints', () => {
+  it('recorta el nombre del eje y conserva el completo para el tooltip', () => {
+    const name = 'X'.repeat(80);
+
+    expect(productPoints([{ productId: 'p1', productName: name, units: 7 }])).toEqual([
+      { label: `${'X'.repeat(23)}…`, title: name, value: 7 },
+    ]);
   });
 });
