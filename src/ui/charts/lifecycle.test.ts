@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { remountWhenReady } from './lifecycle';
+import { createAll, remountWhenReady, type Destroyable } from './lifecycle';
 
 /** Anota cada gráfico creado y destruido, como si fuera Chart.js. */
 function tracker() {
@@ -51,5 +51,37 @@ describe('remountWhenReady', () => {
 
     expect(created).toEqual(['g1']);
     expect(destroyed).toEqual(['g1']);
+  });
+});
+
+describe('createAll', () => {
+  function chart(log: string[], name: string): Destroyable {
+    return { destroy: () => log.push(`${name} destruido`) };
+  }
+
+  it('crea todos los gráficos', () => {
+    const log: string[] = [];
+    const first = chart(log, 'a');
+    const second = chart(log, 'b');
+
+    expect(createAll([() => first, () => second])).toEqual([first, second]);
+    expect(log).toEqual([]);
+  });
+
+  // Si uno fallaba, los anteriores quedaban vivos escuchando el tamaño de la ventana.
+  it('si uno falla, destruye los anteriores y deja subir el error', () => {
+    const log: string[] = [];
+    const failure = new Error('No existe el lienzo');
+
+    expect(() =>
+      createAll([
+        () => chart(log, 'a'),
+        () => {
+          throw failure;
+        },
+        () => chart(log, 'c'),
+      ]),
+    ).toThrow(failure);
+    expect(log).toEqual(['a destruido']);
   });
 });

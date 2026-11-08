@@ -9,6 +9,7 @@ import {
 import { isOneOf } from '../domain/validation/rules';
 import { barChartConfig, lineChartConfig, type ChartOptions } from '../ui/charts/config';
 import { chartFigure } from '../ui/charts/figure';
+import { createAll, type Destroyable } from '../ui/charts/lifecycle';
 import { mountChartById, prefersReducedMotion, readChartTheme } from '../ui/charts/mount';
 import { emptyState } from '../ui/components/empty-state';
 import { metric } from '../ui/components/metric';
@@ -90,7 +91,7 @@ export const reportsView: View = ({ root, signal, database, now }) => {
   };
 
   let period: ReportPeriod = DEFAULT_PERIOD;
-  let destroyers: (() => void)[] = [];
+  let charts: Destroyable[] = [];
 
   setHtml(
     root,
@@ -109,8 +110,8 @@ export const reportsView: View = ({ root, signal, database, now }) => {
   const content = requireElement('report-content', HTMLElement);
 
   function destroyCharts(): void {
-    for (const destroy of destroyers) destroy();
-    destroyers = [];
+    for (const chart of charts) chart.destroy();
+    charts = [];
   }
 
   /** Vuelve a dibujar todo salvo el selector, para que el foco siga en la opción elegida. */
@@ -186,12 +187,17 @@ export const reportsView: View = ({ root, signal, database, now }) => {
         </section>`,
     );
 
-    const mounted = [
-      mountChartById('report-revenue-canvas', lineChartConfig(revenue, moneyOptions)),
-      mountChartById('report-categories-canvas', barChartConfig(categories, moneyOptions)),
-      mountChartById('report-products-canvas', barChartConfig(products, unitOptions)),
-    ];
-    destroyers = mounted.filter((destroy): destroy is () => void => destroy !== null);
+    if (!hasSales) return;
+    charts = createAll([
+      () =>
+        mountChartById(
+          'report-revenue-canvas',
+          // En 12 meses, una etiqueta por mes si hay lugar: así se ve enero, con el año.
+          lineChartConfig(revenue, { ...moneyOptions, maxDateTicks: period === '12m' ? 12 : 6 }),
+        ),
+      () => mountChartById('report-categories-canvas', barChartConfig(categories, moneyOptions)),
+      () => mountChartById('report-products-canvas', barChartConfig(products, unitOptions)),
+    ]);
   }
 
   root.addEventListener(

@@ -211,3 +211,25 @@ describe('formatInitials', () => {
     expect(formatInitials(name)).toBe(expected);
   });
 });
+
+describe('formatSeriesLabel en 12 meses', () => {
+  // El período cruza de año: sin el año, "ene" quedaba ambiguo en el eje.
+  it('enero lleva el año en la etiqueta corta', () => {
+    expect(
+      formatSeriesLabel({ key: '2026-01', from: '2026-01-01', to: '2026-01-31' }, '12m').short,
+    ).toBe('ene 2026');
+    expect(
+      formatSeriesLabel({ key: '2026-11', from: '2026-11-01', to: '2026-11-30' }, '12m').short,
+    ).toBe('nov');
+  });
+});
+
+describe('truncateLabel con emojis', () => {
+  it('cuenta grafemas: no parte un emoji compuesto', () => {
+    expect(truncateLabel('👩‍💻'.repeat(30), 5)).toBe(`${'👩‍💻'.repeat(4)}…`);
+  });
+
+  it('no recorta un nombre corto con emojis', () => {
+    expect(truncateLabel('👩‍💻 Ana', 5)).toBe('👩‍💻 Ana');
+  });
+});

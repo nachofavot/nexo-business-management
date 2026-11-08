@@ -14,6 +14,7 @@ import { isLowStock, isOutOfStock } from '../domain/stock';
 import type { ActivityEntry, Product } from '../domain/types';
 import { barChartConfig, lineChartConfig, type ChartOptions } from '../ui/charts/config';
 import { chartFigure } from '../ui/charts/figure';
+import { createAll } from '../ui/charts/lifecycle';
 import { mountChartById, prefersReducedMotion, readChartTheme } from '../ui/charts/mount';
 import { emptyState } from '../ui/components/empty-state';
 import { metric } from '../ui/components/metric';
@@ -200,10 +201,17 @@ export const dashboardView: View = ({ root, signal, database, services, now, ref
     formatValue: money,
     formatTick: (cents) => formatMoneyShort(cents, currency),
   };
-  const destroyers = [
-    mountChartById('dashboard-revenue-canvas', lineChartConfig(revenue, chartOptions)),
-    mountChartById('dashboard-categories-canvas', barChartConfig(categories, chartOptions)),
-  ];
+  const charts = createAll([
+    ...(hasRecentSales
+      ? [() => mountChartById('dashboard-revenue-canvas', lineChartConfig(revenue, chartOptions))]
+      : []),
+    ...(hasMonthSales
+      ? [
+          () =>
+            mountChartById('dashboard-categories-canvas', barChartConfig(categories, chartOptions)),
+        ]
+      : []),
+  ]);
 
   root.addEventListener(
     'click',
@@ -220,6 +228,6 @@ export const dashboardView: View = ({ root, signal, database, services, now, ref
   // Al salir de la pantalla, los gráficos se destruyen: si no, seguirían escuchando el tamaño
   // de la ventana.
   return () => {
-    for (const destroy of destroyers) destroy?.();
+    for (const chart of charts) chart.destroy();
   };
 };

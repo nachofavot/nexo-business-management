@@ -4,6 +4,9 @@ import type { Currency, PaymentMethod } from '../domain/types';
 
 const LOCALE = 'es-AR';
 
+/** Separa un texto en lo que una persona ve como caracteres: un emoji compuesto es uno solo. */
+const graphemes = new Intl.Segmenter(LOCALE, { granularity: 'grapheme' });
+
 const PAYMENT_METHOD_LABELS: Readonly<Record<PaymentMethod, string>> = {
   cash: 'Efectivo',
   card: 'Tarjeta',
@@ -122,7 +125,11 @@ export function formatSeriesLabel(
     const long = formatDate(month, { month: 'long', year: 'numeric' });
     const isComplete = to.getDate() === lastDayOfMonth(month);
     return {
-      short: formatDate(month, { month: 'short' }),
+      // El período cruza de año: enero lleva el año para que no quede ambiguo en el eje.
+      short:
+        month.getMonth() === 0
+          ? `${formatDate(month, { month: 'short' })} ${month.getFullYear()}`
+          : formatDate(month, { month: 'short' }),
       long: isComplete ? long : `${long} (hasta el ${to.getDate()})`,
     };
   }
@@ -150,10 +157,10 @@ export function formatSeriesLabel(
 
 /** Recorta un nombre para el eje de un gráfico; el tooltip y la tabla lo muestran completo. */
 export function truncateLabel(text: string, maxLength: number): string {
-  return text.length <= maxLength ? text : `${text.slice(0, maxLength - 1)}…`;
+  // Cuenta grafemas y no unidades de UTF-16: un emoji compuesto no queda partido en símbolos rotos.
+  const characters = Array.from(graphemes.segment(text), ({ segment }) => segment);
+  return characters.length <= maxLength ? text : `${characters.slice(0, maxLength - 1).join('')}…`;
 }
-
-const graphemes = new Intl.Segmenter('es', { granularity: 'grapheme' });
 
 function firstGrapheme(word: string): string {
   for (const { segment } of graphemes.segment(word)) return segment;

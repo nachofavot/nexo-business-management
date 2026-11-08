@@ -26,6 +26,8 @@ export interface ChartOptions {
   formatTick(value: number): string;
   /** Para cantidades: el eje no marca fracciones como 0,5 unidades. */
   integerTicks?: boolean;
+  /** Máximo de fechas con etiqueta en el eje de la línea, si hay lugar. Por defecto, 6. */
+  maxDateTicks?: number;
 }
 
 const TICK_FONT_SIZE = 12;
@@ -85,6 +87,21 @@ export function fitLabel(
   return '…';
 }
 
+/** Espacio mínimo, en píxeles, entre las etiquetas del eje de fechas: en 320 px se tocaban. */
+export const MIN_TICK_SPACING = 64;
+const DEFAULT_MAX_DATE_TICKS = 6;
+
+/**
+ * Índices del eje de fechas con etiqueta: siempre el primero y el último (hoy), y el resto
+ * repartido. Con autoSkip, Chart.js elegía por su cuenta y a veces omitía la última fecha.
+ */
+export function tickIndices(count: number, maxTicks: number): ReadonlySet<number> {
+  if (count <= maxTicks) return new Set(Array.from({ length: count }, (_, index) => index));
+
+  const step = (count - 1) / (maxTicks - 1);
+  return new Set(Array.from({ length: maxTicks }, (_, index) => Math.round(index * step)));
+}
+
 function integerTicks(options: ChartOptions) {
   return options.integerTicks ? { precision: 0 } : {};
 }
@@ -131,7 +148,7 @@ export function lineChartConfig(
   points: readonly ChartPoint[],
   options: ChartOptions,
 ): ChartConfiguration<'line', number[], string> {
-  const { theme, formatTick } = options;
+  const { theme, formatTick, maxDateTicks = DEFAULT_MAX_DATE_TICKS } = options;
 
   return {
     type: 'line',
@@ -158,7 +175,24 @@ export function lineChartConfig(
         x: {
           grid: { display: false },
           border: { color: theme.grid },
-          ticks: { ...tickStyle(theme), maxRotation: 0, autoSkip: true, maxTicksLimit: 6 },
+          ticks: {
+            ...tickStyle(theme),
+            maxRotation: 0,
+            autoSkip: false,
+            // La primera y la última fecha se alinean hacia adentro: centradas, quedaban cortadas.
+            align: 'inner',
+            // Cuántas fechas entran depende del ancho real del gráfico, que cambia al girar el
+            // celular o achicar la ventana. Las demás marcas no llevan texto.
+            callback(this: Pick<Scale, 'chart'>, _value: string | number, index: number) {
+              const maxTicks = Math.min(
+                maxDateTicks,
+                Math.max(2, Math.floor(this.chart.width / MIN_TICK_SPACING)),
+              );
+              return tickIndices(points.length, maxTicks).has(index)
+                ? (points[index]?.label ?? null)
+                : null;
+            },
+          },
         },
         y: {
           beginAtZero: true,

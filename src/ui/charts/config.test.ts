@@ -3,6 +3,8 @@ import {
   barChartConfig,
   fitLabel,
   lineChartConfig,
+  MIN_TICK_SPACING,
+  tickIndices,
   wrapTooltipTitle,
   type ChartOptions,
   type ChartPoint,
@@ -227,5 +229,68 @@ describe('marcas del eje de valores de las barras', () => {
     expect(barChartConfig(points, options).options?.scales?.x?.ticks).toMatchObject({
       align: 'inner',
     });
+  });
+});
+
+// Con autoSkip, Chart.js elegía las fechas por su cuenta y a veces omitía la de hoy, la última.
+describe('tickIndices', () => {
+  it.each([
+    [5, 6, [0, 1, 2, 3, 4]],
+    [30, 6, [0, 6, 12, 17, 23, 29]],
+    [30, 2, [0, 29]],
+    [1, 6, [0]],
+    [0, 6, []],
+  ])('con %i puntos y hasta %i marcas da %j', (count, maxTicks, expected) => {
+    expect([...tickIndices(count, maxTicks)].sort((a, b) => a - b)).toEqual(expected);
+  });
+});
+
+describe('eje de fechas de la línea', () => {
+  const thirty = Array.from({ length: 30 }, (_, index) => ({
+    label: `d${index}`,
+    title: `día ${index}`,
+    value: index,
+  }));
+  const x = lineChartConfig(thirty, options).options?.scales?.x;
+
+  it('no saltea marcas por su cuenta y alinea las de los extremos hacia adentro', () => {
+    expect(x?.ticks).toMatchObject({ autoSkip: false, align: 'inner' });
+  });
+
+  it('muestra la primera, la última y las repartidas según el ancho', () => {
+    expect(MIN_TICK_SPACING).toBe(64);
+    const scale = { chart: { width: 300 } };
+    const labels = thirty.map((_, index) =>
+      x?.ticks?.callback?.call(scale as never, index, index, []),
+    );
+
+    const shown = labels.flatMap((label, index) => (label === null ? [] : [[index, label]]));
+    expect(shown).toEqual([
+      [0, 'd0'],
+      [10, 'd10'],
+      [19, 'd19'],
+      [29, 'd29'],
+    ]);
+  });
+
+  // Con 6 marcas, enero (el índice 1) nunca se veía en "12 meses", y con él tampoco el año.
+  it('puede mostrar más marcas, por ejemplo una por mes', () => {
+    const twelve = thirty.slice(0, 12);
+    const monthly = lineChartConfig(twelve, { ...options, maxDateTicks: 12 }).options?.scales?.x;
+    const shown = twelve.filter(
+      (_, index) =>
+        monthly?.ticks?.callback?.call({ chart: { width: 900 } } as never, index, index, []) !==
+        null,
+    );
+
+    expect(shown).toHaveLength(12);
+  });
+
+  it('en un gráfico ancho muestra hasta 6 fechas', () => {
+    const scale = { chart: { width: 1200 } };
+    const shown = thirty.filter(
+      (_, index) => x?.ticks?.callback?.call(scale as never, index, index, []) !== null,
+    );
+    expect(shown).toHaveLength(6);
   });
 });
