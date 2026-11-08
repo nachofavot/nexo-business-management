@@ -1,0 +1,25 @@
+// Un gráfico con su título, su resumen y el lienzo.
+.nx-chart {
+  margin: 0;
+}
+
+.nx-chart__header {
+  margin-bottom: 0.75rem;
+}
+
+.nx-chart__summary {
+  margin: 0.25rem 0 0;
+  color: var(--nx-text-muted);
+  font-size: 0.8125rem;
+}
+
+// Chart.js toma el alto del contenedor (maintainAspectRatio: false) y lo asigna desde JavaScript,
+// algo que la CSP permite: solo bloquea el atributo style escrito en el HTML.
+.nx-chart__canvas {
+  position: relative;
+  height: 16rem;
+
+  @media (max-width: 767.98px) {
+    height: 13rem;
+  }
+}

@@ -4,7 +4,7 @@ import { html, setHtml } from '../ui/html';
 import { resolveRoute, type Route, type RouteName } from './routes';
 import type { Session } from './session';
 import { createShell, type Shell } from './shell';
-import type { View } from './view';
+import { runViewCleanup, type View } from './view';
 
 export interface Router {
   navigate(path: string): void;
@@ -31,11 +31,16 @@ export function createRouter(options: {
     render();
   }
 
+  /**
+   * La variable se vacía antes de ejecutar la limpieza: si la limpieza fallara después, igual
+   * quedaría vacía y no se volvería a ejecutar en cada navegación.
+   */
   function unmountCurrentView(): void {
     viewController?.abort();
     viewController = null;
-    if (viewCleanup) viewCleanup();
+    const cleanup = viewCleanup;
     viewCleanup = undefined;
+    runViewCleanup(cleanup);
   }
 
   function prepareOutlet(route: Route): HTMLElement {

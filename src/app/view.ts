@@ -16,3 +16,16 @@ export interface ViewContext {
 
 /** Monta una pantalla. Puede devolver una función de limpieza, por ejemplo para destruir gráficos. */
 export type View = (context: ViewContext) => void | (() => void);
+
+/**
+ * Ejecuta la limpieza de una vista sin dejar que un error la frene: si subiera, el router
+ * quedaría a mitad de camino y no montaría la vista siguiente.
+ */
+export function runViewCleanup(cleanup: (() => void) | void): void {
+  if (!cleanup) return;
+  try {
+    cleanup();
+  } catch (error) {
+    console.error('No se pudo limpiar la vista anterior', error);
+  }
+}
