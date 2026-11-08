@@ -55,11 +55,11 @@
 // Violeta: lo elige el usuario.
 .nx-segmented__input:checked + .nx-segmented__option {
   background: var(--nx-surface-2);
-  color: var(--nx-violet-300);
+  color: var(--nx-accent-300);
 }
 
 .nx-segmented__input:focus-visible + .nx-segmented__option {
-  outline: 2px solid var(--nx-violet-300);
+  outline: 2px solid var(--nx-accent-300);
   outline-offset: 1px;
 }
 

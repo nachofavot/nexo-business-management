@@ -8,6 +8,7 @@ import type { View } from './app/view';
 import { createDatabaseStore } from './data/database';
 import { createSeedDatabase } from './data/seed';
 import { createServices } from './services';
+import { applyAppearance } from './ui/appearance';
 import { showToast } from './ui/components/toast';
 import { requireElement } from './ui/dom';
 import { customersView } from './views/customers';
@@ -56,6 +57,9 @@ function showUnexpectedError(): void {
 
 window.addEventListener('error', showUnexpectedError);
 window.addEventListener('unhandledrejection', showUnexpectedError);
+
+// Antes de montar la primera pantalla, para que no se vea un instante con el acento por defecto.
+applyAppearance(document.documentElement, database.read().settings.preferences);
 
 createRouter({
   root: requireElement('app', HTMLElement),

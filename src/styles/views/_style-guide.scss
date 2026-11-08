@@ -48,7 +48,7 @@
   border-radius: var(--nx-radius-control);
 }
 
-@each $token in (bg, surface-1, surface-2, violet-500, violet-300, blue, success, warning, danger) {
+@each $token in (bg, surface-1, surface-2, accent-500, accent-300, blue, success, warning, danger) {
   .nx-guide__chip--#{$token} {
     background: var(--nx-#{$token});
   }

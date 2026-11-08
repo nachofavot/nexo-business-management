@@ -18,9 +18,9 @@
   }
 
   &:focus {
-    border-color: var(--nx-violet-300);
+    border-color: var(--nx-accent-300);
     background-color: var(--nx-bg);
-    box-shadow: 0 0 0 1px var(--nx-violet-300);
+    box-shadow: 0 0 0 1px var(--nx-accent-300);
     color: var(--nx-text);
   }
 

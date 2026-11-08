@@ -6,7 +6,7 @@ body {
 }
 
 ::selection {
-  background: var(--nx-violet-500);
+  background: var(--nx-accent-500);
   color: #fff;
 }
 
@@ -36,11 +36,11 @@ p {
 }
 
 a {
-  color: var(--nx-violet-300);
+  color: var(--nx-accent-300);
   text-decoration: none;
 
   &:hover {
-    color: var(--nx-violet-300);
+    color: var(--nx-accent-300);
     text-decoration: underline;
   }
 

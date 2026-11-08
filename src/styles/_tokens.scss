@@ -10,11 +10,21 @@ $hover-tint: rgba(255, 255, 255, 0.06);
 $text: #e8eaf0;
 $text-muted: #9aa3b5;
 
-// Violeta: lo que el usuario puede hacer.
+// Acento: lo que el usuario puede hacer. Violeta por defecto; Bootstrap compila con estos valores.
 $violet-300: #a78fff;
 $violet-500: #7450ff;
 $violet-600: #6840f5;
 $violet-700: #5c36de;
+$violet-tint: rgba(116, 80, 255, 0.2);
+
+// Acento azul, elegible en Configuración. No es el azul de datos: con texto blanco, #2e9bff da
+// 2,90:1. Contraste medido con la fórmula WCAG el 2026-11-08: 300 da 8,53:1 sobre el panel,
+// 500 da 4,69:1, 600 da 5,60:1 y 700 da 6,80:1 con texto blanco.
+$accent-blue-300: #8db4ff;
+$accent-blue-500: #2f6bf0;
+$accent-blue-600: #285fdb;
+$accent-blue-700: #2353c2;
+$accent-blue-tint: rgba(47, 107, 240, 0.2);
 
 // Azul: lo que pasó en el negocio.
 $blue: #2e9bff;
@@ -43,10 +53,11 @@ $transition-slide: 180ms ease;
   --nx-hover-tint: #{$hover-tint};
   --nx-text: #{$text};
   --nx-text-muted: #{$text-muted};
-  --nx-violet-300: #{$violet-300};
-  --nx-violet-500: #{$violet-500};
-  --nx-violet-600: #{$violet-600};
-  --nx-violet-700: #{$violet-700};
+  --nx-accent-300: #{$violet-300};
+  --nx-accent-500: #{$violet-500};
+  --nx-accent-600: #{$violet-600};
+  --nx-accent-700: #{$violet-700};
+  --nx-accent-tint: #{$violet-tint};
   --nx-blue: #{$blue};
   --nx-success: #{$success};
   --nx-warning: #{$warning};
@@ -60,7 +71,15 @@ $transition-slide: 180ms ease;
   --nx-shadow-float: #{$shadow-float};
 }
 
+:root[data-accent='blue'] {
+  --nx-accent-300: #{$accent-blue-300};
+  --nx-accent-500: #{$accent-blue-500};
+  --nx-accent-600: #{$accent-blue-600};
+  --nx-accent-700: #{$accent-blue-700};
+  --nx-accent-tint: #{$accent-blue-tint};
+}
+
 @mixin focus-ring {
-  outline: 2px solid var(--nx-violet-300);
+  outline: 2px solid var(--nx-accent-300);
   outline-offset: 2px;
 }

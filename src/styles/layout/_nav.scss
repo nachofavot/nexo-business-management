@@ -15,7 +15,7 @@ $corner: t.$radius-panel;
   height: 1.75rem;
 
   rect {
-    fill: var(--nx-violet-500);
+    fill: var(--nx-accent-500);
   }
 
   path {
@@ -101,7 +101,7 @@ $corner: t.$radius-panel;
     color: var(--nx-text);
 
     svg {
-      color: var(--nx-violet-300);
+      color: var(--nx-accent-300);
     }
   }
 

@@ -37,7 +37,7 @@
   > summary {
     width: fit-content;
     border-radius: var(--nx-radius-tag);
-    color: var(--nx-violet-300);
+    color: var(--nx-accent-300);
     font-size: 0.8125rem;
     cursor: pointer;
 
@@ -46,7 +46,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--nx-violet-300);
+      outline: 2px solid var(--nx-accent-300);
       outline-offset: 2px;
     }
   }
