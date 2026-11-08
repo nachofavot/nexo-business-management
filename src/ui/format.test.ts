@@ -4,10 +4,14 @@ import {
   formatDateTime,
   formatDiscount,
   formatMoney,
+  formatMoneyShort,
   formatMonth,
+  formatNumber,
   formatPaymentMethod,
   formatPercent,
   formatPercentChange,
+  formatSeriesLabel,
+  truncateLabel,
 } from './format';
 
 // Intl separa símbolo y número con un espacio duro, que no se distingue a simple vista.
@@ -82,5 +86,70 @@ describe('formatPercent', () => {
     [100, '100 %'],
   ])('muestra %d como %s', (value, expected) => {
     expect(withPlainSpaces(formatPercent(value))).toBe(expected);
+  });
+});
+
+describe('formatMoneyShort', () => {
+  it.each<[number, Currency, string]>([
+    [0, 'ARS', '$ 0'],
+    [95_000, 'ARS', '$ 950'],
+    [1_250_000, 'ARS', '$ 12,5 mil'],
+    [500_000_000, 'ARS', '$ 5 M'],
+    [18_100_000_000, 'ARS', '$ 181 M'],
+    [500_000_000, 'USD', 'US$ 5 M'],
+  ])('%i centavos en %s se muestran como %s', (cents, currency, expected) => {
+    expect(withPlainSpaces(formatMoneyShort(cents, currency))).toBe(expected);
+  });
+});
+
+describe('formatNumber', () => {
+  it.each([
+    [9999, '9.999'],
+    [5, '5'],
+  ])('muestra %i como %s', (value, expected) => {
+    expect(formatNumber(value)).toBe(expected);
+  });
+});
+
+describe('formatSeriesLabel', () => {
+  it('muestra un día con su fecha corta y larga', () => {
+    expect(formatSeriesLabel('2026-11-05', '30d')).toEqual({
+      short: '5 nov',
+      long: '5 de noviembre',
+    });
+  });
+
+  it('nombra la semana que empieza ese lunes', () => {
+    expect(formatSeriesLabel('2026-11-02', '90d')).toEqual({
+      short: '2 nov',
+      long: 'Semana del 2 de noviembre',
+    });
+  });
+
+  it('muestra un mes con su año', () => {
+    expect(formatSeriesLabel('2026-11', '12m')).toEqual({
+      short: 'nov',
+      long: 'noviembre de 2026',
+    });
+  });
+});
+
+describe('truncateLabel', () => {
+  it('deja igual un nombre corto', () => {
+    expect(truncateLabel('Monitor', 24)).toBe('Monitor');
+  });
+
+  it('recorta un nombre largo al máximo, con "…" al final', () => {
+    expect(truncateLabel('X'.repeat(80), 24)).toBe(`${'X'.repeat(23)}…`);
+  });
+
+  it('deja igual un nombre justo en el máximo', () => {
+    expect(truncateLabel('Y'.repeat(24), 24)).toBe('Y'.repeat(24));
+  });
+});
+
+describe('formatSeriesLabel con una clave inválida', () => {
+  it('la muestra tal cual', () => {
+    expect(formatSeriesLabel('sin-fecha', '7d')).toEqual({ short: 'sin-fecha', long: 'sin-fecha' });
   });
 });
