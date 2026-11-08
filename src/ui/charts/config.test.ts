@@ -286,6 +286,15 @@ describe('eje de fechas de la línea', () => {
     expect(shown).toHaveLength(12);
   });
 
+  it('en un gráfico muy angosto muestra igual la primera y la última fecha', () => {
+    const scale = { chart: { width: 100 } };
+    const shown = thirty.flatMap((_, index) =>
+      x?.ticks?.callback?.call(scale as never, index, index, []) === null ? [] : [index],
+    );
+
+    expect(shown).toEqual([0, 29]);
+  });
+
   it('en un gráfico ancho muestra hasta 6 fechas', () => {
     const scale = { chart: { width: 1200 } };
     const shown = thirty.filter(

@@ -175,7 +175,6 @@ export function formatInitials(name: string): string {
   return name
     .trim()
     .split(/\s+/)
-    .filter((word) => word !== '')
     .slice(0, 2)
     .map((word) => firstGrapheme(word).toLocaleUpperCase('es'))
     .join('');
