@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formField, type FieldDefinition } from './form-field';
+import { describedBy, fieldHintId, formField, type FieldDefinition } from './form-field';
 
 const nameField: FieldDefinition<'name'> = { name: 'name', label: 'Nombre' };
 
@@ -11,7 +11,7 @@ describe('formField', () => {
     expect(markup).toContain('id="cliente-name"');
     expect(markup).toContain('name="name"');
     expect(markup).toContain('value="Ana"');
-    expect(markup).toContain('>Nombre<');
+    expect(markup).toContain('>Nombre');
   });
 
   it('sin error no marca el campo como inválido', () => {
@@ -145,5 +145,91 @@ describe('formField', () => {
     const markup = formField(nameField, { idPrefix: 'c', value: '', error: '<b>x</b>' }).value;
 
     expect(markup).not.toContain('<b>');
+  });
+
+  // Sin una marca, obligatorios y opcionales se veían iguales.
+  it('un campo opcional lo dice en la etiqueta', () => {
+    const markup = formField(nameField, { idPrefix: 'c', value: '' }).value;
+
+    expect(markup).toMatch(
+      /<label[^>]*>Nombre\s*<span class="nx-field__optional">\(opcional\)<\/span>\s*<\/label>/,
+    );
+  });
+
+  it('un campo obligatorio no dice "(opcional)"', () => {
+    const markup = formField({ ...nameField, required: true }, { idPrefix: 'c', value: '' }).value;
+
+    expect(markup).not.toContain('opcional');
+  });
+
+  describe('con una ayuda', () => {
+    const taxField: FieldDefinition<'tax'> = {
+      name: 'tax',
+      label: 'IVA (%)',
+      required: true,
+      hint: 'Se aplica a las ventas nuevas.',
+    };
+
+    it('la muestra bajo el campo y la asocia', () => {
+      const markup = formField(taxField, { idPrefix: 'p', value: '21' }).value;
+
+      expect(markup).toMatch(
+        /<div class="form-text" id="p-tax-hint"\s*>\s*Se aplica a las ventas nuevas\./,
+      );
+      expect(markup).toMatch(/<input[^>]*aria-describedby="p-tax-hint"/);
+      expect(markup).not.toContain('aria-invalid');
+    });
+
+    it('con error asocia la ayuda y el error', () => {
+      const markup = formField(taxField, {
+        idPrefix: 'p',
+        value: '',
+        error: 'Ingresá un número.',
+      }).value;
+
+      expect(markup).toMatch(/<input[^>]*aria-describedby="p-tax-hint p-tax-error"/);
+    });
+
+    it('en una lista también', () => {
+      const markup = formField(
+        { ...taxField, type: 'select', options: [{ value: 'a', label: 'A' }] },
+        { idPrefix: 'p', value: 'a' },
+      ).value;
+
+      expect(markup).toMatch(/<select[^>]*aria-describedby="p-tax-hint"/);
+    });
+
+    it('escapa el texto de la ayuda', () => {
+      const markup = formField(
+        { ...taxField, hint: '<b>x</b>' },
+        { idPrefix: 'p', value: '' },
+      ).value;
+
+      expect(markup).not.toContain('<b>');
+    });
+  });
+
+  it('usa el autocompletado "off" si se pide', () => {
+    const markup = formField(
+      { ...nameField, autocomplete: 'off' },
+      { idPrefix: 'c', value: '' },
+    ).value;
+
+    expect(markup).toContain('autocomplete="off"');
+  });
+});
+
+describe('fieldHintId', () => {
+  it('se arma con el prefijo y el nombre', () => {
+    expect(fieldHintId('p', 'tax')).toBe('p-tax-hint');
+  });
+});
+
+describe('describedBy', () => {
+  it('junta los id de la ayuda y del error', () => {
+    expect(describedBy({})).toBeNull();
+    expect(describedBy({ hint: 'a' })).toBe('a');
+    expect(describedBy({ error: 'b' })).toBe('b');
+    expect(describedBy({ hint: 'a', error: 'b' })).toBe('a b');
   });
 });

@@ -1,7 +1,8 @@
 import type { Result } from '../../domain/result';
 import type { FieldErrors } from '../../domain/types';
 import { html } from '../html';
-import { fieldErrorId, formField, type FieldDefinition } from './form-field';
+import { formField, type FieldDefinition } from './form-field';
+import { focusFirstInvalid, readFormValues, showFieldErrors } from './form-state';
 import { createModalId, hideModal, mountModal, openModal, removeModal } from './modal';
 
 export interface FormModalOptions<K extends string> {
@@ -62,41 +63,8 @@ export function openFormModal<K extends string>(
   let hasAttempted = false;
   let saved = false;
 
-  function controlOf(name: K): HTMLElement | null {
-    const control = form.elements.namedItem(name);
-    return control instanceof HTMLElement ? control : null;
-  }
-
-  function readValues(): Readonly<Record<K, string>> {
-    const current: Record<K, string> = { ...values };
-    const data = new FormData(form);
-    for (const { name } of fields) {
-      const value = data.get(name);
-      current[name] = typeof value === 'string' ? value : '';
-    }
-    return current;
-  }
-
-  /** Actualiza solo los mensajes: volver a dibujar los campos haría perder el foco. */
-  function showErrors(errors: FieldErrors<K>): void {
-    for (const { name } of fields) {
-      const control = controlOf(name);
-      const errorId = fieldErrorId(idPrefix, name);
-      const message = errors[name];
-
-      control?.classList.toggle('is-invalid', message !== undefined);
-      if (message === undefined) {
-        control?.removeAttribute('aria-invalid');
-        control?.removeAttribute('aria-describedby');
-      } else {
-        control?.setAttribute('aria-invalid', 'true');
-        control?.setAttribute('aria-describedby', errorId);
-      }
-
-      const errorElement = element.querySelector(`[id="${errorId}"]`);
-      if (errorElement) errorElement.textContent = message ?? '';
-    }
-  }
+  const readValues = () => readFormValues(form, fields, values);
+  const showErrors = (errors: FieldErrors<K>) => showFieldErrors(form, fields, idPrefix, errors);
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -113,8 +81,7 @@ export function openFormModal<K extends string>(
     }
 
     showErrors(result.error);
-    const firstInvalid = fields.find(({ name }) => result.error[name] !== undefined);
-    if (firstInvalid) controlOf(firstInvalid.name)?.focus();
+    focusFirstInvalid(form, fields, result.error);
   });
 
   form.addEventListener('input', () => {
@@ -127,7 +94,8 @@ export function openFormModal<K extends string>(
     'shown.bs.modal',
     () => {
       const [firstField] = fields;
-      if (firstField) controlOf(firstField.name)?.focus();
+      const control = firstField ? form.elements.namedItem(firstField.name) : null;
+      if (control instanceof HTMLElement) control.focus();
     },
     { once: true },
   );

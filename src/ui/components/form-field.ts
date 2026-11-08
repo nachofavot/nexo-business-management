@@ -8,6 +8,8 @@ export interface FieldDefinition<K extends string> {
   inputMode?: 'text' | 'decimal' | 'numeric';
   required?: boolean;
   options?: readonly { value: string; label: string }[];
+  /** Ayuda visible bajo el campo, asociada con aria-describedby. */
+  hint?: string;
 }
 
 export function fieldId(idPrefix: string, name: string): string {
@@ -16,6 +18,16 @@ export function fieldId(idPrefix: string, name: string): string {
 
 export function fieldErrorId(idPrefix: string, name: string): string {
   return `${fieldId(idPrefix, name)}-error`;
+}
+
+export function fieldHintId(idPrefix: string, name: string): string {
+  return `${fieldId(idPrefix, name)}-hint`;
+}
+
+/** Los id que describen un campo: su ayuda y, si hay, su error. */
+export function describedBy(ids: { hint?: string; error?: string }): string | null {
+  const joined = [ids.hint, ids.error].filter((id) => id !== undefined).join(' ');
+  return joined === '' ? null : joined;
 }
 
 /**
@@ -29,10 +41,19 @@ export function formField<K extends string>(
   const { idPrefix, value, error } = options;
   const id = fieldId(idPrefix, field.name);
   const errorId = fieldErrorId(idPrefix, field.name);
+  const hintId = fieldHintId(idPrefix, field.name);
+  const description = describedBy({
+    hint: field.hint === undefined ? undefined : hintId,
+    error: error === undefined ? undefined : errorId,
+  });
   const invalidClass = error === undefined ? '' : 'is-invalid';
-  const invalidAttributes =
-    error === undefined ? null : html`aria-invalid="true" aria-describedby="${errorId}"`;
+  const invalidAttributes = html`${error === undefined ? null : html`aria-invalid="true"`}
+  ${description === null ? null : html`aria-describedby="${description}"`}`;
   const requiredAttribute = field.required ? 'required' : '';
+  // Sin esta marca, los obligatorios y los opcionales se veían iguales.
+  const optionalMark = field.required
+    ? null
+    : html` <span class="nx-field__optional">(opcional)</span>`;
 
   const control =
     field.type === 'select'
@@ -63,8 +84,13 @@ export function formField<K extends string>(
         />`;
 
   return html`<div class="nx-field">
-    <label class="form-label" for="${id}">${field.label}</label>
+    <label class="form-label" for="${id}">${field.label}${optionalMark}</label>
     ${control}
+    ${
+      field.hint === undefined
+        ? null
+        : html`<div class="form-text" id="${hintId}">${field.hint}</div>`
+    }
     <div class="invalid-feedback" id="${errorId}">${error}</div>
   </div>`;
 }

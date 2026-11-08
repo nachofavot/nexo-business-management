@@ -6,6 +6,7 @@ import { chartFigure } from '../ui/charts/figure';
 import { mountChartById, prefersReducedMotion, readChartTheme } from '../ui/charts/mount';
 import { emptyState } from '../ui/components/empty-state';
 import { metric } from '../ui/components/metric';
+import { segmented } from '../ui/components/segmented';
 import { requireElement } from '../ui/dom';
 import { formatMoney, formatMoneyShort, formatNumber } from '../ui/format';
 import { html, setHtml, type SafeHtml } from '../ui/html';
@@ -18,7 +19,7 @@ import {
   revenueSummary,
 } from './chart-summaries';
 
-const PERIOD_VALUES = ['7d', '30d', '90d', '12m'] as const;
+const PERIOD_VALUES = ['7d', '30d', '90d', '12m'] as const satisfies readonly ReportPeriod[];
 const PERIOD_LABELS: Readonly<Record<ReportPeriod, string>> = {
   '7d': '7 días',
   '30d': '30 días',
@@ -85,26 +86,16 @@ export const reportsView: View = ({ root, signal, database, now }) => {
   let period: ReportPeriod = DEFAULT_PERIOD;
   let destroyers: (() => void)[] = [];
 
-  // Radios nativos: las flechas cambian de opción y el navegador maneja el foco del grupo.
   setHtml(
     root,
     html`<div class="nx-reports">
-      <fieldset class="nx-segmented">
-        <legend class="visually-hidden">Período</legend>
-        ${PERIOD_VALUES.map(
-          (value) =>
-            html`<input
-                class="nx-segmented__input"
-                type="radio"
-                name="report-period"
-                id="report-period-${value}"
-                value="${value}"
-                ${value === period ? 'checked' : ''}
-              /><label class="nx-segmented__option" for="report-period-${value}"
-                >${PERIOD_LABELS[value]}</label
-              >`,
-        )}
-      </fieldset>
+      ${segmented({
+        name: 'report-period',
+        legend: 'Período',
+        idPrefix: 'report-period',
+        options: PERIOD_VALUES.map((value) => ({ value, label: PERIOD_LABELS[value] })),
+        value: period,
+      })}
       <div id="report-content"></div>
     </div>`,
   );

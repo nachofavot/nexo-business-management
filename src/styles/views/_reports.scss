@@ -1,66 +1,6 @@
-@use '../tokens' as t;
-
-// Selector de período: radios nativos con el aspecto de un control segmentado.
-.nx-segmented {
-  position: relative;
-  display: inline-flex;
-  gap: 0.25rem;
-  margin: 0 0 1.5rem;
-  padding: 0.25rem;
-  border: 1px solid var(--nx-border-control);
-  border-radius: var(--nx-radius-control);
-
-  @media (max-width: 575.98px) {
-    display: flex;
-  }
-}
-
-// El radio sigue en la página y recibe el foco; lo que se ve es su etiqueta.
-.nx-segmented__input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.nx-segmented__option {
-  display: inline-flex;
-  flex: 1 1 0;
-  align-items: center;
-  justify-content: center;
-  min-height: 2rem;
-  padding: 0.25rem 0.875rem;
-  border-radius: var(--nx-radius-tag);
-  color: var(--nx-text-muted);
-  font-size: 0.875rem;
-  font-weight: 500;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color t.$transition-fast,
-    color t.$transition-fast;
-
-  &:hover {
-    background: var(--nx-hover-tint);
-    color: var(--nx-text);
-  }
-
-  @media (max-width: 767.98px) {
-    min-height: 2.75rem;
-    padding-inline: 0.5rem;
-  }
-}
-
-// Violeta: lo elige el usuario.
-.nx-segmented__input:checked + .nx-segmented__option {
-  background: var(--nx-surface-2);
-  color: var(--nx-accent-300);
-}
-
-.nx-segmented__input:focus-visible + .nx-segmented__option {
-  outline: 2px solid var(--nx-accent-300);
-  outline-offset: 1px;
+// El selector de período, separado de las métricas.
+.nx-reports > .nx-segmented {
+  margin-bottom: 1.5rem;
 }
 
 // Cuatro métricas: una por fila en el celular, dos entre 576 y 991 px y cuatro desde 992 px.
