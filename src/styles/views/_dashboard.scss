@@ -34,6 +34,19 @@
   }
 }
 
+// Los gráficos usan la misma separación que las listas de abajo.
+.nx-dashboard__charts {
+  --bs-gutter-x: 2rem;
+  --bs-gutter-y: 2rem;
+
+  @media (min-width: 992px) {
+    --bs-gutter-x: 3rem;
+  }
+
+  margin-top: 0;
+  padding: 1.5rem 0 2rem;
+}
+
 .nx-dashboard__lists {
   // El margen negativo de la fila no puede superar el relleno del contenido: 1 rem en el celular.
   --bs-gutter-x: 2rem;

@@ -36,25 +36,27 @@ export function chartFigure(options: ChartFigureOptions): SafeHtml {
       <p class="nx-chart__summary">${summary}</p>
     </figcaption>
     <div class="nx-chart__canvas"><canvas id="${id}-canvas" aria-hidden="true"></canvas></div>
-    <table class="visually-hidden">
-      <caption>
-        ${title}
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">${table.headers[0]}</th>
-          <th scope="col">${table.headers[1]}</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${table.rows.map(
-          ([label, value]) =>
-            html`<tr>
-              <td>${label}</td>
-              <td>${value}</td>
-            </tr>`,
-        )}
-      </tbody>
-    </table>
+    <div class="visually-hidden">
+      <table>
+        <caption>
+          ${title}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">${table.headers[0]}</th>
+            <th scope="col">${table.headers[1]}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${table.rows.map(
+            ([label, value]) =>
+              html`<tr>
+                <td>${label}</td>
+                <td>${value}</td>
+              </tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
   </figure>`;
 }

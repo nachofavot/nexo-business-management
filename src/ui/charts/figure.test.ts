@@ -33,10 +33,13 @@ describe('chartFigure', () => {
     expect(render()).toMatch(/class="nx-chart__canvas"[^>]*>\s*<canvas[^>]*aria-hidden="true"/);
   });
 
+  // La clase va en un div: una tabla no respeta height ni overflow, y con muchas filas estiraba la
+  // página aunque estuviera oculta.
   it('incluye una tabla oculta con todos los datos', () => {
     const markup = render();
 
-    expect(markup).toMatch(/<table class="visually-hidden">\s*<caption>\s*Ingresos/);
+    expect(markup).toMatch(/<div class="visually-hidden">\s*<table>\s*<caption>\s*Ingresos/);
+    expect(markup).not.toContain('<table class=');
     expect(markup).toContain('<th scope="col">Día</th>');
     expect(markup).toContain('<th scope="col">Ingresos</th>');
     expect(markup.match(/<tr>/g)).toHaveLength(3);

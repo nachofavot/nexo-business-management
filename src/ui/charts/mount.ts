@@ -52,3 +52,12 @@ export function mountChart<TType extends ChartType, TData, TLabel>(
   const chart = new Chart(canvas, config);
   return () => chart.destroy();
 }
+
+/** Monta el gráfico en el canvas con ese id. Sin datos la figura no tiene canvas: devuelve null. */
+export function mountChartById<TType extends ChartType, TData, TLabel>(
+  canvasId: string,
+  config: ChartConfiguration<TType, TData, TLabel>,
+): (() => void) | null {
+  const canvas = document.getElementById(canvasId);
+  return canvas instanceof HTMLCanvasElement ? mountChart(canvas, config) : null;
+}

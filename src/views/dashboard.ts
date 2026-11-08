@@ -1,12 +1,28 @@
 import type { View } from '../app/view';
 import { sortItems } from '../domain/list';
-import { compareWithPreviousMonth } from '../domain/reports';
+import {
+  compareWithPreviousMonth,
+  currentMonthRange,
+  grossByCategory,
+  revenueSeries,
+  salesInRange,
+} from '../domain/reports';
 import { isLowStock, isOutOfStock } from '../domain/stock';
 import type { ActivityEntry, Product } from '../domain/types';
+import { barChartConfig, lineChartConfig, type ChartOptions } from '../ui/charts/config';
+import { chartFigure } from '../ui/charts/figure';
+import { mountChartById, prefersReducedMotion, readChartTheme } from '../ui/charts/mount';
 import { emptyState } from '../ui/components/empty-state';
 import { metric } from '../ui/components/metric';
-import { formatDateTime, formatMoney, formatMonth } from '../ui/format';
+import { formatDateTime, formatMoney, formatMoneyShort, formatMonth } from '../ui/format';
 import { html, setHtml, type SafeHtml } from '../ui/html';
+import {
+  categoryPoints,
+  leaderSummary,
+  pointRows,
+  revenuePoints,
+  revenueSummary,
+} from './chart-summaries';
 
 const VISIBLE_ACTIVITY = 8;
 const VISIBLE_LOW_STOCK = 5;
@@ -70,6 +86,11 @@ export const dashboardView: View = ({ root, database, now }) => {
     'asc',
   );
 
+  const money = (cents: number) => formatMoney(cents, currency);
+  const revenue = revenuePoints(revenueSeries(sales, '30d', today), '30d');
+  const categories = categoryPoints(grossByCategory(salesInRange(sales, currentMonthRange(today))));
+  const hasRevenue = revenue.some((point) => point.value > 0);
+
   setHtml(
     root,
     html`<div class="nx-dashboard">
@@ -101,6 +122,38 @@ export const dashboardView: View = ({ root, database, now }) => {
         })}
       </section>
 
+      <div class="row nx-dashboard__charts">
+        <div class="col-lg-7">
+          ${chartFigure({
+            id: 'dashboard-revenue',
+            title: 'Ingresos de los últimos 30 días',
+            summary: revenueSummary(revenue, currency),
+            table: { headers: ['Día', 'Ingresos'], rows: pointRows(revenue, money) },
+            empty: hasRevenue
+              ? undefined
+              : {
+                  title: 'Sin ventas en los últimos 30 días',
+                  description: 'Las ventas que registres aparecen en este gráfico.',
+                },
+          })}
+        </div>
+        <div class="col-lg-5">
+          ${chartFigure({
+            id: 'dashboard-categories',
+            title: `Ventas brutas por categoría en ${formatMonth(today)}`,
+            summary: leaderSummary(categories, money),
+            table: { headers: ['Categoría', 'Ventas brutas'], rows: pointRows(categories, money) },
+            empty:
+              categories.length > 0
+                ? undefined
+                : {
+                    title: 'Sin ventas este mes',
+                    description: 'Las ventas del mes aparecen en este gráfico.',
+                  },
+          })}
+        </div>
+      </div>
+
       <div class="row nx-dashboard__lists">
         <section class="col-lg-7" aria-labelledby="activity-title">
           <h2 id="activity-title">Actividad reciente</h2>
@@ -116,4 +169,21 @@ export const dashboardView: View = ({ root, database, now }) => {
       </div>
     </div>`,
   );
+
+  const chartOptions: ChartOptions = {
+    theme: readChartTheme(),
+    reducedMotion: prefersReducedMotion(),
+    formatValue: money,
+    formatTick: (cents) => formatMoneyShort(cents, currency),
+  };
+  const destroyers = [
+    mountChartById('dashboard-revenue-canvas', lineChartConfig(revenue, chartOptions)),
+    mountChartById('dashboard-categories-canvas', barChartConfig(categories, chartOptions)),
+  ];
+
+  // Al salir de la pantalla, los gráficos se destruyen: si no, seguirían escuchando el tamaño
+  // de la ventana.
+  return () => {
+    for (const destroy of destroyers) destroy?.();
+  };
 };

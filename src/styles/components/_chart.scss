@@ -15,9 +15,12 @@
 
 // Chart.js toma el alto del contenedor (maintainAspectRatio: false) y lo asigna desde JavaScript,
 // algo que la CSP permite: solo bloquea el atributo style escrito en el HTML.
+// Al achicar la ventana, Chart.js redimensiona en el cuadro siguiente; mientras tanto, el lienzo
+// se recorta en lugar de ensanchar la página.
 .nx-chart__canvas {
   position: relative;
   height: 16rem;
+  overflow: hidden;
 
   @media (max-width: 767.98px) {
     height: 13rem;
