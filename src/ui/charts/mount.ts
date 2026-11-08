@@ -12,6 +12,7 @@ import {
   type ChartType,
 } from 'chart.js';
 import type { ChartTheme } from './config';
+import { remountWhenReady } from './lifecycle';
 
 // Se registra solo lo que se usa, para que el build no incluya todo Chart.js.
 Chart.register(
@@ -49,8 +50,14 @@ export function mountChart<TType extends ChartType, TData, TLabel>(
   canvas: HTMLCanvasElement,
   config: ChartConfiguration<TType, TData, TLabel>,
 ): () => void {
-  const chart = new Chart(canvas, config);
-  return () => chart.destroy();
+  // Al recargar la página, Geist puede no estar lista y Chart.js mediría con la fuente de respaldo.
+  const font = `12px ${getComputedStyle(document.body).fontFamily}`;
+  const ready = document.fonts.check(font) ? null : document.fonts.load(font);
+
+  return remountWhenReady(() => {
+    const chart = new Chart(canvas, config);
+    return () => chart.destroy();
+  }, ready);
 }
 
 /** Monta el gráfico en el canvas con ese id. Sin datos la figura no tiene canvas: devuelve null. */

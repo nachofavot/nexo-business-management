@@ -1,4 +1,4 @@
-import { endOfDay } from './dates';
+import { endOfDay, parseDateInput } from './dates';
 import type { ProductCategory, Sale } from './types';
 
 export type ReportPeriod = '7d' | '30d' | '90d' | '12m';
@@ -142,12 +142,50 @@ function seriesKeyOf(period: ReportPeriod, date: Date): string {
   return dayKey(date);
 }
 
+export interface RevenueBucket {
+  key: string;
+  /** Primer y último día que cubre el punto, recortados al período: "AAAA-MM-DD". */
+  from: string;
+  to: string;
+  revenueCents: number;
+}
+
+/**
+ * Los días que cubre un punto. La primera semana de 90 días y el mes en curso de 12 meses pueden
+ * cubrir solo una parte: se recortan al período para no nombrarlos como si estuvieran completos.
+ * Las claves con formato AAAA-MM-DD se comparan como texto.
+ */
+function bucketBounds(
+  period: ReportPeriod,
+  key: string,
+  range: DateRange,
+): { from: string; to: string } {
+  if (period === '30d' || period === '7d') return { from: key, to: key };
+
+  let first: Date;
+  let last: Date;
+  if (period === '12m') {
+    const [year = 0, month = 1] = key.split('-').map(Number);
+    first = new Date(year, month - 1, 1);
+    last = new Date(year, month, 0);
+  } else {
+    first = parseDateInput(key) ?? range.start;
+    last = addDays(first, 6);
+  }
+
+  const rangeFirst = dayKey(range.start);
+  const rangeLast = dayKey(range.end);
+  const from = dayKey(first) < rangeFirst ? rangeFirst : dayKey(first);
+  const to = dayKey(last) > rangeLast ? rangeLast : dayKey(last);
+  return { from, to };
+}
+
 /** Incluye todos los períodos, también los que no tienen ventas, para que el gráfico no salte. */
 export function revenueSeries(
   sales: readonly Sale[],
   period: ReportPeriod,
   now: Date,
-): readonly { key: string; revenueCents: number }[] {
+): readonly RevenueBucket[] {
   const range = periodRange(period, now);
   const revenueByKey = new Map(seriesKeys(period, range).map((key) => [key, 0]));
 
@@ -155,7 +193,11 @@ export function revenueSeries(
     const key = seriesKeyOf(period, new Date(sale.createdAt));
     revenueByKey.set(key, (revenueByKey.get(key) ?? 0) + sale.totalCents);
   }
-  return [...revenueByKey].map(([key, revenueCents]) => ({ key, revenueCents }));
+  return [...revenueByKey].map(([key, revenueCents]) => ({
+    key,
+    ...bucketBounds(period, key, range),
+    revenueCents,
+  }));
 }
 
 export function grossByCategory(
@@ -248,7 +290,7 @@ const REPORT_TOP = 5;
 
 export interface Report {
   summary: SalesSummary;
-  revenue: readonly { key: string; revenueCents: number }[];
+  revenue: readonly RevenueBucket[];
   categories: readonly { category: ProductCategory; grossCents: number }[];
   topProducts: readonly { productId: string; productName: string; units: number }[];
   topCustomers: readonly { customerId: string; customerName: string; revenueCents: number }[];

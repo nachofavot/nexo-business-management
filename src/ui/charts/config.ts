@@ -1,4 +1,5 @@
-import type { ChartConfiguration } from 'chart.js';
+import type { ChartConfiguration, Scale } from 'chart.js';
+import { truncateLabel } from '../format';
 
 /** Los colores salen de los tokens de diseño; ver readChartTheme en mount.ts. */
 export interface ChartTheme {
@@ -62,6 +63,26 @@ export function wrapTooltipTitle(text: string, maxLength: number): string[] {
   }
   if (current !== '') lines.push(current);
   return lines;
+}
+
+/**
+ * Parte del ancho del gráfico para los nombres del eje. Chart.js les da hasta la mitad y dibuja
+ * cortado lo que no entra; con el resto queda margen para el relleno de las marcas.
+ */
+const AXIS_LABEL_SHARE = 0.4;
+
+/** Recorta un nombre con "…" hasta que entre en el ancho, midiendo el texto con la fuente real. */
+export function fitLabel(
+  text: string,
+  maxWidth: number,
+  measure: (text: string) => number,
+): string {
+  if (measure(text) <= maxWidth) return text;
+  for (let length = text.length - 1; length > 1; length -= 1) {
+    const candidate = truncateLabel(text, length);
+    if (measure(candidate) <= maxWidth) return candidate;
+  }
+  return '…';
 }
 
 function integerTicks(options: ChartOptions) {
@@ -189,6 +210,8 @@ export function barChartConfig(
           grid: { color: theme.grid },
           border: { display: false },
           ticks: {
+            // Centrada, la última marca quedaba cortada contra el borde derecho en 320 px.
+            align: 'inner',
             ...tickStyle(theme),
             maxTicksLimit: 5,
             ...integerTicks(options),
@@ -198,7 +221,22 @@ export function barChartConfig(
         y: {
           grid: { display: false },
           border: { color: theme.grid },
-          ticks: tickStyle(theme),
+          ticks: {
+            ...tickStyle(theme),
+            // Recorta el nombre completo según el ancho real del gráfico, midiendo el texto.
+            callback(this: Scale, _value: string | number, index: number) {
+              const { ctx } = this;
+              ctx.save();
+              ctx.font = `${TICK_FONT_SIZE}px ${theme.fontFamily}`;
+              const label = fitLabel(
+                points[index]?.title ?? '',
+                this.chart.width * AXIS_LABEL_SHARE,
+                (text) => ctx.measureText(text).width,
+              );
+              ctx.restore();
+              return label;
+            },
+          },
         },
       },
     },

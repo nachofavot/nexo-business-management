@@ -7,15 +7,15 @@ export interface ChartFigureOptions {
   title: string;
   /** Una frase con lo importante, visible para todos. */
   summary: string;
-  /** Los mismos datos del gráfico, para lectores de pantalla. */
+  /** Los mismos datos del gráfico, para leerlos con el teclado o con un lector de pantalla. */
   table: { headers: readonly [string, string]; rows: readonly (readonly [string, string])[] };
   /** Sin datos, se muestra este estado en lugar del gráfico. */
   empty?: { title: string; description: string };
 }
 
 /**
- * El marcado que rodea a un gráfico. El canvas queda oculto a los lectores de pantalla, que leen
- * la tabla: un dibujo no se puede recorrer, pero una tabla sí.
+ * El marcado que rodea a un gráfico. El canvas queda oculto a los lectores de pantalla: los datos
+ * están en una tabla desplegable, que se recorre con el teclado y la lee cualquier lector.
  */
 export function chartFigure(options: ChartFigureOptions): SafeHtml {
   const { id, title, summary, table, empty } = options;
@@ -36,27 +36,30 @@ export function chartFigure(options: ChartFigureOptions): SafeHtml {
       <p class="nx-chart__summary">${summary}</p>
     </figcaption>
     <div class="nx-chart__canvas"><canvas id="${id}-canvas" aria-hidden="true"></canvas></div>
-    <div class="visually-hidden">
-      <table>
-        <caption>
+    <details class="nx-chart__data">
+      <summary>Ver los datos</summary>
+      <table class="nx-table nx-table--no-sort">
+        <caption class="visually-hidden">
           ${title}
         </caption>
         <thead>
           <tr>
             <th scope="col">${table.headers[0]}</th>
-            <th scope="col">${table.headers[1]}</th>
+            <th class="nx-table__number" scope="col">${table.headers[1]}</th>
           </tr>
         </thead>
         <tbody>
           ${table.rows.map(
             ([label, value]) =>
               html`<tr>
-                <td>${label}</td>
-                <td>${value}</td>
+                <td data-label="${table.headers[0]}">${label}</td>
+                <td class="nx-table__number nx-table__nowrap" data-label="${table.headers[1]}">
+                  ${value}
+                </td>
               </tr>`,
           )}
         </tbody>
       </table>
-    </div>
+    </details>
   </figure>`;
 }

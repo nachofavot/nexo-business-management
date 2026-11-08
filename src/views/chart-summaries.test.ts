@@ -63,15 +63,21 @@ describe('leaderSummary', () => {
 
 describe('revenuePoints', () => {
   it('arma cada punto con la etiqueta corta, la larga y el importe', () => {
-    expect(revenuePoints([{ key: '2026-11-05', revenueCents: 100 }], '30d')).toEqual([
-      { label: '5 nov', title: '5 de noviembre', value: 100 },
-    ]);
+    expect(
+      revenuePoints(
+        [{ key: '2026-11-05', from: '2026-11-05', to: '2026-11-05', revenueCents: 100 }],
+        '30d',
+      ),
+    ).toEqual([{ label: '5 nov', title: '5 de noviembre', value: 100 }]);
   });
 
   it('usa la etiqueta del período', () => {
-    expect(revenuePoints([{ key: '2026-11', revenueCents: 1 }], '12m')[0]?.title).toBe(
-      'noviembre de 2026',
-    );
+    expect(
+      revenuePoints(
+        [{ key: '2026-11', from: '2026-11-01', to: '2026-11-30', revenueCents: 1 }],
+        '12m',
+      )[0]?.title,
+    ).toBe('noviembre de 2026');
   });
 });
 
@@ -92,11 +98,11 @@ describe('pointRows', () => {
 });
 
 describe('productPoints', () => {
-  it('recorta el nombre del eje y conserva el completo para el tooltip', () => {
+  it('usa el nombre completo: el eje lo recorta según el ancho del gráfico', () => {
     const name = 'X'.repeat(80);
 
     expect(productPoints([{ productId: 'p1', productName: name, units: 7 }])).toEqual([
-      { label: `${'X'.repeat(23)}…`, title: name, value: 7 },
+      { label: name, title: name, value: 7 },
     ]);
   });
 });

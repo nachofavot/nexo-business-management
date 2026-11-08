@@ -121,13 +121,13 @@ describe('rangos de fechas', () => {
 describe('revenueSeries', () => {
   it('con 7 días incluye cada día, aunque no tenga ventas', () => {
     expect(revenueSeries([], '7d', now)).toEqual([
-      { key: '2026-10-30', revenueCents: 0 },
-      { key: '2026-10-31', revenueCents: 0 },
-      { key: '2026-11-01', revenueCents: 0 },
-      { key: '2026-11-02', revenueCents: 0 },
-      { key: '2026-11-03', revenueCents: 0 },
-      { key: '2026-11-04', revenueCents: 0 },
-      { key: '2026-11-05', revenueCents: 0 },
+      { key: '2026-10-30', from: '2026-10-30', to: '2026-10-30', revenueCents: 0 },
+      { key: '2026-10-31', from: '2026-10-31', to: '2026-10-31', revenueCents: 0 },
+      { key: '2026-11-01', from: '2026-11-01', to: '2026-11-01', revenueCents: 0 },
+      { key: '2026-11-02', from: '2026-11-02', to: '2026-11-02', revenueCents: 0 },
+      { key: '2026-11-03', from: '2026-11-03', to: '2026-11-03', revenueCents: 0 },
+      { key: '2026-11-04', from: '2026-11-04', to: '2026-11-04', revenueCents: 0 },
+      { key: '2026-11-05', from: '2026-11-05', to: '2026-11-05', revenueCents: 0 },
     ]);
   });
 
@@ -545,5 +545,34 @@ describe('buildReport', () => {
     const november = saleOf('noviembre', new Date(2025, 10, 30, 23, 59));
 
     expect(buildReport([december, november], '12m', reportNow).summary.salesCount).toBe(1);
+  });
+});
+
+// Los puntos de los extremos pueden cubrir solo una parte de su semana o de su mes: cada punto
+// dice qué días cubre, para que el gráfico no los nombre como si estuvieran completos.
+describe('revenueSeries: días que cubre cada punto', () => {
+  // Miércoles 4 de noviembre de 2026: 90 días atrás es el viernes 7 de agosto.
+  const wednesday = new Date(2026, 10, 4, 12);
+
+  it('con 90 días, la primera semana empieza el primer día del período', () => {
+    const series = revenueSeries([], '90d', wednesday);
+
+    expect(series[0]).toMatchObject({ key: '2026-08-03', from: '2026-08-07', to: '2026-08-09' });
+    expect(series[1]).toMatchObject({ key: '2026-08-10', from: '2026-08-10', to: '2026-08-16' });
+  });
+
+  it('con 90 días, la última semana termina hoy', () => {
+    expect(revenueSeries([], '90d', wednesday).at(-1)).toMatchObject({
+      key: '2026-11-02',
+      from: '2026-11-02',
+      to: '2026-11-04',
+    });
+  });
+
+  it('con 12 meses, el mes en curso termina hoy y los demás están completos', () => {
+    const series = revenueSeries([], '12m', wednesday);
+
+    expect(series[0]).toMatchObject({ key: '2025-12', from: '2025-12-01', to: '2025-12-31' });
+    expect(series.at(-1)).toMatchObject({ key: '2026-11', from: '2026-11-01', to: '2026-11-04' });
   });
 });

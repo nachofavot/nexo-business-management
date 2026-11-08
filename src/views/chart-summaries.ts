@@ -1,7 +1,7 @@
 import type { ReportPeriod } from '../domain/reports';
 import type { Currency, ProductCategory } from '../domain/types';
 import type { ChartPoint } from '../ui/charts/config';
-import { formatMoney, formatSeriesLabel, truncateLabel } from '../ui/format';
+import { formatMoney, formatSeriesLabel, type SeriesPoint } from '../ui/format';
 
 /**
  * "Total: $ X. Mayor ingreso: 5 de noviembre, con $ Y." Con un empate gana el más reciente,
@@ -30,12 +30,12 @@ export function leaderSummary(
 }
 
 export function revenuePoints(
-  series: readonly { key: string; revenueCents: number }[],
+  series: readonly (SeriesPoint & { revenueCents: number })[],
   period: ReportPeriod,
 ): ChartPoint[] {
-  return series.map(({ key, revenueCents }) => {
-    const { short, long } = formatSeriesLabel(key, period);
-    return { label: short, title: long, value: revenueCents };
+  return series.map((point) => {
+    const { short, long } = formatSeriesLabel(point, period);
+    return { label: short, title: long, value: point.revenueCents };
   });
 }
 
@@ -57,14 +57,12 @@ export function pointRows(
   return points.map((point) => [point.title, formatValue(point.value)]);
 }
 
-/** Largo máximo de un nombre en el eje de un gráfico de barras. */
-const AXIS_LABEL_LENGTH = 24;
-
 export function productPoints(
   products: readonly { productId: string; productName: string; units: number }[],
 ): ChartPoint[] {
   return products.map(({ productName, units }) => ({
-    label: truncateLabel(productName, AXIS_LABEL_LENGTH),
+    // El eje lo recorta según el ancho real del gráfico (fitLabel, en la configuración).
+    label: productName,
     title: productName,
     value: units,
   }));

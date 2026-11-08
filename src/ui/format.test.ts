@@ -113,21 +113,27 @@ describe('formatNumber', () => {
 
 describe('formatSeriesLabel', () => {
   it('muestra un día con su fecha corta y larga', () => {
-    expect(formatSeriesLabel('2026-11-05', '30d')).toEqual({
+    expect(
+      formatSeriesLabel({ key: '2026-11-05', from: '2026-11-05', to: '2026-11-05' }, '30d'),
+    ).toEqual({
       short: '5 nov',
       long: '5 de noviembre',
     });
   });
 
   it('nombra la semana que empieza ese lunes', () => {
-    expect(formatSeriesLabel('2026-11-02', '90d')).toEqual({
+    expect(
+      formatSeriesLabel({ key: '2026-11-02', from: '2026-11-02', to: '2026-11-08' }, '90d'),
+    ).toEqual({
       short: '2 nov',
       long: 'Semana del 2 de noviembre',
     });
   });
 
   it('muestra un mes con su año', () => {
-    expect(formatSeriesLabel('2026-11', '12m')).toEqual({
+    expect(
+      formatSeriesLabel({ key: '2026-11', from: '2026-11-01', to: '2026-11-30' }, '12m'),
+    ).toEqual({
       short: 'nov',
       long: 'noviembre de 2026',
     });
@@ -150,6 +156,42 @@ describe('truncateLabel', () => {
 
 describe('formatSeriesLabel con una clave inválida', () => {
   it('la muestra tal cual', () => {
-    expect(formatSeriesLabel('sin-fecha', '7d')).toEqual({ short: 'sin-fecha', long: 'sin-fecha' });
+    expect(
+      formatSeriesLabel({ key: 'sin-fecha', from: 'sin-fecha', to: 'sin-fecha' }, '7d'),
+    ).toEqual({ short: 'sin-fecha', long: 'sin-fecha' });
+  });
+});
+
+// Un punto que cubre solo parte de su semana o de su mes no se nombra como si estuviera completo:
+// con "Semana del 3 de agosto", una caída de ingresos parecería real.
+describe('formatSeriesLabel con períodos parciales', () => {
+  it('nombra los días de una semana incompleta', () => {
+    expect(
+      formatSeriesLabel({ key: '2026-08-03', from: '2026-08-07', to: '2026-08-09' }, '90d'),
+    ).toEqual({
+      short: '7 ago',
+      long: 'Del 7 al 9 de agosto',
+    });
+  });
+
+  it('nombra los dos meses si la semana incompleta los cruza', () => {
+    expect(
+      formatSeriesLabel({ key: '2026-09-28', from: '2026-09-28', to: '2026-10-01' }, '90d').long,
+    ).toBe('Del 28 de septiembre al 1 de octubre');
+  });
+
+  it('una semana de un solo día se nombra como ese día', () => {
+    expect(
+      formatSeriesLabel({ key: '2026-08-03', from: '2026-08-09', to: '2026-08-09' }, '90d').long,
+    ).toBe('9 de agosto');
+  });
+
+  it('dice hasta qué día llega el mes en curso', () => {
+    expect(
+      formatSeriesLabel({ key: '2026-11', from: '2026-11-01', to: '2026-11-04' }, '12m'),
+    ).toEqual({
+      short: 'nov',
+      long: 'noviembre de 2026 (hasta el 4)',
+    });
   });
 });

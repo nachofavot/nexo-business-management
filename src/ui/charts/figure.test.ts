@@ -33,15 +33,16 @@ describe('chartFigure', () => {
     expect(render()).toMatch(/class="nx-chart__canvas"[^>]*>\s*<canvas[^>]*aria-hidden="true"/);
   });
 
-  // La clase va en un div: una tabla no respeta height ni overflow, y con muchas filas estiraba la
-  // página aunque estuviera oculta.
-  it('incluye una tabla oculta con todos los datos', () => {
+  // Plegada, la tabla no ocupa lugar; desplegada, cualquiera puede leer cada valor con el teclado.
+  it('ofrece los datos en una tabla desplegable', () => {
     const markup = render();
 
-    expect(markup).toMatch(/<div class="visually-hidden">\s*<table>\s*<caption>\s*Ingresos/);
-    expect(markup).not.toContain('<table class=');
+    expect(markup).toMatch(
+      /<details class="nx-chart__data">\s*<summary>Ver los datos<\/summary>\s*<table class="nx-table nx-table--no-sort">/,
+    );
+    expect(markup).toMatch(/<caption class="visually-hidden">\s*Ingresos/);
     expect(markup).toContain('<th scope="col">Día</th>');
-    expect(markup).toContain('<th scope="col">Ingresos</th>');
+    expect(markup).toContain('<th class="nx-table__number" scope="col">Ingresos</th>');
     expect(markup.match(/<tr>/g)).toHaveLength(3);
     expect(markup).toContain('6 de noviembre');
   });
@@ -62,7 +63,7 @@ describe('chartFigure', () => {
 
     expect(markup).toContain('Sin ventas este mes');
     expect(markup).not.toContain('<canvas');
-    expect(markup).not.toContain('<table');
+    expect(markup).not.toContain('<details');
     expect(markup).not.toContain('Total: $ 450,00.');
   });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   barChartConfig,
+  fitLabel,
   lineChartConfig,
   wrapTooltipTitle,
   type ChartOptions,
@@ -179,6 +180,52 @@ describe('interacción de las barras', () => {
       mode: 'index',
       axis: 'y',
       intersect: false,
+    });
+  });
+});
+
+// Chart.js le da al eje de nombres hasta la mitad del ancho y dibuja cortado lo que no entra: el
+// nombre se recorta midiendo el texto, no contando caracteres.
+describe('fitLabel', () => {
+  const measure = (text: string) => text.length * 10;
+
+  it('deja igual un nombre que entra', () => {
+    expect(fitLabel('Redes', 100, measure)).toBe('Redes');
+  });
+
+  it('recorta con "…" hasta que entra', () => {
+    expect(fitLabel('X'.repeat(40), 120, measure)).toBe(`${'X'.repeat(11)}…`);
+  });
+
+  it('con muy poco lugar deja solo "…"', () => {
+    expect(fitLabel('Monitor', 5, measure)).toBe('…');
+  });
+});
+
+describe('eje de nombres de las barras', () => {
+  it('recorta el nombre completo según el ancho del gráfico', () => {
+    const config = barChartConfig([{ label: 'x', title: 'Y'.repeat(40), value: 1 }], options);
+    const scale = {
+      ctx: {
+        font: '',
+        save() {},
+        restore() {},
+        measureText: (text: string) => ({ width: text.length * 10 }),
+      },
+      chart: { width: 300 },
+    };
+
+    expect(config.options?.scales?.y?.ticks?.callback?.call(scale as never, 0, 0, [])).toBe(
+      `${'Y'.repeat(11)}…`,
+    );
+  });
+});
+
+describe('marcas del eje de valores de las barras', () => {
+  // Centrada, la última marca quedaba cortada contra el borde derecho en 320 px.
+  it('alinea la primera y la última marca dentro del gráfico', () => {
+    expect(barChartConfig(points, options).options?.scales?.x?.ticks).toMatchObject({
+      align: 'inner',
     });
   });
 });

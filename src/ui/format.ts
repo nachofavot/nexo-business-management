@@ -83,28 +83,68 @@ function formatDate(date: Date, options: Intl.DateTimeFormatOptions): string {
   return new Intl.DateTimeFormat(LOCALE, options).format(date);
 }
 
+/** Los días que cubre un punto de la serie de ingresos: claves "AAAA-MM-DD" o "AAAA-MM". */
+export interface SeriesPoint {
+  key: string;
+  from: string;
+  to: string;
+}
+
+function lastDayOfMonth(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+}
+
+/** "Del 7 al 9 de agosto", o "Del 28 de septiembre al 1 de octubre" si cruza de mes. */
+function daysRange(from: Date, to: Date): string {
+  const toText = formatDate(to, { day: 'numeric', month: 'long' });
+  const fromText =
+    from.getMonth() === to.getMonth()
+      ? String(from.getDate())
+      : formatDate(from, { day: 'numeric', month: 'long' });
+  return `Del ${fromText} al ${toText}`;
+}
+
 /**
  * Etiqueta de un punto de la serie de ingresos: corta para el eje y larga para el tooltip y la
- * tabla. Las claves son "AAAA-MM-DD" (días y semanas) o "AAAA-MM" (meses).
+ * tabla. Una semana o un mes incompletos dicen qué días cubren, para que una caída no parezca real.
  */
 export function formatSeriesLabel(
-  key: string,
+  point: SeriesPoint,
   period: ReportPeriod,
 ): { short: string; long: string } {
-  const date = parseDateInput(period === '12m' ? `${key}-01` : key);
-  if (!date) return { short: key, long: key };
+  const { key } = point;
 
   if (period === '12m') {
+    const month = parseDateInput(`${key}-01`);
+    const to = parseDateInput(point.to);
+    if (!month || !to) return { short: key, long: key };
+
+    const long = formatDate(month, { month: 'long', year: 'numeric' });
+    const isComplete = to.getDate() === lastDayOfMonth(month);
     return {
-      short: formatDate(date, { month: 'short' }),
-      long: formatDate(date, { month: 'long', year: 'numeric' }),
+      short: formatDate(month, { month: 'short' }),
+      long: isComplete ? long : `${long} (hasta el ${to.getDate()})`,
     };
   }
 
-  const long = formatDate(date, { day: 'numeric', month: 'long' });
+  if (period === '90d') {
+    const from = parseDateInput(point.from);
+    const to = parseDateInput(point.to);
+    if (!from || !to) return { short: key, long: key };
+
+    const fromLong = formatDate(from, { day: 'numeric', month: 'long' });
+    const days = Math.round((to.getTime() - from.getTime()) / 86_400_000) + 1;
+    let long = daysRange(from, to);
+    if (days === 7) long = `Semana del ${fromLong}`;
+    else if (days === 1) long = fromLong;
+    return { short: formatDate(from, { day: 'numeric', month: 'short' }), long };
+  }
+
+  const date = parseDateInput(key);
+  if (!date) return { short: key, long: key };
   return {
     short: formatDate(date, { day: 'numeric', month: 'short' }),
-    long: period === '90d' ? `Semana del ${long}` : long,
+    long: formatDate(date, { day: 'numeric', month: 'long' }),
   };
 }
 
