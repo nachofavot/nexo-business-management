@@ -2,7 +2,7 @@ import { paginate, searchItems, sortItems, type Page, type SortDirection } from 
 import { err, ok, type Result } from '../domain/result';
 import type { Customer, CustomerInput, Database, FieldErrors } from '../domain/types';
 import { validateCustomer } from '../domain/validation/customer';
-import { withActivity, type ServiceDependencies, type ServiceFailure } from './types';
+import { hasChanges, withActivity, type ServiceDependencies, type ServiceFailure } from './types';
 
 export type CustomerSortKey = 'name' | 'email' | 'company';
 export type CustomerFailure = ServiceFailure<keyof CustomerInput>;
@@ -104,6 +104,7 @@ export function createCustomersService(dependencies: ServiceDependencies): Custo
 
       const validation = validateCustomer(input, database.read().customers, id);
       if (!validation.ok) return err({ kind: 'validation', errors: validation.error });
+      if (!hasChanges(existing, validation.value)) return ok(existing);
 
       const customer: Customer = {
         ...existing,

@@ -15,6 +15,12 @@ export type ServiceFailure<K extends string> =
   | { kind: 'not-found' }
   | { kind: 'storage'; failure: StorageFailure };
 
+/** true si algún campo de `next` difiere del actual. Guardar sin cambios no escribe nada. */
+export function hasChanges<T extends object>(current: T, next: Partial<T>): boolean {
+  const keys = Object.keys(next) as (keyof T)[];
+  return keys.some((key) => !Object.is(current[key], next[key]));
+}
+
 export function withActivity(
   database: Database,
   dependencies: ServiceDependencies,

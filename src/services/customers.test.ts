@@ -179,10 +179,28 @@ describe('update', () => {
     });
   });
 
-  it('informa si el cliente no existe', () => {
-    const { service } = setup();
+  it('informa si el cliente no existe, sin tocar a los demás', () => {
+    const { service, database } = setup({ customers: [ana, bruno] });
+    const before = database.read();
 
     expect(service.update('nope', change)).toEqual(err({ kind: 'not-found' }));
+    expect(database.read()).toBe(before);
+  });
+
+  it('con los mismos datos no escribe ni registra actividad', () => {
+    const { service, database } = setup({ customers: [ana] });
+    const before = database.read();
+
+    const result = service.update('c1', {
+      name: ' Ana Gómez ',
+      email: 'ANA@example.com',
+      phone: ana.phone,
+      company: ana.company,
+    });
+
+    expect(result).toEqual({ ok: true, value: ana });
+    expect(database.read()).toBe(before);
+    expect(database.read().customers[0]?.updatedAt).toBe(ana.updatedAt);
   });
 });
 
@@ -198,10 +216,12 @@ describe('remove', () => {
     });
   });
 
-  it('informa si el cliente no existe', () => {
-    const { service } = setup();
+  it('informa si el cliente no existe, sin tocar a los demás', () => {
+    const { service, database } = setup({ customers: [ana, bruno] });
+    const before = database.read();
 
     expect(service.remove('nope')).toEqual(err({ kind: 'not-found' }));
+    expect(database.read()).toBe(before);
   });
 
   it('conserva las ventas del cliente, con su nombre copiado', () => {

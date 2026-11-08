@@ -212,6 +212,22 @@ describe('update', () => {
     expect(service.update('nope', change)).toEqual(err({ kind: 'not-found' }));
     expect(database.read()).toEqual(before);
   });
+
+  it('con los mismos datos no escribe ni registra actividad', () => {
+    const { service, database } = setup({ products: [monitor] });
+    const before = database.read();
+
+    const result = service.update('p1', {
+      name: ` ${monitor.name} `,
+      sku: monitor.sku.toLowerCase(),
+      category: monitor.category,
+      price: '10',
+      stock: String(monitor.stock),
+    });
+
+    expect(result).toEqual({ ok: true, value: monitor });
+    expect(database.read()).toBe(before);
+  });
 });
 
 describe('remove', () => {

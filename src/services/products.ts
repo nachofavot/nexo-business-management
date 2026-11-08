@@ -9,7 +9,7 @@ import type {
   ProductInput,
 } from '../domain/types';
 import { validateProduct } from '../domain/validation/product';
-import { withActivity, type ServiceDependencies, type ServiceFailure } from './types';
+import { hasChanges, withActivity, type ServiceDependencies, type ServiceFailure } from './types';
 
 export type ProductSortKey = 'name' | 'sku' | 'category' | 'priceCents' | 'stock';
 export type ProductFailure = ServiceFailure<keyof ProductInput>;
@@ -114,6 +114,7 @@ export function createProductsService(dependencies: ServiceDependencies): Produc
 
       const validation = validateProduct(input, database.read().products, id);
       if (!validation.ok) return err({ kind: 'validation', errors: validation.error });
+      if (!hasChanges(existing, validation.value)) return ok(existing);
 
       const product: Product = {
         ...existing,
