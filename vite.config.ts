@@ -34,6 +34,12 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/domain/**', 'src/services/**', 'src/data/**'],
       exclude: ['**/*.test.ts'],
+      // El diseño (sección 11) exige al menos 80 % de líneas en cada capa con lógica de negocio.
+      thresholds: {
+        'src/domain/**': { lines: 80 },
+        'src/services/**': { lines: 80 },
+        'src/data/**': { lines: 80 },
+      },
     },
   },
 });
