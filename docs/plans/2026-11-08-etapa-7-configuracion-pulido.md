@@ -651,3 +651,47 @@ Romper a mano cada condición de `hasChanges`, `isDemoOutdated`, `hasCompletedSa
 - [ ] **Paso 5: Comprobar y hacer commit**
 
 Mensajes: `chore: exigir la cobertura mínima` y, para las decisiones, `docs: registrar las decisiones de Configuración y pulido`.
+
+## Decisiones tomadas al ejecutar el plan
+
+Registradas para que el plan describa lo que se construyó.
+
+**Configuración**
+
+- El control segmentado suma `visibleLegend` y su HTML pasa a `<fieldset class="nx-segmented-group">` con la leyenda y una caja `nx-segmented` adentro. En Configuración, densidad y acento necesitaban una etiqueta visible, y una leyenda visible dentro de la caja con borde se dibujaba mal.
+- "No había cambios para guardar." usa el aviso de éxito: no es un error ni pide atención.
+- Después de guardar, cada campo muestra el valor guardado: sin espacios de más, el email en minúsculas y el IVA con coma.
+- `router.refresh()` lleva el foco al título si el elemento que lo tenía desapareció. Restaurar los datos se hace siempre que se confirme, aunque la persona haya salido de la pantalla mientras se cerraba el diálogo.
+- En el Dashboard, el botón "Restaurar datos demo" del aviso es secundario: la confirmación ya advierte que se reemplazan los datos.
+- Por debajo de 576 px, el botón del menú de usuario tiene menos relleno: con 320 px, "Configuración" quedaba cortado 1 px aun sin el nombre visible.
+
+**Acento**
+
+- La sombra de foco de la X de cerrar (`.btn-close`), que Bootstrap compila en violeta, sigue al acento. Los checkbox y el control deslizante de Bootstrap también salen en violeta, pero la app no los usa.
+- Que el acento violeta no cambió se comprobó compilando los estilos de `main` y de esta rama: el CSS solo suma reglas nuevas.
+
+**Gráficos**
+
+- El eje de "12 meses" admite hasta 12 etiquetas si hay lugar (`maxDateTicks`). Con el máximo de 6, enero nunca tenía etiqueta y el año agregado no se veía. En 320 px enero puede seguir sin etiqueta: el tooltip y "Ver los datos" tienen la fecha completa.
+- `mountChart` devuelve un objeto con `destroy()`, el mismo tipo que usa `createAll`.
+
+**Formularios, foco y nombres**
+
+- Por debajo de 360 px, una opción del control segmentado puede partir su texto en dos líneas: con solo menos relleno, "12 meses" seguía desbordando 1 px.
+- Tras un borrado fallido, Clientes y Productos devuelven el foco al botón "Eliminar" de la fila. El modal ya lo hacía, pero la tabla se volvía a dibujar después y el foco quedaba en `body`.
+- Reportes también decide el estado vacío con `hasCompletedSales`, para que el criterio sea uno solo.
+- Los nombres de cada línea de venta salen de `lineControlNames`. La etiqueta visible dice "Producto" y suma " de la línea N" oculto, así el nombre accesible incluye el texto visible.
+- Un precio bien escrito pero demasiado largo para un número exacto dice "El precio máximo es 99.999.999,99.".
+- En Productos el umbral no aparece escrito, así que `lowStockLabel` se usa solo en el Dashboard.
+
+**Pantallas táctiles**
+
+- El script de medidas corrió en 375, 820 y 1024 px: los botones de orden de 20 px solo existen desde 768 px. También corrigió "Ver productos" del Dashboard y el ancho de "Ver detalle" entre 768 y 1199 px.
+- El menú lateral no necesitó código: Bootstrap ya lo cierra con Esc y lo limpia al pasar a 992 px.
+- La minificación saca el respaldo `100vh`, porque todos los navegadores para los que se compila entienden `100dvh`. El respaldo queda en el SCSS.
+
+**Comprobaciones**
+
+- Cobertura de líneas: 100 % en `domain` y `data`, 99,24 % en `services`. Con un umbral de 100 en `services`, `npm run test:coverage` falla.
+- Mutaciones: 26 condiciones rotas a mano. Dos sobreviven y son equivalentes: con tantos puntos como marcas, las dos ramas de `tickIndices` dan el mismo resultado, y el umbral nunca es negativo. La ronda encontró un caso sin test (un gráfico de menos de 128 px se quedaba sin fechas) y un filtro que no hacía nada en `formatInitials`.
+- Contraste de los colores nuevos: el aviso de datos viejos da 12,97:1, el avatar azul 6,91:1 y el violeta 5,57:1, y el segmentado elegido en azul 7,73:1.
