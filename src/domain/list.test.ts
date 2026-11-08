@@ -53,6 +53,24 @@ describe('sortItems', () => {
     expect(sortItems([10, 9, 100], identity, 'desc')).toEqual([100, 10, 9]);
   });
 
+  // "Switch de 24" quedaba antes que "Switch de 8".
+  it('ordena los números dentro del texto por su valor', () => {
+    expect(sortItems(['Switch de 24', 'Switch de 8'], identity, 'asc')).toEqual([
+      'Switch de 8',
+      'Switch de 24',
+    ]);
+  });
+
+  // Las empresas vacías aparecían primero al ordenar de la A a la Z.
+  it('deja los textos vacíos al final en los dos sentidos', () => {
+    expect(sortItems(['Zeta', '', 'Aurora'], identity, 'asc')).toEqual(['Aurora', 'Zeta', '']);
+    expect(sortItems(['Zeta', '', 'Aurora'], identity, 'desc')).toEqual(['Zeta', 'Aurora', '']);
+  });
+
+  it('considera vacío un texto con solo espacios', () => {
+    expect(sortItems(['  ', 'Aurora'], identity, 'asc')).toEqual(['Aurora', '  ']);
+  });
+
   it('no modifica la lista original', () => {
     const original = [2, 1];
 

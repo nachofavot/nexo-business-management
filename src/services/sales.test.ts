@@ -438,6 +438,17 @@ describe('query', () => {
     expect(items.map((sale) => sale.number)).toEqual(expected);
   });
 
+  it('Hasta incluye una venta a las 23:59 y excluye la de las 00:00 del día siguiente', () => {
+    // 5 de noviembre 23:59 y 6 de noviembre 00:00, hora de Buenos Aires.
+    const lastMinute = makeSale({ id: 'a', number: 1, createdAt: '2026-11-06T02:59:00.000Z' });
+    const nextDay = makeSale({ id: 'b', number: 2, createdAt: '2026-11-06T03:00:00.000Z' });
+    const { service } = setup({ sales: [lastMinute, nextDay], nextSaleNumber: 3 });
+
+    const items = service.query({ ...defaults, to: '2026-11-05' }).items;
+
+    expect(items.map((sale) => sale.number)).toEqual([1]);
+  });
+
   it('ordena por número aunque las fechas no sigan ese orden', () => {
     // Por ejemplo, si el reloj de la computadora cambió entre dos ventas.
     const later = makeSale({ id: 'a', number: 5, createdAt: '2026-11-06T10:00:00.000Z' });

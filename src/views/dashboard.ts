@@ -18,7 +18,14 @@ import { createAll } from '../ui/charts/lifecycle';
 import { mountChartById, prefersReducedMotion, readChartTheme } from '../ui/charts/mount';
 import { emptyState } from '../ui/components/empty-state';
 import { metric } from '../ui/components/metric';
-import { formatDateTime, formatMoney, formatMoneyShort, formatMonth } from '../ui/format';
+import {
+  formatDateTime,
+  formatMoney,
+  formatMoneyShort,
+  formatMonth,
+  formatUnits,
+  lowStockLabel,
+} from '../ui/format';
 import { html, setHtml, type SafeHtml } from '../ui/html';
 import {
   categoryPoints,
@@ -54,7 +61,9 @@ function lowStockList(products: readonly Product[], threshold: number): SafeHtml
   if (products.length === 0) {
     return emptyState(
       'No hay productos con stock bajo',
-      `Los productos con ${threshold} unidades o menos aparecen en esta lista.`,
+      threshold === 0
+        ? 'Los productos sin stock aparecen en esta lista.'
+        : `Los productos con ${lowStockLabel(threshold)} aparecen en esta lista.`,
     );
   }
 
@@ -67,9 +76,7 @@ function lowStockList(products: readonly Product[], threshold: number): SafeHtml
             ${
               isOutOfStock(product)
                 ? html`<span class="nx-tag nx-tag--danger">Sin stock</span>`
-                : html`<span class="nx-tag nx-tag--warning">
-                    ${product.stock} ${product.stock === 1 ? 'unidad' : 'unidades'}
-                  </span>`
+                : html`<span class="nx-tag nx-tag--warning"> ${formatUnits(product.stock)} </span>`
             }
           </span>
         </li>`,
@@ -144,7 +151,7 @@ export const dashboardView: View = ({ root, signal, database, services, now, ref
         ${metric({
           label: 'Productos con stock bajo',
           value: String(lowStock.length),
-          helper: `${lowStockThreshold} unidades o menos`,
+          helper: lowStockLabel(lowStockThreshold),
         })}
       </section>
 

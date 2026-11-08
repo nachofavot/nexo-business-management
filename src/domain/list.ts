@@ -29,18 +29,31 @@ export function searchItems<T>(
   );
 }
 
+/** `numeric` ordena "Switch de 8" antes que "Switch de 24", como lo leería una persona. */
 function compareKeys(a: string | number, b: string | number): number {
   if (typeof a === 'number' && typeof b === 'number') return a - b;
-  return String(a).localeCompare(String(b), 'es', { sensitivity: 'base' });
+  return String(a).localeCompare(String(b), 'es', { sensitivity: 'base', numeric: true });
 }
 
+function isEmptyKey(key: string | number): boolean {
+  return typeof key === 'string' && key.trim() === '';
+}
+
+/** Un dato vacío, como una empresa sin cargar, queda al final en los dos sentidos. */
 export function sortItems<T>(
   items: readonly T[],
   getKey: (item: T) => string | number,
   direction: SortDirection,
 ): readonly T[] {
   const sign = direction === 'asc' ? 1 : -1;
-  return [...items].sort((a, b) => sign * compareKeys(getKey(a), getKey(b)));
+  return [...items].sort((a, b) => {
+    const keyA = getKey(a);
+    const keyB = getKey(b);
+    const emptyA = isEmptyKey(keyA);
+    const emptyB = isEmptyKey(keyB);
+    if (emptyA !== emptyB) return emptyA ? 1 : -1;
+    return sign * compareKeys(keyA, keyB);
+  });
 }
 
 /** Si la página pedida ya no existe, por ejemplo tras un borrado, devuelve la más cercana. */

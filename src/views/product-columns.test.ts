@@ -46,6 +46,10 @@ describe('etiquetas de stock', () => {
     expect(renderRow(makeProduct({ stock: 6 }))).not.toContain('nx-tag');
   });
 
+  it('muestra el stock con separador de miles', () => {
+    expect(renderRow(makeProduct({ stock: 12345 }))).toMatch(/<span>\s*12\.345\s*<\/span>/);
+  });
+
   it('usa el umbral configurado', () => {
     expect(renderRow(makeProduct({ stock: 10 }), { lowStockThreshold: 10 })).toContain(
       'Stock bajo',

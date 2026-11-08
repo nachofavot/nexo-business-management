@@ -13,7 +13,13 @@ import { emptyState } from '../ui/components/empty-state';
 import { fieldErrorId, formField, type FieldDefinition } from '../ui/components/form-field';
 import { showToast } from '../ui/components/toast';
 import { requireElement } from '../ui/dom';
-import { formatDiscount, formatMoney, formatPaymentMethod, formatPercent } from '../ui/format';
+import {
+  formatDiscount,
+  formatMoney,
+  formatNumber,
+  formatPaymentMethod,
+  formatPercent,
+} from '../ui/format';
 import { html, setHtml, type SafeHtml } from '../ui/html';
 import { icon } from '../ui/icons';
 import { lineControlNames, storageFailureMessage } from '../ui/messages';
@@ -252,7 +258,7 @@ export const newSaleView: View = ({ root, signal, database, services, navigate }
       const subtotal = line?.subtotalCents ?? null;
 
       linePart(row, 'hint', HTMLElement).textContent =
-        available === null ? '' : `Disponibles: ${available}`;
+        available === null ? '' : `Disponibles: ${formatNumber(available)}`;
       linePart(row, 'subtotal', HTMLElement).textContent =
         subtotal === null ? '—' : formatMoney(subtotal, currency);
     });

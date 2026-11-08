@@ -180,3 +180,13 @@ export function formatInitials(name: string): string {
     .map((word) => firstGrapheme(word).toLocaleUpperCase('es'))
     .join('');
 }
+
+/** "1 unidad", "9.999 unidades". */
+export function formatUnits(count: number): string {
+  return `${formatNumber(count)} ${count === 1 ? 'unidad' : 'unidades'}`;
+}
+
+/** Texto del umbral de stock bajo. Con 0, solo cuentan los productos sin stock. */
+export function lowStockLabel(threshold: number): string {
+  return threshold === 0 ? 'Sin stock' : `${formatUnits(threshold)} o menos`;
+}

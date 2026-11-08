@@ -12,6 +12,8 @@ import {
   formatPercent,
   formatPercentChange,
   formatSeriesLabel,
+  formatUnits,
+  lowStockLabel,
   truncateLabel,
 } from './format';
 
@@ -231,5 +233,25 @@ describe('truncateLabel con emojis', () => {
 
   it('no recorta un nombre corto con emojis', () => {
     expect(truncateLabel('👩‍💻 Ana', 5)).toBe('👩‍💻 Ana');
+  });
+});
+
+describe('formatUnits', () => {
+  it('usa singular y separador de miles', () => {
+    expect(formatUnits(1)).toBe('1 unidad');
+    expect(formatUnits(9999)).toBe('9.999 unidades');
+    expect(formatUnits(0)).toBe('0 unidades');
+  });
+});
+
+// Con umbral 1 decía "1 unidades o menos".
+describe('lowStockLabel', () => {
+  it.each([
+    [0, 'Sin stock'],
+    [1, '1 unidad o menos'],
+    [5, '5 unidades o menos'],
+    [1000, '1.000 unidades o menos'],
+  ])('con umbral %i dice "%s"', (threshold, expected) => {
+    expect(lowStockLabel(threshold)).toBe(expected);
   });
 });

@@ -16,7 +16,7 @@ import { metric } from '../ui/components/metric';
 import { segmented } from '../ui/components/segmented';
 import { announce } from '../ui/announce';
 import { requireElement } from '../ui/dom';
-import { formatMoney, formatMoneyShort, formatNumber } from '../ui/format';
+import { formatMoney, formatMoneyShort, formatNumber, formatUnits } from '../ui/format';
 import { html, setHtml, type SafeHtml } from '../ui/html';
 import { periodAnnouncement } from '../ui/messages';
 import {
@@ -43,10 +43,6 @@ const REVENUE_POINT_NAMES: Readonly<Record<ReportPeriod, string>> = {
   '12m': 'Mes',
 };
 const DEFAULT_PERIOD: ReportPeriod = '30d';
-
-function formatUnits(units: number): string {
-  return `${formatNumber(units)} ${units === 1 ? 'unidad' : 'unidades'}`;
-}
 
 function customersTable(
   customers: Report['topCustomers'],

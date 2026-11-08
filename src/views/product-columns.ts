@@ -1,7 +1,7 @@
 import { isLowStock, isOutOfStock } from '../domain/stock';
 import type { Currency, Product } from '../domain/types';
 import { actionsColumn, type Column } from '../ui/components/data-table';
-import { formatMoney } from '../ui/format';
+import { formatMoney, formatNumber } from '../ui/format';
 import { html, type SafeHtml } from '../ui/html';
 
 function stockTag(product: Product, lowStockThreshold: number): SafeHtml | null {
@@ -55,7 +55,7 @@ export function productColumns(options: {
       // El número va a la derecha para que las cifras queden alineadas, con o sin etiqueta.
       cell: (product) =>
         html`<span class="nx-table__tagged">
-          ${stockTag(product, lowStockThreshold)}<span>${product.stock}</span>
+          ${stockTag(product, lowStockThreshold)}<span>${formatNumber(product.stock)}</span>
         </span>`,
     },
     actionsColumn<Product>(),

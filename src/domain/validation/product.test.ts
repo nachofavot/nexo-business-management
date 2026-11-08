@@ -62,6 +62,26 @@ describe('validateProduct', () => {
     expect(errorsFor({ [field as string]: value })).toEqual({});
   });
 
+  // Un único mensaje para todo error de precio no decía qué corregir.
+  it.each([
+    ['', 'Ingresá el precio.'],
+    ['   ', 'Ingresá el precio.'],
+    ['abc', 'Ingresá solo números, con coma o punto para los decimales. Por ejemplo, 1234,56.'],
+    [
+      '1.234,56',
+      'Ingresá solo números, con coma o punto para los decimales. Por ejemplo, 1234,56.',
+    ],
+    ['-5', 'Ingresá solo números, con coma o punto para los decimales. Por ejemplo, 1234,56.'],
+    ['12,345', 'Usá hasta 2 decimales, sin separador de miles.'],
+    ['1.234', 'Usá hasta 2 decimales, sin separador de miles.'],
+    ['0', 'El precio tiene que ser mayor que 0.'],
+    ['0,00', 'El precio tiene que ser mayor que 0.'],
+    ['100000000', 'El precio máximo es 99.999.999,99.'],
+    ['99999999999999999999', 'El precio máximo es 99.999.999,99.'],
+  ])('con el precio "%s" dice "%s"', (price, message) => {
+    expect(errorsFor({ price })).toEqual({ price: message });
+  });
+
   it('reúne todos los errores', () => {
     const errors = errorsFor({ name: '', sku: '', category: '', price: '', stock: '' });
 
