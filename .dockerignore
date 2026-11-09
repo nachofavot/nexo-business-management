@@ -1,0 +1,10 @@
+# Lo que no hace falta para compilar. deploy/ queda: vite.config.ts importa sus cabeceras.
+node_modules
+dist
+coverage
+.git
+.claude
+.playwright-mcp
+.superpowers
+docs
+*.log
