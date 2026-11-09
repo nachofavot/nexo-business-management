@@ -290,3 +290,30 @@ Contenido, en este orden:
 - [ ] **Paso 4: Comprobar y hacer commit**
 
 Mensajes: `docs: agregar la guía de despliegue` y `docs: registrar las decisiones de Docker y Cloud Run`.
+
+## Decisiones tomadas al ejecutar el plan
+
+Registradas para que el plan describa lo que se construyó.
+
+**La imagen no se probó.** Docker no estaba instalado al llegar a la Task 4. Sin Docker se confirmó en Docker Hub que existen `node:26-alpine` y `nginxinc/nginx-unprivileged:stable-alpine`, las dos con imagen `amd64`, que es la que usa Cloud Run. El Dockerfile oficial de la línea estable confirma nginx 1.30.6, el usuario 101, el puerto 8080 y que la configuración del servidor es `/etc/nginx/conf.d/default.conf`, el archivo que se reemplaza. Construir la imagen, `npm run check:deploy -- http://localhost:8080` y la prueba en el navegador quedan pendientes hasta tener Docker.
+
+**Configuración de TypeScript**
+
+- `tsconfig.node.json` suma `allowImportingTsExtensions`, y los scripts importan con `.ts`. Node exige la extensión cuando ejecuta TypeScript directamente; TypeScript lo permite porque el proyecto no genera archivos (`noEmit`).
+- `test.include` de Vitest suma `deploy` y `scripts`.
+
+**nginx**
+
+- Los tests leen la configuración como texto. Se rompió a propósito de cinco maneras (sin el `include` en `/assets/`, `Cache-Control` inmutable con `always`, `Referrer-Policy` sin `always`, una CSP distinta y la SPA sin `index.html`), y cada una hizo fallar algún test.
+- `absolute_redirect off` queda como defensa: con `try_files $uri /index.html`, nginx no llega a redirigir carpetas, y `/assets` sin barra devuelve la app. El script lo informa como "no redirige".
+
+**Script de verificación**
+
+- Contra `vite preview` informa dos problemas y termina con código 1, como corresponde: Vite no guarda los archivos un año y responde `index.html` con 200 para un archivo inexistente. Las cabeceras de seguridad dan bien en todas las respuestas.
+
+**Cloud Run.** Los comandos se confirmaron en la documentación vigente, con dos cambios respecto del diseño:
+
+- `--memory 512Mi` en lugar de `256Mi`. El mínimo es de 128 MiB en la primera generación y de 512 MiB en la segunda; 512 MiB vale en las dos y no depende de elegir la generación con otra opción.
+- La cuenta de servicio predeterminada de Compute Engine necesita `roles/run.builder` para compilar, y la guía incluye ese paso. Hay que habilitar las API de Cloud Run y de Cloud Build. El repositorio `cloud-run-source-deploy` de Artifact Registry se crea solo.
+
+**`npm audit`** (9 de noviembre de 2026): 0 vulnerabilidades en las dependencias de producción. Hay 9 moderadas con una sola causa, `minimatch` (GHSA-g3hv-75wg-m249), que usan ESLint y `typescript-eslint` solo al desarrollar. No llegan a la imagen final, que tiene solo nginx y `dist/`. Se acepta el riesgo, como en la Etapa 0.
