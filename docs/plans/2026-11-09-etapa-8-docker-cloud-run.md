@@ -295,7 +295,7 @@ Mensajes: `docs: agregar la guía de despliegue` y `docs: registrar las decision
 
 Registradas para que el plan describa lo que se construyó.
 
-**La imagen no se probó.** Docker no estaba instalado al llegar a la Task 4. Sin Docker se confirmó en Docker Hub que existen `node:26-alpine` y `nginxinc/nginx-unprivileged:stable-alpine`, las dos con imagen `amd64`, que es la que usa Cloud Run. El Dockerfile oficial de la línea estable confirma nginx 1.30.6, el usuario 101, el puerto 8080 y que la configuración del servidor es `/etc/nginx/conf.d/default.conf`, el archivo que se reemplaza. Construir la imagen, `npm run check:deploy -- http://localhost:8080` y la prueba en el navegador quedan pendientes hasta tener Docker.
+**La imagen no se probó.** Docker no estaba instalado al llegar a la Task 4. Sin Docker se confirmó en Docker Hub que existen `node:26-alpine` y `nginx/nginx-unprivileged:stable-alpine`, las dos con imagen `amd64`, que es la que usa Cloud Run. El Dockerfile oficial de la línea estable confirma nginx 1.30.6, el usuario 101, el puerto 8080 y que la configuración del servidor es `/etc/nginx/conf.d/default.conf`, el archivo que se reemplaza. Construir la imagen, `npm run check:deploy -- http://localhost:8080` y la prueba en el navegador quedan pendientes hasta tener Docker.
 
 **Configuración de TypeScript**
 
@@ -317,3 +317,20 @@ Registradas para que el plan describa lo que se construyó.
 - La cuenta de servicio predeterminada de Compute Engine necesita `roles/run.builder` para compilar, y la guía incluye ese paso. Hay que habilitar las API de Cloud Run y de Cloud Build. El repositorio `cloud-run-source-deploy` de Artifact Registry se crea solo.
 
 **`npm audit`** (9 de noviembre de 2026): 0 vulnerabilidades en las dependencias de producción. Hay 9 moderadas con una sola causa, `minimatch` (GHSA-g3hv-75wg-m249), que usan ESLint y `typescript-eslint` solo al desarrollar. No llegan a la imagen final, que tiene solo nginx y `dist/`. Se acepta el riesgo, como en la Etapa 0.
+
+**Revisión independiente**
+
+- No encontró problemas críticos. Comprobó que el build funciona con el contexto que deja `.dockerignore`, y leyó la configuración de nginx contra el arranque de la imagen oficial: nada hace fallar al contenedor. La sintaxis de nginx sigue sin probarse en un nginx real.
+- **Importante, corregido:** el Dockerfile usaba `nginxinc/nginx-unprivileged`, que dejó de actualizarse el 19 de octubre. Desde nginx 1.30.6 la imagen se publica como `nginx/nginx-unprivileged`, que se reconstruye cada semana. Con la vieja, la imagen de producción no recibía parches, justo lo contrario de la decisión 3. Al comprobar las etiquetas en la Task 4 se miró que existieran, pero no que se siguieran actualizando. El diseño (sección 12) también se corrigió.
+- **Corregidos también:** nginx comprime los pedidos que llegan con una cabecera `Via` (`gzip_proxied any`), como pueden ser los que pasan por los servidores de Google; sin eso, el JS saldría con 327 kB. Y usa el nivel 6, con el que el JS queda en 107,8 kB; con el nivel por defecto quedaba en 121,4, y el comentario prometía 108.
+- **Decisión revisada:** el script informaba como OK la línea de redirecciones aunque no hubiera ninguna que comprobar. Ahora la muestra como INFO y no la cuenta.
+
+**Detalles menores que quedan para más adelante**
+
+- `/favicon.svg` y lo que no está en `/assets/` sale sin `Cache-Control`: un ícono nuevo podría tardar días en verse.
+- Los errores que nginx da antes de elegir un `location` (un pedido mal formado: 400, 414, 431) salen sin las cabeceras de seguridad.
+- El editor marca errores en `scripts/` y `deploy/`, porque `tsconfig.json` no referencia a `tsconfig.node.json`; `npm run typecheck` pasa igual.
+- Ante un fallo de red, el script dice solo "fetch failed", sin la causa; si `/` no responde 200, no muestra el estado.
+- `vite.config.ts` importa las cabeceras sin la extensión `.ts`, y Vite avisa en cada build que en una versión futura no lo va a aceptar.
+- La guía no dice que `gcloud run deploy --source` pregunta si crea el repositorio, ni que al borrar todo queda el bucket con el código fuente.
+- Quedan `/50x.html` de la imagen base y la directiva `index`, que no se usa.
