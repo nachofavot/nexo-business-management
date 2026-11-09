@@ -27,7 +27,7 @@ NEXO es una aplicación web de gestión para un negocio chico: clientes, product
 | TypeScript        | 6.0.3                   | Todo el código, en modo estricto y sin `any`                                                                  |
 | Vite              | 8.3.5                   | Servidor de desarrollo y build                                                                                |
 | Bootstrap         | 5.3.8                   | Grilla, formularios y el comportamiento de modales, menús, avisos y menú lateral. El aspecto visual es propio |
-| SCSS (Sass)       | 1.107.1                 | Estilos con tokens de diseño                                                                                  |
+| SCSS (Sass)       | 1.107.1                 | Estilos con tokens de diseño (variables con colores, tamaños y radios)                                        |
 | Chart.js          | 4.6.1                   | Gráficos, importado por partes                                                                                |
 | Vitest            | 5.1.0                   | Tests, con cobertura de V8                                                                                    |
 | ESLint y Prettier | 10.14.0 y 3.9.10        | Reglas de código y formato                                                                                    |
@@ -75,9 +75,9 @@ npm run preview
 | `npm run lint`          | Revisa el código con ESLint                                                                     |
 | `npm run format:check`  | Comprueba el formato con Prettier                                                               |
 
-El 9 de noviembre de 2026 pasaron más de 900 tests en 49 archivos. La cobertura de líneas fue del 100 % en `domain` y `data` y del 99,24 % en `services`.
+El 9 de noviembre de 2026 pasaron unos 1000 tests en 49 archivos: unos 300 del dominio, y el resto de los servicios, los datos, la interfaz, la configuración de despliegue y los enlaces de esta documentación. La cobertura de líneas fue del 100 % en `domain` y `data` y del 99,24 % en `services`.
 
-Los tests corren en Node, sin navegador, con la zona horaria fija en Buenos Aires. Las pantallas se probaron en Chromium con scripts de Playwright hechos para cada etapa, usando mouse y teclado reales. Esos scripts no están en el repositorio.
+Los tests corren en Node, sin navegador, con la zona horaria fija en Buenos Aires. Las pantallas se probaron en Chromium con scripts de Playwright hechos para cada etapa, con eventos reales de mouse y teclado (no con `.click()` por código). Esos scripts no están en el repositorio.
 
 ## Capturas
 
@@ -89,13 +89,15 @@ Los tests corren en Node, sin navegador, con la zona horaria fija en Buenos Aire
 
 ## Arquitectura
 
-La app es una SPA (una sola página que cambia de pantalla sin recargar) organizada en capas. Cada capa usa solo las de abajo:
+La app es una SPA (una sola página que cambia de pantalla sin recargar) organizada en capas. Las dependencias van siempre hacia abajo:
 
 ```mermaid
 flowchart TD
   V["views/ y ui/<br/>pantallas, componentes y eventos"] --> S["services/<br/>casos de uso: registrar una venta"]
   S --> D["domain/<br/>reglas puras: tipos, cálculos y validaciones"]
   S --> B["data/<br/>LocalStorage, en una sola clave"]
+  V --> D
+  V -.->|solo lee| B
   B --> D
 ```
 
@@ -110,7 +112,7 @@ flowchart TD
 2. El servicio lee la base una vez y valida con funciones de `domain`: cliente, productos, cantidades y stock.
 3. Arma el estado nuevo: la venta con sus totales, el stock descontado, la actividad y el número siguiente.
 4. Lo guarda en una sola escritura. Si el almacenamiento falla, no cambia nada.
-5. La pantalla recibe el `Result`. Si salió bien, avisa y va al historial; si no, marca los errores junto a cada campo.
+5. La pantalla recibe el `Result`. Si salió bien, avisa y va al historial; si falló la validación, marca los errores junto a cada campo; si falló el almacenamiento, muestra un aviso.
 
 **Estructura de carpetas:**
 
@@ -139,9 +141,9 @@ flowchart TD
 ## Seguridad y privacidad
 
 - **LocalStorage no está cifrado.** Cualquiera con acceso al navegador puede leer los datos de la demo. Por eso no se piden contraseñas ni datos reales, y los datos demo usan direcciones de `example.com`.
-- **Escape de datos:** todo dato que se muestra pasa por la plantilla `html` de [`src/ui/html.ts`](src/ui/html.ts), que escapa los caracteres especiales. Un nombre como `<script>` se muestra como texto.
+- **Escape de datos:** todo dato que se muestra pasa por la plantilla `html` de [`src/ui/html.ts`](src/ui/html.ts), que escapa los caracteres especiales. Un nombre como `<img src=x onerror=alert(1)>` se muestra como texto y no se ejecuta.
 - **Content-Security-Policy:** solo se ejecutan scripts y estilos del mismo sitio, y no se permite estilo escrito dentro del HTML. Las cabeceras están en [`deploy/security-headers.ts`](deploy/security-headers.ts) y se aplican igual en `npm run preview` y en nginx.
-- **Dependencias:** `npm audit` informa 0 vulnerabilidades en las de producción. Las 9 moderadas que informa en desarrollo vienen de `minimatch`, que usan ESLint y `typescript-eslint`, y no llegan a la imagen.
+- **Dependencias:** `npm audit` (9 de noviembre de 2026) informa 0 vulnerabilidades en las de producción. Las 9 moderadas que informa en desarrollo vienen de `minimatch`, que usan ESLint y `typescript-eslint`, y no llegan a la imagen.
 
 ## Despliegue
 
@@ -152,7 +154,7 @@ La imagen se construye en dos etapas. `node:26-alpine` instala las dependencias 
 - devuelve `index.html` en cualquier ruta de la app, para que recargar `/clientes` funcione;
 - devuelve 404 si se pide un archivo inexistente de `/assets/`;
 - guarda un año los archivos de `/assets/`, porque su nombre cambia con el contenido, y pide de nuevo `index.html` en cada visita;
-- envía en todas las respuestas las cabeceras de seguridad de [`deploy/security-headers.ts`](deploy/security-headers.ts): Content-Security-Policy, `X-Content-Type-Options: nosniff` y `Referrer-Policy: no-referrer`;
+- envía en las respuestas de cada `location` (cada bloque de su configuración que atiende un grupo de rutas) las cabeceras de seguridad de [`deploy/security-headers.ts`](deploy/security-headers.ts): Content-Security-Policy, `X-Content-Type-Options: nosniff` y `Referrer-Policy: no-referrer`. Los errores que nginx da antes de elegir un `location`, como un pedido mal formado (400), salen sin ellas;
 - comprime HTML, CSS, JS y SVG, y no publica su versión.
 
 > **La imagen todavía no se construyó.** Docker no estaba instalado en la máquina donde se desarrolló la app. La configuración de nginx tiene tests que la leen como texto y la comparan con las cabeceras de [`deploy/security-headers.ts`](deploy/security-headers.ts), y el build se comprobó con los mismos archivos que entran a la imagen. Lo que falta es construirla, levantarla y pasarle `npm run check:deploy`.
@@ -232,7 +234,7 @@ Cloud Run construye la imagen con el `Dockerfile` del proyecto, usando Cloud Bui
 | `--memory 512Mi`              | Es el valor mínimo que admiten las dos generaciones de Cloud Run; nginx usa mucho menos |
 | `--max-instances 1`           | Una demo no necesita más, y así el costo tiene un techo                                 |
 
-Al terminar, `gcloud` muestra la URL del servicio.
+Si `gcloud` pregunta si habilita alguna API, responder `y`. Al terminar, muestra la URL del servicio.
 
 ### Comprobar la URL pública
 
@@ -258,7 +260,18 @@ Y el repositorio con las imágenes:
 gcloud artifacts repositories delete cloud-run-source-deploy --location southamerica-east1
 ```
 
+Después, revisar en la consola de Google Cloud que no quede ningún otro recurso con costo.
+
 Documentación consultada: [Desplegar desde el código fuente](https://cloud.google.com/run/docs/deploying-source-code), [límites de memoria](https://cloud.google.com/run/docs/configuring/services/memory-limits), [contrato del contenedor](https://cloud.google.com/run/docs/reference/container-contract) y [referencia de `gcloud run deploy`](https://cloud.google.com/sdk/gcloud/reference/run/deploy).
+
+## Limitaciones
+
+- No hay servidor ni cuentas: el acceso es un botón y los datos viven en un solo navegador.
+- Con dos pestañas abiertas, gana la última que guarda.
+- La imagen Docker todavía no se construyó (ver [Despliegue](#despliegue)).
+- Las pruebas de navegador no están automatizadas en el repositorio.
+
+La [guía de entrevista](docs/guia-entrevista.md) tiene la lista completa, en su sección 5, con cómo se resolvería cada una en un producto real.
 
 ## Documentación
 
