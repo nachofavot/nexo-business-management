@@ -2,6 +2,7 @@
 // Uso: npm run check:deploy -- http://localhost:8080
 // Node 26 ejecuta TypeScript directamente, así que no hace falta compilar este archivo.
 import {
+  checkRedirect,
   checkResponse,
   deployExpectations,
   findScriptAsset,
@@ -45,19 +46,10 @@ async function main(base: string): Promise<number> {
     report(expectation.label, checkResponse(expectation, summary));
   }
 
-  // Detrás de Cloud Run, una redirección absoluta mandaría al navegador a http://…:8080.
-  const { summary } = await request(base, '/assets');
-  const location = summary.headers.location;
-  if (summary.status >= 300 && summary.status < 400) {
-    report(
-      'Redirecciones relativas',
-      location !== undefined && location.startsWith('/')
-        ? []
-        : [`La redirección de /assets va a "${location ?? ''}".`],
-    );
-  } else {
-    report('Redirecciones relativas (/assets no redirige)', []);
-  }
+  // Sin redirección no hay nada que comprobar: se informa, pero no suma un OK.
+  const redirect = checkRedirect((await request(base, '/assets')).summary);
+  if (redirect.kind === 'info') console.log(`INFO ${redirect.message}`);
+  else report('Redirecciones relativas', redirect.kind === 'ok' ? [] : [redirect.message]);
 
   return failures;
 }

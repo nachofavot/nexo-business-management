@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SECURITY_HEADERS } from '../deploy/security-headers';
 import {
+  checkRedirect,
   checkResponse,
   deployExpectations,
   findScriptAsset,
@@ -161,6 +162,40 @@ describe('deployExpectations', () => {
     expect(byLabel('Archivo inexistente')).toMatchObject({
       path: '/assets/no-existe-0000.js',
       status: 404,
+    });
+  });
+});
+
+// Detrás de Cloud Run, una redirección absoluta mandaría al navegador a http://…:8080.
+describe('checkRedirect', () => {
+  const redirect = (location: string): ResponseSummary => ({ status: 301, headers: { location } });
+
+  it('acepta una redirección relativa', () => {
+    expect(checkRedirect(redirect('/assets/'))).toEqual({
+      kind: 'ok',
+      message: 'La redirección de /assets es relativa.',
+    });
+  });
+
+  it.each(['http://localhost:8080/assets/', '//otro.example/assets/'])(
+    'marca como problema una redirección a "%s"',
+    (location) => {
+      expect(checkRedirect(redirect(location))).toEqual({
+        kind: 'problem',
+        message: `La redirección de /assets va a "${location}".`,
+      });
+    },
+  );
+
+  it('una redirección sin Location es un problema', () => {
+    expect(checkRedirect({ status: 302, headers: {} }).kind).toBe('problem');
+  });
+
+  // Sin redirección no hay nada que comprobar: informarlo como OK sumaría un control que no pasó.
+  it('si no redirige, solo lo informa', () => {
+    expect(checkRedirect({ status: 200, headers: {} })).toEqual({
+      kind: 'info',
+      message: '/assets no redirige: no hay redirección que comprobar.',
     });
   });
 });

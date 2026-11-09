@@ -70,6 +70,26 @@ export function checkResponse(expectation: Expectation, response: ResponseSummar
   return problems;
 }
 
+export interface RedirectVerdict {
+  /** 'info' cuando no hay nada que comprobar: no cuenta como problema ni como control aprobado. */
+  kind: 'ok' | 'info' | 'problem';
+  message: string;
+}
+
+/**
+ * La respuesta a /assets sin barra. Detrás de Cloud Run, una redirección absoluta mandaría al
+ * navegador a http://…:8080; "//host/…" también es absoluta, aunque empiece con barra.
+ */
+export function checkRedirect(response: ResponseSummary): RedirectVerdict {
+  if (response.status < 300 || response.status >= 400) {
+    return { kind: 'info', message: '/assets no redirige: no hay redirección que comprobar.' };
+  }
+  const location = response.headers.location ?? '';
+  return location.startsWith('/') && !location.startsWith('//')
+    ? { kind: 'ok', message: 'La redirección de /assets es relativa.' }
+    : { kind: 'problem', message: `La redirección de /assets va a "${location}".` };
+}
+
 /** El primer JS de /assets/ que carga index.html, o null si no hay. */
 export function findScriptAsset(indexHtml: string): string | null {
   return /<script\b[^>]*\bsrc="(\/assets\/[^"]+\.js)"/.exec(indexHtml)?.[1] ?? null;
