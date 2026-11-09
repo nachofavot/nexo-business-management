@@ -14,7 +14,7 @@ Para decir en voz alta, sin leer:
 >
 > Trabajé por etapas con un asistente de IA: cada etapa tuvo un plan que yo aprobaba, tests escritos antes del código, pruebas en el navegador desde que hubo pantallas y una revisión final hecha por otra sesión de IA, con instrucciones de buscar errores. Esas revisiones encontraron errores reales, como un "Cancelar" que podía borrar un cliente si se apretaba durante la animación del diálogo.
 >
-> También preparé el despliegue: una imagen Docker con nginx sin permisos de administrador, lista para Cloud Run, y un script que comprueba cualquier despliegue. La imagen todavía no la construí, porque no tenía Docker instalado, y eso lo digo así.
+> También preparé el despliegue: una imagen Docker con nginx sin permisos de administrador, lista para Cloud Run, y un script que comprueba cualquier despliegue. La imagen la probé con Docker: corre sin permisos de administrador, sirve la app y pasa el script. Lo que falta es publicarla.
 
 ## 2. Decisiones técnicas con sus alternativas
 
@@ -189,8 +189,8 @@ Con `gcloud run deploy --source .`, Cloud Run construye la imagen con el Dockerf
 **¿Por qué nginx sin root?**
 Si alguien encontrara una falla en nginx, tendría los permisos de un usuario común dentro del contenedor y no los de administrador. La imagen oficial `nginx-unprivileged` corre con el usuario 101 y escucha en el puerto 8080.
 
-**¿Cómo sabés que la configuración de nginx es correcta si no construiste la imagen?**
-No lo sé del todo, y es lo primero que haría con Docker. Hoy hay tests que leen la configuración como texto: comprueban las reglas pedidas y que ningún `location` pierda las cabeceras. Además, el build se probó con los mismos archivos que entran a la imagen. Falta que un nginx real la lea.
+**¿Cómo probaste la imagen?**
+Primero, tests que leen la configuración de nginx como texto: comprueban las reglas pedidas y que ningún `location` pierda las cabeceras. Después, con Docker: `nginx -t` dentro de la imagen, el contenedor corriendo con el usuario 101 y `npm run check:deploy` contra `localhost:8080`, que revisa estados, cabeceras, caché y compresión. Además, se recargó cada pantalla en el navegador sin errores en la consola. La prueba se hizo después de cerrar la Etapa 9, cuando hubo Docker; está en el plan de la [Etapa 8](plans/2026-11-09-etapa-8-docker-cloud-run.md).
 
 ### Trabajo en equipo
 
@@ -215,7 +215,7 @@ Automatizaría las pruebas de navegador en el repositorio desde el principio, co
 | No hay backend ni usuarios: el acceso es un botón | Un backend con base de datos y autenticación real, con sesiones o tokens |
 | LocalStorage no está cifrado y tiene un límite de unos megabytes | Los datos en el servidor; en el navegador, solo lo necesario |
 | Con dos pestañas abiertas, gana la última que guarda | Detectar cambios con el evento `storage`, o resolverlo en el servidor con versiones |
-| La imagen Docker no se construyó | Construirla, levantarla y pasarle `npm run check:deploy`, idealmente en integración continua |
+| La app no está publicada: la imagen se probó en una computadora | Publicarla en Cloud Run y pasarle `npm run check:deploy` a la URL pública, idealmente desde integración continua |
 | Las pruebas de navegador no están automatizadas en el repositorio | Tests de Playwright en el repositorio, en integración continua |
 | Al guardar sin cambios, Clientes y Productos dicen "Cambios guardados." aunque no escriben nada | Que el servicio devuelva si guardó, como ya hace Configuración |
 | Se acepta un nombre de perfil hecho solo de caracteres invisibles, y un carácter de control al principio pasa a ser la inicial | Exigir al menos una letra o un número, y saltear los caracteres de control al tomar las iniciales |

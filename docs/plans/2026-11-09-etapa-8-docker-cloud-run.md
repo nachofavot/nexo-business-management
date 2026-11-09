@@ -334,3 +334,23 @@ Registradas para que el plan describa lo que se construyó.
 - `vite.config.ts` importa las cabeceras sin la extensión `.ts`, y Vite avisa en cada build que en una versión futura no lo va a aceptar.
 - La guía no dice que `gcloud run deploy --source` pregunta si crea el repositorio, ni que al borrar todo queda el bucket con el código fuente.
 - Quedan `/50x.html` de la imagen base y la directiva `index`, que no se usa.
+
+## Prueba de la imagen (9 de noviembre de 2026)
+
+La Task 4 se hizo después de cerrar la Etapa 9, cuando el autor instaló Docker Desktop. No hizo falta corregir nada.
+
+| Prueba | Resultado |
+| --- | --- |
+| `docker build` | Termina sin errores en 70 s. El build dentro de la imagen da los mismos archivos, con los mismos hashes, que el build local |
+| Reconstruir sin cambios | 2 s: Docker reutiliza todos los pasos, también `npm ci` |
+| Imagen final | 82,3 MB, nginx 1.30.6 |
+| `nginx -t` dentro de la imagen | La configuración es válida |
+| Usuario | El proceso nginx corre con el usuario 101 (`id -u` da `101`) |
+| `npm run check:deploy -- http://localhost:8080` | Las seis comprobaciones dan OK y el código de salida es 0 |
+| `curl` a `/` | 200, las tres cabeceras de seguridad, `Cache-Control: no-cache` y `Server: nginx` sin versión |
+| `curl` a un archivo inexistente de `/assets/` | 404 con las tres cabeceras y sin `Cache-Control` |
+| `curl` al JS de la app | gzip (107,5 kB) con el `Cache-Control` de un año, también con la cabecera `Via: 1.1 google` |
+| `curl` a `/assets` sin barra | 200 con la app: no hay redirección |
+| Navegador, con la caché desactivada | Cada pantalla carga y se recarga con 200; sin sesión, `/clientes` lleva al acceso; un cliente nuevo sigue después de recargar; los gráficos se dibujan con Geist; la consola no tiene errores ni avisos de la CSP |
+
+Al arrancar, la imagen informa que no puede modificar `default.conf` para agregar IPv6: el archivo es nuestro, y Cloud Run no necesita IPv6. Un pedido mal formado (`Host` inválido) da 400 sin las cabeceras de seguridad, como ya anota la sección "Detalles menores que quedan para más adelante".

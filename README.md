@@ -157,7 +157,7 @@ La imagen se construye en dos etapas. `node:26-alpine` instala las dependencias 
 - envía en las respuestas de cada `location` (cada bloque de su configuración que atiende un grupo de rutas) las cabeceras de seguridad de [`deploy/security-headers.ts`](deploy/security-headers.ts): Content-Security-Policy, `X-Content-Type-Options: nosniff` y `Referrer-Policy: no-referrer`. Los errores que nginx da antes de elegir un `location`, como un pedido mal formado (400), salen sin ellas;
 - comprime HTML, CSS, JS y SVG, y no publica su versión.
 
-> **La imagen todavía no se construyó.** Docker no estaba instalado en la máquina donde se desarrolló la app. La configuración de nginx tiene tests que la leen como texto y la comparan con las cabeceras de [`deploy/security-headers.ts`](deploy/security-headers.ts), y el build se comprobó con los mismos archivos que entran a la imagen. Lo que falta es construirla, levantarla y pasarle `npm run check:deploy`.
+> **Probada el 9 de noviembre de 2026** con Docker 29.9.3. La imagen se construye en unos 70 segundos la primera vez y pesa 82 MB, con nginx 1.30.6. `nginx -t` acepta la configuración y el contenedor corre con el usuario 101. `npm run check:deploy -- http://localhost:8080` pasa todo, y en el navegador cada pantalla carga y se recarga sin errores en la consola. Todavía no está publicada en Cloud Run.
 
 ### Requisitos
 
@@ -268,7 +268,7 @@ Documentación consultada: [Desplegar desde el código fuente](https://cloud.goo
 
 - No hay servidor ni cuentas: el acceso es un botón y los datos viven en un solo navegador.
 - Con dos pestañas abiertas, gana la última que guarda.
-- La imagen Docker todavía no se construyó (ver [Despliegue](#despliegue)).
+- La imagen Docker se probó en una computadora, pero la app todavía no está publicada en Cloud Run (ver [Despliegue](#despliegue)).
 - Las pruebas de navegador no están automatizadas en el repositorio.
 
 La [guía de entrevista](docs/guia-entrevista.md) tiene la lista completa, en su sección 5, con cómo se resolvería cada una en un producto real.
