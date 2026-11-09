@@ -9,8 +9,9 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Etapa 2: la imagen final. Solo nginx sin root y los archivos de dist/.
-FROM nginxinc/nginx-unprivileged:stable-alpine
+# Etapa 2: la imagen final. Solo nginx sin root y los archivos de dist/. Desde nginx 1.30.6 la
+# imagen se publica como nginx/nginx-unprivileged; la de nginxinc ya no recibe parches.
+FROM nginx/nginx-unprivileged:stable-alpine
 
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY deploy/security-headers.conf /etc/nginx/snippets/security-headers.conf

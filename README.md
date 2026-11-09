@@ -6,7 +6,7 @@ Demo de gestión de clientes, productos y ventas, hecha con TypeScript, Bootstra
 
 ### Qué se publica
 
-La imagen se construye en dos etapas. `node:26-alpine` instala las dependencias y compila la app; la imagen final es `nginxinc/nginx-unprivileged:stable-alpine` con los archivos de `dist/`, y no incluye Node ni dependencias de desarrollo. nginx corre sin root, escucha en el puerto 8080 y:
+La imagen se construye en dos etapas. `node:26-alpine` instala las dependencias y compila la app; la imagen final es `nginx/nginx-unprivileged:stable-alpine` con los archivos de `dist/`, y no incluye Node ni dependencias de desarrollo. nginx corre sin root, escucha en el puerto 8080 y:
 
 - devuelve `index.html` en cualquier ruta de la app, para que recargar `/clientes` funcione;
 - devuelve 404 si se pide un archivo inexistente de `/assets/`;

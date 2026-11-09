@@ -461,7 +461,7 @@ Los tests corren en el entorno Node de Vitest, sin navegador y con la zona horar
 
 ## 12. Despliegue
 
-**Imagen en dos etapas:** `node:26-alpine` ejecuta `npm ci` y `npm run build`. Después, `nginxinc/nginx-unprivileged:alpine` sirve `dist/` en el puerto 8080, sin usuario root.
+**Imagen en dos etapas:** `node:26-alpine` ejecuta `npm ci` y `npm run build`. Después, `nginx/nginx-unprivileged:stable-alpine` sirve `dist/` en el puerto 8080, sin usuario root. Hasta nginx 1.30.6 esa imagen se publicaba como `nginxinc/nginx-unprivileged`, que ya no recibe parches.
 
 **nginx:**
 - Cualquier ruta de la SPA sirve `index.html`, para que recargar `/clientes` funcione.

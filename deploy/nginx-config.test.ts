@@ -79,4 +79,11 @@ describe('nginx.conf', () => {
     expect(nginxConf).toMatch(/absolute_redirect off;/);
     expect(nginxConf).toMatch(/gzip on;/);
   });
+
+  // Detrás de los servidores de Google el pedido puede llegar con una cabecera Via, y con el valor
+  // por defecto (off) nginx no comprime esos pedidos: el JS saldría con 327 kB en lugar de 108.
+  it('comprime también los pedidos que llegan por un proxy, a nivel 6', () => {
+    expect(nginxConf).toMatch(/gzip_proxied any;/);
+    expect(nginxConf).toMatch(/gzip_comp_level 6;/);
+  });
 });
