@@ -33,7 +33,7 @@ NEXO es una aplicación web de gestión para un negocio chico: clientes, product
 | ESLint y Prettier | 10.14.0 y 3.9.10        | Reglas de código y formato                                                                                    |
 | Docker y nginx    | Node 26 y nginx estable | Imagen de producción para Cloud Run: Node compila y nginx sirve                                               |
 
-No hay framework (React, Angular o Vue): la app tiene ocho pantallas, y armarla con TypeScript, una plantilla HTML que escapa los datos y un router propio de unas 240 líneas ([`router.ts`](src/app/router.ts) y [`routes.ts`](src/app/routes.ts)) muestra las bases que un framework esconde.
+No hay framework (React, Angular o Vue): la app tiene ocho pantallas, y armarla con TypeScript, una plantilla HTML que escapa los datos y un router propio de unas 240 líneas ([`router.ts`](src/app/router.ts) y [`routes.ts`](src/app/routes.ts)) muestra las bases que un framework esconde. La [guía de entrevista](docs/guia-entrevista.md#sin-framework-con-una-plantilla-que-escapa-los-datos) lo explica con sus alternativas.
 
 ## Instalación y ejecución local
 
@@ -259,3 +259,9 @@ gcloud artifacts repositories delete cloud-run-source-deploy --location southame
 ```
 
 Documentación consultada: [Desplegar desde el código fuente](https://cloud.google.com/run/docs/deploying-source-code), [límites de memoria](https://cloud.google.com/run/docs/configuring/services/memory-limits), [contrato del contenedor](https://cloud.google.com/run/docs/reference/container-contract) y [referencia de `gcloud run deploy`](https://cloud.google.com/sdk/gcloud/reference/run/deploy).
+
+## Documentación
+
+- [Guía de entrevista](docs/guia-entrevista.md): cómo presentar el proyecto, las decisiones técnicas con sus alternativas, preguntas probables y limitaciones conocidas.
+- [Documento de diseño](docs/specs/2026-11-04-nexo-diseno.md): alcance, arquitectura, modelo de datos, pantallas y sistema de diseño.
+- [Planes de cada etapa](docs/plans/): qué se construyó en cada una y las decisiones que se tomaron al ejecutarla.
