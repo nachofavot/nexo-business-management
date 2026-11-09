@@ -208,3 +208,47 @@ Para cada número, nombre de función o comportamiento, abrir el archivo citado 
 - [ ] **Paso 3: Comprobar y hacer commit**
 
 Mensajes: `docs: agregar la guía de entrevista` y, al cerrar, `docs: registrar las decisiones de README y entrevista`, que suma al final de este plan "Decisiones tomadas al ejecutar el plan".
+
+## Decisiones tomadas al ejecutar el plan
+
+Registradas para que el plan describa lo que se construyó.
+
+**Herramientas (Task 1)**
+
+- Los dos tsconfig no llevan `composite`, como en las plantillas de Vite: `tsc -b` funciona con `noEmit` y revisa los dos proyectos cada vez. Tampoco hizo falta tocar `.gitignore`: los `tsbuildinfo` quedan en `node_modules/.tmp/`, que ya se ignora.
+- Antes del cambio, TypeScript sin configuración daba 4 errores TS2591 y 2 TS5097 en `scripts/check-deploy.ts`. Después, `npm run typecheck` falla con `process` en `src` y con un error de tipos en `scripts/`, y el build ya no avisa. Que VS Code no marque errores lo comprueba el autor.
+
+**Capturas (Task 2)**
+
+- `configuracion.png` se tomó con una ventana de 1280 × 1274 px: la captura de página completa no dibujaba el menú lateral (fijo con `position: sticky`) y salía de 1265 px.
+- Las siete pesan 608 kB en total, no los 2 MB estimados.
+
+**README (Task 4)**
+
+- Al comprobar las afirmaciones se corrigieron tres antes del commit: el router mide unas 240 líneas (no 200), la app tiene ocho pantallas (no seis) y los datos dañados no "se recuperan": se guarda una copia y se cargan los datos demo.
+- El README da números aproximados ("unos 1000 tests"), porque cada enlace de la documentación suma un caso al test de enlaces y el total cambia con cada edición.
+- Explica el aviso de `@parcel/watcher` en `npm ci`: se comprobó que carga con el binario ya compilado para Windows.
+- Cada comando se probó tal como está escrito, en bash y en PowerShell, incluido `npm run check:deploy -- <url>`: PowerShell pasa la URL después de `--`.
+
+**Guía (Task 5)**
+
+- Las decisiones técnicas van como listas (decisión, alternativa, por qué, dónde) y no como tablas: con textos largos, una tabla de Markdown se lee peor.
+- La guía incluye la pregunta "¿Usaste IA?", con una respuesta que dice cómo se trabajó.
+
+**Revisión independiente**
+
+No encontró problemas críticos. Comprobó contra el código casi todas las afirmaciones, los números, las capturas y los comandos, pero encontró varias frases que el autor repetiría en una entrevista y no se sostenían. Se corrigieron todas:
+
+- La presentación atribuía "más de 900 tests" a las reglas del negocio; el dominio tiene unos 300 de un total de unos 1000.
+- La historia de la fecha UTC no fue un error que apareció: fue un riesgo que el plan de la Etapa 5 anticipó. Quedó como "un riesgo que se evitó", y su lugar entre los errores reales lo tomó el de Escape, que no cerraba el detalle de una venta (Etapa 5).
+- Con el almacenamiento bloqueado desde el principio, la app no "deja de cambiar": funciona en memoria y lo avisa.
+- El ejemplo de XSS era `<script>`, que insertado con `innerHTML` nunca se ejecuta. Ahora es `<img src=x onerror=alert(1)>`, el que prueban los tests.
+- La respuesta sobre IA y la presentación no decían que la revisión final la hacía otra sesión de IA. Ahora lo dicen, y las frases sobre pruebas en el navegador ya no están en primera persona.
+- Faltaban limitaciones de las Etapas 7 y 8 en la guía, y el README decía que nginx envía las cabeceras "en todas las respuestas". La tabla de limitaciones quedó completa y el README aclara los errores previos a elegir un `location`.
+- Además: el diagrama muestra que las pantallas usan el dominio y leen los datos; el README distingue el error de validación del de almacenamiento; la guía explica que la CSP también admite imágenes `data:`, aclara cuánto sumó Chart.js en vez de atribuirle un ahorro y suma preguntas de trabajo en equipo; el glosario suma cinco términos; el README suma una sección de limitaciones y la fecha de `npm audit`; y las generalizaciones con "cada" se ajustaron a lo que registran los planes.
+
+La revisión sugirió decir que `gcloud` pregunta antes de crear el repositorio y que al borrar todo queda un bucket con el código fuente. La documentación oficial no dice ninguna de las dos cosas: dice que el repositorio se crea automáticamente y que hay que responder `y` si `gcloud` pide habilitar APIs. Se agregó solo esto último, y una recomendación general de revisar en la consola que no queden recursos con costo.
+
+**Detalle menor que queda para más adelante**
+
+- El test de enlaces no detecta un archivo que existe en el disco pero no está en git, ni anclas rotas, enlaces de referencia o rutas con `\`, y marca de más los enlaces dentro de bloques de código.
