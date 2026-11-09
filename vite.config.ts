@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config';
-import { SECURITY_HEADERS } from './deploy/security-headers';
+import { SECURITY_HEADERS } from './deploy/security-headers.ts';
 
 export default defineConfig({
   build: { assetsInlineLimit: 0 },
